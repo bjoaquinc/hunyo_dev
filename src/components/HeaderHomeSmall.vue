@@ -1,0 +1,125 @@
+<template>
+  <q-toolbar v-if="!pageHeader" class="constrain mobile-only bg-white">
+    <q-img
+      class="q-mr-sm"
+      height="20px"
+      width="130px"
+      position="0 0"
+      fit="contain"
+      src="logo.png"
+    />
+
+    <q-space />
+
+    <q-btn
+      @click="toggleDrawer"
+      class="q-ml-md"
+      color="primary"
+      icon="fas fa-bars"
+      flat
+      dense
+    />
+    <q-drawer
+      class="bg-white"
+      side="right"
+      v-model="drawer"
+      :width="200"
+      :breakpoint="500"
+      overlay
+      bordered
+    >
+      <q-scroll-area class="fit">
+        <q-list>
+          <q-item clickable>
+            <q-item-section>
+              <q-avatar size="72px">
+                <img src="https://cdn.quasar.dev/img/boy-avatar.png" />
+              </q-avatar>
+              <div class="text-subtitle1 q-mt-md q-mb-xs">View My Profile</div>
+            </q-item-section>
+          </q-item>
+
+          <q-separator spaced />
+
+          <q-item clickable>
+            <q-item-section>
+              <q-item-label>Community Guidelines</q-item-label>
+            </q-item-section>
+          </q-item>
+
+          <q-item clickable>
+            <q-item-section>
+              <q-item-label>Best Practices</q-item-label>
+            </q-item-section>
+          </q-item>
+
+          <q-separator spaced />
+
+          <q-item clickable>
+            <q-item-section>
+              <q-item-label>Settings & Privacy</q-item-label>
+            </q-item-section>
+            <q-item-section avatar>
+              <q-icon name="fas fa-cog" />
+            </q-item-section>
+          </q-item>
+          <q-item clickable>
+            <q-item-section>
+              <q-item-label>Help</q-item-label>
+            </q-item-section>
+            <q-item-section avatar>
+              <q-icon name="fas fa-question-circle" />
+            </q-item-section>
+          </q-item>
+
+          <q-separator spaced />
+
+          <q-item clickable>
+            <q-item-section>
+              <q-item-label>Logout</q-item-label>
+            </q-item-section>
+          </q-item>
+        </q-list>
+      </q-scroll-area>
+    </q-drawer>
+  </q-toolbar>
+</template>
+
+<script>
+export default {
+  props: ["pageHeader"],
+  data() {
+    return {
+      text: "",
+      drawer: false,
+    };
+  },
+  methods: {
+    toggleDrawer() {
+      this.drawer = !this.drawer;
+    },
+  },
+};
+</script>
+
+<style lang="sass" scoped>
+
+.q-toolbar__title
+  color: black
+
+.active
+  background-color: $primary !important
+  color: white !important
+
+.q-drawer__content
+  .q-list
+    color: $primary
+
+.q-field
+  @media (max-width: 690px)
+    width: 125px
+
+.filler
+  width: 24px
+  height: 24px
+</style>
