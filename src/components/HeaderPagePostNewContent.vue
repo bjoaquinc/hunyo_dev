@@ -34,9 +34,9 @@ import { useStore } from "vuex";
 export default {
   setup() {
     const store = useStore();
-    const title = computed(() => store.getters["posts/getTitle"]);
-    const topicsList = computed(() => store.getters["posts/getTopicsList"]);
-    const content = computed(() => store.getters["posts/getContent"]);
+    const title = computed(() => store.getters["newPost/getTitle"]);
+    const topicsList = computed(() => store.getters["newPost/getTopicsList"]);
+    const content = computed(() => store.getters["newPost/getContent"]);
     const missingFields = computed(() => {
       return !topicsList.value.length || !title.value || !content.value
         ? true

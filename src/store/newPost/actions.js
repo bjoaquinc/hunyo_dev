@@ -1,9 +1,26 @@
 import { uid } from 'quasar'
+import { postsRef } from 'src/boot/firebase'
+import { addDoc } from 'firebase/firestore'
 
+// firestore collection data
+export function getPostsCollection ({ commit }, postsCol) {
+  let posts = []
+  postsCol.docs.forEach(
+    doc => posts.push({...doc.data(), id: doc.id})
+  )
+  commit('getPostsCollection', posts)
+}
+
+export async function createPost ({ commit, getters }) {
+  await addDoc(postsRef, getters.getNewPost)
+}
+
+// best practices dropdown
 export function toggleIsMinimized ({ commit }, index) {
   commit('toggleIsMinimized', index)
 }
 
+// image cropper
 export async function pushUploadedImages ({ commit }, payload) {
   const selectedImages = []
 
@@ -76,6 +93,7 @@ export function removeAllImages ({ commit }) {
   commit('removeAllImages')
 }
 
+// PostNewTitlePage route back
 export function setPreviousRouteName ({ commit }, previousRouteName) {
   commit('setPreviousRouteName', previousRouteName)
 }

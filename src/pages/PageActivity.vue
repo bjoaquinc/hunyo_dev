@@ -5,12 +5,13 @@
 </template>
 
 <script>
-import ActivityList from 'src/components/ActivityList.vue'
+import ActivityList from "src/components/ActivityList.vue";
 
-export default{
-  name: 'PageActivity',
+export default {
+  name: "PageActivity",
   components: {
-    ActivityList
-  }
-}
+    ActivityList,
+  },
+  created() {},
+};
 </script>

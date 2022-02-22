@@ -1,53 +1,49 @@
 <template>
-  <q-page class="constrain">
-    <div class="row q-col-gutter-md">
-      <div class="col-12 col-sm-7 q-ml-sm-sm">
-        <div class="flex items-center q-mb-md desktop-only">
-          <q-btn
-            color="primary"
-            icon="fas fa-arrow-left"
-            label="Return"
-            @click="$router.go(-1)"
-            dense
-            flat
-          />
-          <q-btn
-            class="q-ml-auto q-mr-sm"
-            color="primary"
-            icon="fas fa-ellipsis-h"
-            @click="openDialogPostActions"
-            flat
-          />
-          <q-btn color="primary" icon="fas fa-folder" label="Save" unelevated />
-        </div>
-        <PostDetail />
-        <CommentsList />
-      </div>
-      <div class="col desktop-only">
-        <q-item class="fixed">
-          <q-item-section avatar>
-            <q-avatar size="48px">
-              <img src="https://cdn.quasar.dev/img/boy-avatar.png" />
-            </q-avatar>
-          </q-item-section>
-
-          <q-item-section>
-            <q-item-label class="text-bold">Joaquin Coromina</q-item-label>
-            <q-item-label caption> Joaquin Coromina </q-item-label>
-          </q-item-section>
-        </q-item>
-      </div>
+  <div>
+    <div class="flex items-center q-mb-md desktop-only">
+      <q-btn
+        color="primary"
+        icon="fas fa-arrow-left"
+        label="Return"
+        :to="{ name: 'PageHome' }"
+        dense
+        flat
+      />
+      <q-btn
+        class="q-ml-auto q-mr-sm"
+        color="primary"
+        icon="fas fa-ellipsis-h"
+        @click="openDialogPostActions"
+        flat
+      />
+      <q-btn color="primary" icon="fas fa-folder" label="Save" unelevated />
     </div>
-  </q-page>
+    <PostDetail :content="content" :title="title" :imagesList="imagesList" />
+    <CommentsList />
+  </div>
 </template>
 
 <script>
+import { getDocs } from "firebase/firestore";
 import PostDetail from "src/components/PostDetail.vue";
 import CommentsList from "src/components/CommentsList.vue";
 import DialogPostActions from "src/components/DialogPostActions.vue";
 
 export default {
   name: "PagePost",
+  data() {
+    return {
+      content: "",
+      imagesList: [],
+      title: "",
+    };
+  },
+  props: ["postId"],
+  computed: {
+    postsList() {
+      return this.$store.getters["newPost/getPostsList"];
+    },
+  },
   components: {
     PostDetail,
     CommentsList,
@@ -58,6 +54,18 @@ export default {
         component: DialogPostActions,
       });
     },
+  },
+  async created() {
+    console.log(this.postId);
+    this.$store.dispatch(
+      "newPost/getPostsCollection",
+      await getDocs(this.$postsRef)
+    );
+    const selectedPost = this.postsList.find((post) => post.id === this.postId);
+    const { content, title, imagesList } = selectedPost;
+    this.content = content;
+    this.title = title;
+    this.imagesList = imagesList;
   },
 };
 </script>

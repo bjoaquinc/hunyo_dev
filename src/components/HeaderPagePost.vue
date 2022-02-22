@@ -1,6 +1,12 @@
 <template>
   <q-toolbar class="constrain mobile-only bg-white">
-    <q-btn to="/" color="primary" icon="fas fa-chevron-left" flat dense />
+    <q-btn
+      :to="{ name: 'PageHome' }"
+      color="primary"
+      icon="fas fa-chevron-left"
+      flat
+      dense
+    />
     <q-btn
       @click="openPostActionsDialog"
       class="q-ml-auto q-mr-sm"

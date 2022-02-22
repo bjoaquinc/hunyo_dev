@@ -5,7 +5,7 @@
         <q-item-label
           class="text-weight-bold q-mt-sm q-mb-sm col"
           :class="$q.platform.is.mobile ? 'text-subtitle1' : 'text-h6'"
-          >Connecting two edges</q-item-label
+          >{{ title }}</q-item-label
         >
         <q-btn
           class="col-1 q-mb-auto q-mt-xs"
@@ -19,9 +19,12 @@
       </div>
     </q-card-section>
 
-    <BaseCarousel />
+    <BaseCarousel
+      :imagesList="imagesList"
+      v-if="imagesList && imagesList.length > 0"
+    />
 
-    <q-item>
+    <q-item class="q-pt-none">
       <q-item-section avatar>
         <q-avatar>
           <img src="https://cdn.quasar.dev/img/boy-avatar.png" />
@@ -58,7 +61,7 @@
         flat
         label="Read now"
         icon-right="fas fa-chevron-right"
-        to="/post"
+        :to="{ name: 'PagePost', params: { postId: id } }"
       />
     </q-card-actions>
 
@@ -76,6 +79,7 @@ export default {
     BaseCarousel,
     DialogPostActions,
   },
+  props: ["imagesList", "date", "id", "title"],
   data() {
     return {
       tagsList: ["details", "design-approaches", "residential", "makati"],
@@ -87,6 +91,9 @@ export default {
         component: DialogPostActions,
       });
     },
+  },
+  mounted() {
+    console.log(this.title);
   },
 };
 </script>

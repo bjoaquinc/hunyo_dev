@@ -45,11 +45,6 @@ export default {
       tab: "PostsList",
     };
   },
-  watch: {
-    tab(newValue) {
-      console.log(newValue);
-    },
-  },
   components: {
     ProfileDetail,
     PostsList,

@@ -1,28 +1,21 @@
 <template>
   <q-card class="my-card" bordered flat>
     <q-item>
-      <q-item-label class="text-weight-bold text-h6 q-my-md desktop-only"
-        >Lorem ipsum dolor sit amet consectetur adipisicing elit. Eligendi eos
-        eum in amet.</q-item-label
-      >
-      <q-item-label class="text-weight-bold text-subtitle1 q-my-md mobile-only"
-        >Lorem ipsum dolor sit amet consectetur adipisicing elit. Eligendi eos
-        eum in amet.</q-item-label
-      >
+      <q-item-label class="text-weight-bold text-h6 q-my-md desktop-only">{{
+        title
+      }}</q-item-label>
+      <q-item-label class="text-weight-bold text-subtitle1 mobile-only">{{
+        title
+      }}</q-item-label>
     </q-item>
 
-    <BaseCarousel />
+    <BaseCarousel
+      :imagesList="imagesList"
+      v-if="imagesList && imagesList.length"
+    />
 
     <q-card-section>
-      Lorem, ipsum dolor sit amet consectetur adipisicing elit. Laboriosam
-      aliquam, ullam aspernatur asperiores repellendus, nostrum eum voluptatum
-      quod, facere doloribus ea corrupti magni ut aut. Deleniti perferendis
-      accusantium tempora veniam?<br />
-      <br />
-      Lorem, ipsum dolor sit amet consectetur adipisicing elit. Laboriosam
-      aliquam, ullam aspernatur asperiores repellendus, nostrum eum voluptatum
-      quod, facere doloribus ea corrupti magni ut aut. Deleniti perferendis
-      accusantium tempora veniam?
+      {{ content }}
     </q-card-section>
 
     <q-item>
@@ -107,6 +100,7 @@ export default {
     BaseCarousel,
     DialogCommentNew,
   },
+  props: ["content", "title", "imagesList"],
   data() {
     return {
       tagsList: ["details", "design-approaches", "residential", "makati"],

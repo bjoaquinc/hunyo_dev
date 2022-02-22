@@ -6,7 +6,6 @@ export default function () {
       withFeedback: false,
       isQuestion: false,
       content: '',
-      convertedImagesList: []
     },
     uploadedImagesList: [],
     croppedImagesList: [],

@@ -32,7 +32,7 @@
         class="slide-container"
       >
         <div
-          v-for="({ croppedValue }, index) in slides"
+          v-for="(image, index) in slides"
           :key="index"
           v-touch-pan.horizontal.prevent.mouse="handlePan"
           @touchstart="findIndex(index)"
@@ -41,7 +41,7 @@
           :prevent="true"
           :style="{ minWidth: `${100 / slides.length}%` }"
         >
-          <q-img :src="croppedValue" :ratio="1" img-class="slide-img" />
+          <q-img :src="image" :ratio="1" img-class="slide-img" />
         </div>
       </div>
     </div>
@@ -86,9 +86,9 @@ export default {
         return this.imagesList;
       } else {
         return [
-          { croppedValue: "https://placeimg.com/500/300/nature" },
-          { croppedValue: "sample.jpeg" },
-          { croppedValue: "https://placeimg.com/500/300/nature" },
+          "https://placeimg.com/500/300/nature",
+          "sample.jpeg",
+          "https://placeimg.com/500/300/nature",
         ];
       }
     },

@@ -1,9 +1,9 @@
 import { store } from 'quasar/wrappers'
 import { createStore } from 'vuex'
-import posts from 'src/store/posts/index.js'
+import newPost from 'src/store/newPost/index.js'
 
 // import example from './module-example'
-posts
+newPost
 /*
  * If not building with SSR mode, you can
  * directly export the Store instantiation;
@@ -17,7 +17,7 @@ export default store(function (/* { ssrContext } */) {
   const Store = createStore({
     modules: {
       // example
-      posts
+      newPost
     },
 
     // enable strict mode (adds overhead!)

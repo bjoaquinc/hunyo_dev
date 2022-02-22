@@ -1,3 +1,9 @@
+// firestore posts collection
+export function getPostsCollection (state, posts) {
+  state.postsList = posts;
+}
+
+// new post form items
 export function updateTitle (state, payload) {
   state.post.title = payload
 }
@@ -21,10 +27,12 @@ export function updateTopics (state, payload) {
   state.chosenBestPracticesList = chosenBestPracticesList
 }
 
+// best practices dropdown
 export function toggleIsMinimized (state, index) {
   state.chosenBestPracticesList[index].isMinimized = !state.chosenBestPracticesList[index].isMinimized
 }
 
+// image cropper
 export function pushUploadedImages (state, payload) {
   payload.forEach(image => state.uploadedImagesList.push(image))
 }
@@ -77,13 +85,16 @@ export function removeUnsavedImages (state) {
 
 export function storeCroppedImages (state, payload) {
   let index = 0
+  let convertedImagesList = []
 
   payload.forEach(imageObject => {
+    convertedImagesList.push(imageObject.value)
     state.uploadedImagesList[index].croppedValue = imageObject.value
     state.uploadedImagesList[index].canvasData = imageObject.canvasData
     index++
   })
 
+  state.croppedImagesList = convertedImagesList
   index = 0
 }
 
@@ -105,10 +116,11 @@ function moveImage(arr, old_index, new_index) {
 }
 
 export function reorderImages (state) {
-  const imageList = state.uploadedImagesList
-  for (let index = 0; index < imageList.length; index++) {
-    if (imageList[index].order) {
-      moveImage(imageList, index, imageList[index].order - 1)
+  const imagesList = state.uploadedImagesList
+  const croppedImagesList = state.croppedImagesList
+  for (let index = 0; index < imagesList.length; index++) {
+    if (imagesList[index].order) {
+      moveImage(imagesList, index, imagesList[index].order - 1)
     }
   }
 }
@@ -123,8 +135,10 @@ export function removeUploadedImage (state, payload) {
 
 export function removeAllImages (state) {
   state.uploadedImagesList = []
+  state.croppedImagesList = []
 }
 
+// PostNewTitlePage route back
 export function setPreviousRouteName (state, previousRouteName) {
   state.previousRouteName = previousRouteName
 }

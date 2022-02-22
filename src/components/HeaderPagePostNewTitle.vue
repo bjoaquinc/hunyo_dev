@@ -37,21 +37,21 @@ export default {
   components: { DialogCommunityGuidelines },
   data() {
     return {
-      hasSignedAgreement: false,
+      hasSignedAgreement: true,
     };
   },
   computed: {
     title() {
-      return this.$store.getters["posts/getTitle"];
+      return this.$store.getters["newPost/getTitle"];
     },
     topicsList() {
-      return this.$store.getters["posts/getTopicsList"];
+      return this.$store.getters["newPost/getTopicsList"];
     },
     missingFields() {
       return !this.topicsList.length || !this.title ? true : false;
     },
     previousRouteName() {
-      return this.$store.getters["posts/getPreviousRouteName"];
+      return this.$store.getters["newPost/getPreviousRouteName"];
     },
   },
   created() {

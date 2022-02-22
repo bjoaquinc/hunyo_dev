@@ -130,42 +130,42 @@ export default {
   },
   computed: {
     topicsList() {
-      return this.$store.getters["posts/getTopicsList"];
+      return this.$store.getters["newPost/getTopicsList"];
     },
     title: {
       get() {
-        return this.$store.getters["posts/getTitle"];
+        return this.$store.getters["newPost/getTitle"];
       },
       set(value) {
-        this.$store.commit("posts/updateTitle", value);
+        this.$store.commit("newPost/updateTitle", value);
       },
     },
     withFeedback: {
       get() {
-        return this.$store.getters["posts/getWithFeedback"];
+        return this.$store.getters["newPost/getWithFeedback"];
       },
       set(value) {
-        this.$store.commit("posts/updateWithFeedback", value);
+        this.$store.commit("newPost/updateWithFeedback", value);
       },
     },
     isQuestion: {
       get() {
-        return this.$store.getters["posts/getIsQuestion"];
+        return this.$store.getters["newPost/getIsQuestion"];
       },
       set(value) {
-        this.$store.commit("posts/updateIsQuestion", value);
+        this.$store.commit("newPost/updateIsQuestion", value);
       },
     },
     topics: {
       get() {
-        return this.$store.getters["posts/getTopicsList"];
+        return this.$store.getters["newPost/getTopicsList"];
       },
       set(value) {
-        this.$store.commit("posts/updateTopics", value);
+        this.$store.commit("newPost/updateTopics", value);
       },
     },
     previousRouteName() {
-      return this.$store.getters["posts/getPreviousRouteName"];
+      return this.$store.getters["newPost/getPreviousRouteName"];
     },
   },
   methods: {
@@ -184,7 +184,8 @@ export default {
       });
     },
     setRouteName(previousRouteName) {
-      this.$store.dispatch("posts/setPreviousRouteName", previousRouteName);
+      console.log(previousRouteName);
+      this.$store.dispatch("newPost/setPreviousRouteName", previousRouteName);
     },
   },
   async beforeRouteLeave(to) {

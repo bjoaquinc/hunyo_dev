@@ -76,7 +76,7 @@ export default {
   setup() {
     const q = useQuasar();
     const store = useStore();
-    const hasDrafts = computed(() => store.getters["posts/getHasDrafts"]);
+    const hasDrafts = computed(() => store.getters["newPost/getHasDrafts"]);
 
     function openDialogPostCreate() {
       q.dialog({

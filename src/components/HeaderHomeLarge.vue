@@ -134,7 +134,7 @@ export default {
   },
   computed: {
     hasDrafts() {
-      return this.$store.getters["posts/getHasDrafts"];
+      return this.$store.getters["newPost/getHasDrafts"];
     },
   },
   methods: {

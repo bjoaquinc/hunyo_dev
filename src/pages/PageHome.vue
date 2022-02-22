@@ -2,7 +2,7 @@
   <q-page class="constrain">
     <div class="row q-col-gutter-md">
       <div class="col-12 col-sm-7 q-ml-sm-sm">
-        <PostList />
+        <router-view />
       </div>
 
       <div class="col desktop-only">
@@ -24,12 +24,16 @@
 </template>
 
 <script>
-import PostList from "src/components/PostsList.vue";
+import { getDocs } from "firebase/firestore";
 
 export default {
   name: "PageHome",
-  components: {
-    PostList,
+  async created() {
+    console.log("created");
+    this.$store.dispatch(
+      "newPost/getPostsCollection",
+      await getDocs(this.$postsRef)
+    );
   },
 };
 </script>

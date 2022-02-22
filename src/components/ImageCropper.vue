@@ -88,6 +88,13 @@
             />
           </q-avatar>
         </q-item>
+        <q-btn
+          label="Done reordering"
+          color="white"
+          outline
+          :size="q.platform.is.mobile ? 'sm' : 'md'"
+          @click="reorderImages()"
+        />
       </q-list>
     </div>
     <q-dialog
@@ -127,7 +134,7 @@ export default {
     const router = useRouter();
     const q = useQuasar();
     const uploadedImagesList = computed(
-      () => store.getters["posts/getUploadedImagesList"]
+      () => store.getters["newPost/getUploadedImagesList"]
     );
     const imgRefList = ref([]);
     const croppersList = ref([]);
@@ -195,18 +202,18 @@ export default {
     }
 
     function removeImageOrder(uid, order) {
-      store.dispatch("posts/removeImageOrder", { id: uid, order: order });
+      store.dispatch("newPost/removeImageOrder", { id: uid, order: order });
     }
 
     function addImageOrder(uid) {
-      store.dispatch("posts/addImageOrder", { id: uid });
+      store.dispatch("newPost/addImageOrder", { id: uid });
     }
 
     function cleanAndExitCropper() {
       croppersList.value.forEach((cropperObject) => {
         cropperObject.cropper.destroy();
       });
-      store.dispatch("posts/removeUnsavedImages");
+      store.dispatch("newPost/removeUnsavedImages");
       emit("closeDialog");
       router.push({ name: "PagePostNewContent" });
     }
@@ -229,23 +236,21 @@ export default {
       return croppedImagesList;
     }
 
-    async function storeCroppedImages() {
-      await store.dispatch("posts/storeCroppedImages", getCroppedImagesList());
-    }
-
-    async function saveImagesAndPreview() {
-      await storeCroppedImages();
-      reorderImages();
-      emit("openPreview");
-      cleanAndExitCropper();
+    function saveImagesAndPreview() {
+      store
+        .dispatch("newPost/storeCroppedImages", getCroppedImagesList())
+        .then(() => {
+          emit("openPreview");
+          cleanAndExitCropper();
+        });
     }
 
     function reorderImages() {
-      store.dispatch("posts/reorderImages");
+      store.dispatch("newPost/reorderImages");
     }
 
     function removeUploadedImage(uid) {
-      store.dispatch("posts/removeUploadedImage", uid);
+      store.dispatch("newPost/removeUploadedImage", uid);
     }
 
     return {
@@ -263,6 +268,7 @@ export default {
       cropperWidth,
       q,
       selectorWidthPercentage,
+      reorderImages,
     };
   },
 };

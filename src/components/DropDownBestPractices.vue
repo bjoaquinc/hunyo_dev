@@ -67,12 +67,12 @@ export default {
   setup() {
     const store = useStore();
     const chosenBestPracticesList = computed(
-      () => store.getters["posts/getChosenBestPracticesList"]
+      () => store.getters["newPost/getChosenBestPracticesList"]
     );
-    const isQuestion = computed(() => store.getters["posts/getIsQuestion"]);
+    const isQuestion = computed(() => store.getters["newPost/getIsQuestion"]);
 
     function toggleIsMinimized(index) {
-      store.dispatch("posts/toggleIsMinimized", index);
+      store.dispatch("newPost/toggleIsMinimized", index);
     }
 
     return {

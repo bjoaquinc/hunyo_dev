@@ -174,6 +174,7 @@
           </q-card-section>
           <q-card-actions>
             <q-btn
+              @click="createPost"
               label="Post"
               color="primary"
               unelevated
@@ -204,7 +205,7 @@
           <q-btn v-close-popup icon="fas fa-times" dense flat round />
         </q-card-section>
         <BaseCarousel
-          :imagesList="uploadedImagesList"
+          :imagesList="imagesList"
           :style="{ minWidth: q.platform.is.desktop ? '35vw' : '100%' }"
         />
       </q-card>
@@ -256,6 +257,21 @@ import { ref, computed } from "vue";
 import { useStore } from "vuex";
 import { useRouter } from "vue-router";
 import { useQuasar } from "quasar";
+import {
+  addDoc,
+  updateDoc,
+  doc,
+  getDocs,
+  serverTimestamp,
+} from "firebase/firestore";
+import { postsRef, db } from "src/boot/firebase";
+import {
+  uploadBytes,
+  getDownloadURL,
+  ref as storageRef,
+} from "firebase/storage";
+import { imagesRef } from "src/boot/firebase";
+import { uid } from "quasar";
 import BaseCarousel from "src/components/BaseCarousel.vue";
 import DialogImageInformation from "src/components/DialogImageInformation.vue";
 import DropdownBestPractices from "src/components/DropDownBestPractices.vue";
@@ -271,21 +287,25 @@ export default {
     const q = useQuasar();
     const router = useRouter();
     const content = computed({
-      get: () => store.getters["posts/getContent"],
-      set: (value) => store.commit("posts/updateContent", value),
+      get: () => store.getters["newPost/getContent"],
+      set: (value) => store.commit("newPost/updateContent", value),
     });
-    const isQuestion = computed(() => store.getters["posts/getIsQuestion"]);
+    const isQuestion = computed(() => store.getters["newPost/getIsQuestion"]);
     const preview = ref(false);
     const dialog = ref(false);
     const imageInput = ref(null);
-    const topics = computed(() => store.getters["posts/getTopicsList"]);
+    const topics = computed(() => store.getters["newPost/getTopicsList"]);
     const uploadedImagesList = computed(
-      () => store.getters["posts/getUploadedImagesList"]
+      () => store.getters["newPost/getUploadedImagesList"]
+    );
+    const imagesList = computed(
+      () => store.getters["newPost/getCroppedImagesList"]
     );
     const removeMessage = ref(false);
+    const newPost = computed(() => store.getters["newPost/getNewPost"]);
 
     function toggleIsMinimized(index) {
-      store.dispatch("posts/toggleIsMinimized", index);
+      store.dispatch("newPost/toggleIsMinimized", index);
     }
 
     function manageUploader() {
@@ -298,8 +318,8 @@ export default {
       if (files && files.length > 0) {
         dialog.value = true;
         q.loading.show({ message: "Adding images..." });
-        await store.dispatch("posts/pushUploadedImages", { files: files });
-        store.dispatch("posts/generateImageOrder");
+        await store.dispatch("newPost/pushUploadedImages", { files: files });
+        store.dispatch("newPost/generateImageOrder");
         q.loading.hide();
         router.push({ name: "ImageCropper" });
       }
@@ -321,16 +341,90 @@ export default {
     }
 
     function editImages() {
-      store.dispatch("posts/generateImageOrder");
+      store.dispatch("newPost/generateImageOrder");
       router.push({ name: "ImageCropper" });
       dialog.value = true;
     }
 
     function removeAllImages() {
-      store.dispatch("posts/removeAllImages");
+      store.dispatch("newPost/removeAllImages");
+    }
+
+    async function createPost() {
+      q.loading.show({ message: "Uploading..." });
+      const docRef = await addDoc(postsRef, {
+        ...newPost.value,
+        createdAt: serverTimestamp(),
+      });
+
+      if (imagesList.value && imagesList.value.length > 0) {
+        let imageURLList = [];
+        for (const image of imagesList.value) {
+          if (imagesList.value.length > 1) {
+            q.loading.show({
+              spinnerColor: "red",
+              messageColor: "black",
+              backgroundColor: "yellow",
+              message: `Uploading ${
+                imagesList.value.indexOf(`${image}`) + 1
+              } of ${imagesList.value.length} images`,
+            });
+          } else {
+            q.loading.show({
+              spinnerColor: "red",
+              messageColor: "black",
+              backgroundColor: "yellow",
+              message: "Uploading image",
+            });
+          }
+
+          const blob = dataURItoBlob(image);
+          const postRef = storageRef(imagesRef, docRef.id);
+          const fileName = `${uid()}.jpg`;
+          const imageRef = storageRef(postRef, fileName);
+          await uploadBytes(imageRef, blob).then(() =>
+            getDownloadURL(imageRef)
+              .then((downloadURL) => imageURLList.push(downloadURL))
+              .catch((err) => console.log(err))
+          );
+        }
+        const postRef = doc(db, "posts", docRef.id);
+        updateDoc(postRef, {
+          imagesList: imageURLList,
+        });
+      }
+
+      store.dispatch("newPost/getPostsCollection", await getDocs(postsRef));
+      q.loading.hide();
+      router.push(`/posts/${docRef.id}`);
+    }
+
+    function dataURItoBlob(dataURI) {
+      // convert base64 to raw binary data held in a string
+      // doesn't handle URLEncoded DataURIs - see SO answer #6850276 for code that does this
+      var byteString = atob(dataURI.split(",")[1]);
+
+      // separate out the mime component
+      var mimeString = dataURI.split(",")[0].split(":")[1].split(";")[0];
+
+      // write the bytes of the string to an ArrayBuffer
+      var ab = new ArrayBuffer(byteString.length);
+
+      // create a view into the buffer
+      var ia = new Uint8Array(ab);
+
+      // set the bytes of the buffer to the correct values
+      for (var i = 0; i < byteString.length; i++) {
+        ia[i] = byteString.charCodeAt(i);
+      }
+
+      // write the ArrayBuffer to a blob, and you're done
+      var blob = new Blob([ab], { type: mimeString });
+      return blob;
     }
 
     return {
+      q,
       dialog,
       preview,
       content,
@@ -347,7 +441,8 @@ export default {
       uploadedImagesList,
       removeMessage,
       removeAllImages,
-      q,
+      imagesList,
+      createPost,
     };
   },
 };
