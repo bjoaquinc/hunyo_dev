@@ -1,22 +1,33 @@
 <template>
   <q-list class="bg-grey-1">
-    <q-item v-for="{ imagesList, date, id, title } in getPostsList" :key="id">
-      <PostItem :imagesList="imagesList" :date="date" :title="title" :id="id" />
+    <RecommendItem />
+    <q-item
+      v-for="{ imagesList, date, id, title, user } in getPostsList"
+      :key="id"
+    >
+      <PostItem
+        :imagesList="imagesList"
+        :date="date"
+        :title="title"
+        :id="id"
+        :user="user"
+      />
     </q-item>
   </q-list>
 </template>
 
 <script>
 import PostItem from "src/components/PostItem.vue";
+import RecommendItem from "src/components/RecommendItem.vue";
 
 export default {
   name: "PostsList",
   components: {
     PostItem,
+    RecommendItem,
   },
   computed: {
     getPostsList() {
-      console.log("running");
       return this.$store.getters["newPost/getPostsList"];
     },
   },

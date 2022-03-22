@@ -1,3 +1,5 @@
+
+
 export default function () {
   return {
     post: {
@@ -7,6 +9,7 @@ export default function () {
       isQuestion: false,
       content: '',
     },
+    postId: '',
     uploadedImagesList: [],
     croppedImagesList: [],
     bestPracticesList: [
@@ -40,7 +43,5 @@ export default function () {
       ]}
     ],
     chosenBestPracticesList: [],
-    hasDrafts: true,
-    previousRouteName: ''
   }
 }

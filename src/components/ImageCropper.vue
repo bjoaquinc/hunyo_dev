@@ -74,7 +74,7 @@
             :size="`${(cropperWidth * selectorWidthPercentage) / 100}px`"
           >
             <q-badge
-              @click="order ? removeImageOrder(id, order) : addImageOrder(id)"
+              @click="order ? removeOrder(id, order) : addOrder(id)"
               :label="order ? `${order}` : ''"
               class="z-top"
               color="primary"
@@ -88,13 +88,6 @@
             />
           </q-avatar>
         </q-item>
-        <q-btn
-          label="Done reordering"
-          color="white"
-          outline
-          :size="q.platform.is.mobile ? 'sm' : 'md'"
-          @click="reorderImages()"
-        />
       </q-list>
     </div>
     <q-dialog
@@ -196,53 +189,55 @@ export default {
       croppersList.value.splice(imageIndex, 1);
       imgRefList.value.splice(imageIndex, 1);
 
-      removeImageOrder(image.id, image.order);
+      removeOrder(image.id, image.order);
       removeUploadedImage(image.id);
       selectedImage.value = uploadedImagesList.value[0].id;
     }
 
-    function removeImageOrder(uid, order) {
-      store.dispatch("newPost/removeImageOrder", { id: uid, order: order });
+    function removeOrder(uid, order) {
+      store.commit("newPost/removeOrder", { id: uid, order: order });
     }
 
-    function addImageOrder(uid) {
-      store.dispatch("newPost/addImageOrder", { id: uid });
+    function addOrder(uid) {
+      store.commit("newPost/addOrder", { id: uid });
     }
 
     function cleanAndExitCropper() {
       croppersList.value.forEach((cropperObject) => {
         cropperObject.cropper.destroy();
       });
-      store.dispatch("newPost/removeUnsavedImages");
+      store.commit("newPost/removeUnsavedImages");
       emit("closeDialog");
       router.push({ name: "PagePostNewContent" });
     }
 
-    function getCroppedImagesList() {
-      let croppedImagesList = [];
-
-      croppersList.value.forEach((cropperObject) => {
-        const croppedImage = cropperObject.cropper
+    async function setCroppedImageAndCanvasData() {
+      for (let index = 0; index < croppersList.value.length; index++) {
+        const { fileType, cropper } = croppersList.value[index];
+        console.log(fileType);
+        const croppedImage = await cropper
           .getCroppedCanvas({
             maxWidth: 1080,
             maxHeight: 1080,
             imageSmoothingQuality: "high",
           })
-          .toDataURL(cropperObject.fileType);
-        const canvasData = cropperObject.cropper.getCanvasData();
-        croppedImagesList.push({ value: croppedImage, canvasData });
-      });
+          .toDataURL(fileType);
+        console.log(croppedImage);
+        const canvasData = await cropper.getCanvasData();
 
-      return croppedImagesList;
+        store.commit("newPost/setCroppedImageAndCanvasData", {
+          croppedImage: croppedImage,
+          canvasData: canvasData,
+          index: index,
+        });
+      }
     }
 
-    function saveImagesAndPreview() {
-      store
-        .dispatch("newPost/storeCroppedImages", getCroppedImagesList())
-        .then(() => {
-          emit("openPreview");
-          cleanAndExitCropper();
-        });
+    async function saveImagesAndPreview() {
+      await setCroppedImageAndCanvasData();
+      store.commit("newPost/reorderImages");
+      cleanAndExitCropper();
+      emit("openPreview");
     }
 
     function reorderImages() {
@@ -250,7 +245,7 @@ export default {
     }
 
     function removeUploadedImage(uid) {
-      store.dispatch("newPost/removeUploadedImage", uid);
+      store.commit("newPost/removeUploadedImage", uid);
     }
 
     return {
@@ -258,8 +253,8 @@ export default {
       imgRefList,
       selectImage,
       isSelectedImage,
-      removeImageOrder,
-      addImageOrder,
+      removeOrder,
+      addOrder,
       cleanAndExitCropper,
       saveImagesAndPreview,
       removeMessage,

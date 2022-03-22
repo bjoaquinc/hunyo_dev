@@ -14,6 +14,7 @@
     <q-toolbar-title class="text-center">Create Post</q-toolbar-title>
 
     <q-btn
+      @click="createPost"
       :disable="missingFields"
       color="primary"
       :to="{ name: 'PagePostNewContent' }"
@@ -30,21 +31,45 @@
 <script>
 import { computed } from "vue";
 import { useStore } from "vuex";
+import { useRouter } from "vue-router";
+import { useQuasar } from "quasar";
 
 export default {
   setup() {
     const store = useStore();
-    const title = computed(() => store.getters["newPost/getTitle"]);
-    const topicsList = computed(() => store.getters["newPost/getTopicsList"]);
-    const content = computed(() => store.getters["newPost/getContent"]);
+    const router = useRouter();
+    const q = useQuasar();
+    const newPost = computed(() => store.getters["newPost/getNewPost"]);
+    const imagesList = computed(
+      () => store.getters["newPost/getCroppedImagesList"]
+    );
+    const { content, title, topics } = newPost.value;
+
+    console.log(content, title, topics);
+
     const missingFields = computed(() => {
-      return !topicsList.value.length || !title.value || !content.value
-        ? true
-        : false;
+      return !topics.length || !title || !content ? true : false;
     });
+
+    async function createPost() {
+      try {
+        q.loading.show({ message: "Uploading..." });
+        await store.dispatch("newPost/createPost", {
+          newPost: { ...newPost.value },
+          imagesList: imagesList.value,
+        });
+        store.commit("newPost/clearState");
+        q.loading.hide();
+        router.push({ name: "PageHome" });
+      } catch (error) {
+        console.log(error);
+        q.loading.hide();
+      }
+    }
 
     return {
       missingFields,
+      createPost,
     };
   },
 };

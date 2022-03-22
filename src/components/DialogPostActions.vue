@@ -13,16 +13,8 @@
         align="between"
       >
         <q-btn
-          class="button-width"
-          padding="16px 5px"
-          text-color="secondary"
-          color="grey-3"
-          icon="fas fa-share-square"
-          label="Share"
-          unelevated
-          stack
-        />
-        <q-btn
+          v-close-popup
+          @click="openDialogRecommendCreate"
           class="button-width"
           padding="16px 5px"
           text-color="secondary"
@@ -33,12 +25,14 @@
           stack
         />
         <q-btn
+          v-close-popup
+          @click="openDialogFlag"
           class="button-width"
           padding="16px 5px"
           text-color="secondary"
           color="grey-3"
-          icon="fas fa-exclamation-circle"
-          label="Report"
+          icon="fas fa-flag"
+          label="Flag"
           unelevated
           stack
         />
@@ -59,26 +53,42 @@
 
 <script>
 import { useDialogPluginComponent, useQuasar } from "quasar";
+import DialogRecommendCreate from "src/components/DialogRecommendCreate.vue";
+import DialogFlag from "src/components/DialogFlag.vue";
 
 export default {
-  props: {
-    // ...your custom props
-  },
-
+  props: ["postData"],
   emits: [
     // REQUIRED; need to specify some events that your
     // component will emit through useDialogPluginComponent()
     ...useDialogPluginComponent.emits,
   ],
-  setup() {
+  setup(props) {
     const { dialogRef, onDialogHide, onDialogCancel } =
       useDialogPluginComponent();
     const q = useQuasar();
+
+    function openDialogRecommendCreate() {
+      q.dialog({
+        component: DialogRecommendCreate,
+        componentProps: {
+          postData: props.postData,
+        },
+      });
+    }
+
+    function openDialogFlag() {
+      q.dialog({
+        component: DialogFlag,
+      });
+    }
 
     return {
       dialogRef,
       onDialogHide,
       q,
+      openDialogRecommendCreate,
+      openDialogFlag,
     };
   },
 };

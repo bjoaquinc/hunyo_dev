@@ -257,21 +257,6 @@ import { ref, computed } from "vue";
 import { useStore } from "vuex";
 import { useRouter } from "vue-router";
 import { useQuasar } from "quasar";
-import {
-  addDoc,
-  updateDoc,
-  doc,
-  getDocs,
-  serverTimestamp,
-} from "firebase/firestore";
-import { postsRef, db } from "src/boot/firebase";
-import {
-  uploadBytes,
-  getDownloadURL,
-  ref as storageRef,
-} from "firebase/storage";
-import { imagesRef } from "src/boot/firebase";
-import { uid } from "quasar";
 import BaseCarousel from "src/components/BaseCarousel.vue";
 import DialogImageInformation from "src/components/DialogImageInformation.vue";
 import DropdownBestPractices from "src/components/DropDownBestPractices.vue";
@@ -288,7 +273,7 @@ export default {
     const router = useRouter();
     const content = computed({
       get: () => store.getters["newPost/getContent"],
-      set: (value) => store.commit("newPost/updateContent", value),
+      set: (value) => store.commit("newPost/setContent", value),
     });
     const isQuestion = computed(() => store.getters["newPost/getIsQuestion"]);
     const preview = ref(false);
@@ -303,6 +288,7 @@ export default {
     );
     const removeMessage = ref(false);
     const newPost = computed(() => store.getters["newPost/getNewPost"]);
+    const postId = computed(() => store.getters["newPost/getPostId"]);
 
     function toggleIsMinimized(index) {
       store.dispatch("newPost/toggleIsMinimized", index);
@@ -318,8 +304,8 @@ export default {
       if (files && files.length > 0) {
         dialog.value = true;
         q.loading.show({ message: "Adding images..." });
-        await store.dispatch("newPost/pushUploadedImages", { files: files });
-        store.dispatch("newPost/generateImageOrder");
+        await store.dispatch("newPost/setUploadedImages", { files: files });
+        store.commit("newPost/generateImageOrder");
         q.loading.hide();
         router.push({ name: "ImageCropper" });
       }
@@ -341,86 +327,47 @@ export default {
     }
 
     function editImages() {
-      store.dispatch("newPost/generateImageOrder");
+      store.commit("newPost/generateImageOrder");
       router.push({ name: "ImageCropper" });
       dialog.value = true;
     }
 
     function removeAllImages() {
-      store.dispatch("newPost/removeAllImages");
+      store.commit("newPost/removeAllImages");
     }
 
     async function createPost() {
-      q.loading.show({ message: "Uploading..." });
-      const docRef = await addDoc(postsRef, {
-        ...newPost.value,
-        createdAt: serverTimestamp(),
-      });
-
-      if (imagesList.value && imagesList.value.length > 0) {
-        let imageURLList = [];
-        for (const image of imagesList.value) {
-          if (imagesList.value.length > 1) {
-            q.loading.show({
-              spinnerColor: "red",
-              messageColor: "black",
-              backgroundColor: "yellow",
-              message: `Uploading ${
-                imagesList.value.indexOf(`${image}`) + 1
-              } of ${imagesList.value.length} images`,
-            });
-          } else {
-            q.loading.show({
-              spinnerColor: "red",
-              messageColor: "black",
-              backgroundColor: "yellow",
-              message: "Uploading image",
-            });
-          }
-
-          const blob = dataURItoBlob(image);
-          const postRef = storageRef(imagesRef, docRef.id);
-          const fileName = `${uid()}.jpg`;
-          const imageRef = storageRef(postRef, fileName);
-          await uploadBytes(imageRef, blob).then(() =>
-            getDownloadURL(imageRef)
-              .then((downloadURL) => imageURLList.push(downloadURL))
-              .catch((err) => console.log(err))
-          );
-        }
-        const postRef = doc(db, "posts", docRef.id);
-        updateDoc(postRef, {
-          imagesList: imageURLList,
+      try {
+        q.loading.show({ message: "Uploading..." });
+        await store.dispatch("newPost/createPost", {
+          newPost: { ...newPost.value },
+          imagesList: imagesList.value,
         });
+        await store.dispatch("users/setFollowersList");
+        const followersList = computed(
+          () => store.getters["users/getFollowersList"]
+        );
+        for (let index = 0; index < followersList.value.length; index++) {
+          const followingUser = followersList.value[index].followingUser;
+          await store.dispatch("notifications/createNotification", {
+            type: "followPost",
+            content: newPost.value.title,
+            userId: followingUser.id,
+            route: {
+              name: "FeedPost",
+              params: {
+                postId: postId.value,
+              },
+            },
+          });
+        }
+        store.commit("newPost/clearState");
+        q.loading.hide();
+        router.push({ name: "PageHome" });
+      } catch (error) {
+        console.log(error);
+        q.loading.hide();
       }
-
-      store.dispatch("newPost/getPostsCollection", await getDocs(postsRef));
-      q.loading.hide();
-      router.push(`/posts/${docRef.id}`);
-    }
-
-    function dataURItoBlob(dataURI) {
-      // convert base64 to raw binary data held in a string
-      // doesn't handle URLEncoded DataURIs - see SO answer #6850276 for code that does this
-      var byteString = atob(dataURI.split(",")[1]);
-
-      // separate out the mime component
-      var mimeString = dataURI.split(",")[0].split(":")[1].split(";")[0];
-
-      // write the bytes of the string to an ArrayBuffer
-      var ab = new ArrayBuffer(byteString.length);
-
-      // create a view into the buffer
-      var ia = new Uint8Array(ab);
-
-      // set the bytes of the buffer to the correct values
-      for (var i = 0; i < byteString.length; i++) {
-        ia[i] = byteString.charCodeAt(i);
-      }
-
-      // write the ArrayBuffer to a blob, and you're done
-      var blob = new Blob([ab], { type: mimeString });
-      return blob;
     }
 
     return {

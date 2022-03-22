@@ -1,16 +1,16 @@
 <template>
   <q-page>
-    <ActivityList />
+    <NotificationsList />
   </q-page>
 </template>
 
 <script>
-import ActivityList from "src/components/ActivityList.vue";
+import NotificationsList from "src/components/NotificationsList.vue";
 
 export default {
   name: "PageActivity",
   components: {
-    ActivityList,
+    NotificationsList,
   },
   created() {},
 };

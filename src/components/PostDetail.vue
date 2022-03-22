@@ -1,44 +1,44 @@
 <template>
-  <q-card class="my-card" bordered flat>
+  <q-card class="my-card" bordered flat v-if="isReady">
     <q-item>
-      <q-item-label class="text-weight-bold text-h6 q-my-md desktop-only">{{
+      <q-item-label class="text-weight-bold text-h6 q-pt-md desktop-only">{{
         title
       }}</q-item-label>
-      <q-item-label class="text-weight-bold text-subtitle1 mobile-only">{{
-        title
-      }}</q-item-label>
+      <q-item-label
+        class="text-weight-bold text-subtitle1 q-pt-md mobile-only"
+        >{{ title }}</q-item-label
+      >
     </q-item>
 
     <BaseCarousel
+      class="q-pt-md"
       :imagesList="imagesList"
       v-if="imagesList && imagesList.length"
     />
 
-    <q-card-section>
-      {{ content }}
+    <q-card-section class="q-pt-md">
+      <div style="white-space: pre-wrap">
+        {{ content }}
+      </div>
     </q-card-section>
 
-    <q-item>
+    <q-item
+      clickable
+      :to="{
+        name: userRoute,
+        params: { userId: user.id },
+      }"
+    >
       <q-item-section avatar>
         <q-avatar>
-          <img src="https://cdn.quasar.dev/img/boy-avatar.png" />
+          <img :src="user.photo" />
         </q-avatar>
       </q-item-section>
 
       <q-item-section>
-        <q-item-label class="text-weight-bold" caption
-          >Joaquin Coromina •
-          <span>
-            <q-btn
-              align="center"
-              color="inherit"
-              label="5 recommendations"
-              size="inherit"
-              no-caps
-              dense
-              flat
-            /> </span
-        ></q-item-label>
+        <q-item-label class="text-weight-bold" caption>{{
+          user.name
+        }}</q-item-label>
       </q-item-section>
     </q-item>
 
@@ -46,6 +46,7 @@
 
     <q-card-actions align="around">
       <q-btn
+        @click="openDialogRecommendCreate"
         color="primary"
         icon="fas fa-check"
         label="Recommend"
@@ -54,6 +55,7 @@
         style="width: 45%"
       />
       <q-btn
+        @click="openDialogFoldersList"
         color="primary"
         icon="fas fa-folder"
         label="Save"
@@ -68,13 +70,13 @@
     <q-item>
       <q-item-section avatar>
         <q-avatar>
-          <img src="https://cdn.quasar.dev/img/avatar2.jpg" />
+          <img :src="currentUserPhoto" />
         </q-avatar>
       </q-item-section>
 
       <q-item-section>
         <q-btn
-          @click="openDialogCommentNew"
+          @click="openDialogCommentCreate"
           align="left"
           color="grey-3"
           label="Add a comment..."
@@ -85,31 +87,73 @@
         />
       </q-item-section>
     </q-item>
-
-    <DialogCommentNew />
   </q-card>
 </template>
 
 <script>
 import BaseCarousel from "src/components/BaseCarousel.vue";
-import DialogCommentNew from "src/components/DialogCommentNew.vue";
+import DialogCommentCreate from "src/components/DialogCommentCreate.vue";
+import DialogRecommendCreate from "src/components/DialogRecommendCreate.vue";
+import DialogFoldersList from "src/components/DialogFoldersList.vue";
+import { auth } from "src/boot/firebase";
 
 export default {
   name: "PostItem",
   components: {
     BaseCarousel,
-    DialogCommentNew,
   },
-  props: ["content", "title", "imagesList"],
-  data() {
-    return {
-      tagsList: ["details", "design-approaches", "residential", "makati"],
-    };
+  props: ["content", "title", "imagesList", "postId", "user"],
+  computed: {
+    currentUserPhoto() {
+      return auth.currentUser.photoURL;
+    },
+    isReady() {
+      return this.content && this.title && this.postId && this.user
+        ? true
+        : false;
+    },
+    userRoute() {
+      return this.$route.meta.profile ? "ProfileUser" : "FeedUser";
+    },
   },
   methods: {
-    openDialogCommentNew() {
+    openDialogFoldersList() {
+      const postData = {
+        title: this.title,
+        id: this.postId,
+        user: this.user,
+        image: "",
+      };
+      if (this.imagesList && this.imagesList.length > 0) {
+        postData.image = this.imagesList[0];
+      }
       this.$q.dialog({
-        component: DialogCommentNew,
+        component: DialogFoldersList,
+        componentProps: {
+          postData,
+        },
+      });
+    },
+    openDialogCommentCreate() {
+      this.$q.dialog({
+        component: DialogCommentCreate,
+        componentProps: {
+          postId: this.postId,
+          user: this.user,
+        },
+      });
+    },
+    openDialogRecommendCreate() {
+      this.$q.dialog({
+        component: DialogRecommendCreate,
+        componentProps: {
+          postData: {
+            image: this.imagesList[0],
+            title: this.title,
+            id: this.postId,
+            user: this.user,
+          },
+        },
       });
     },
   },
@@ -123,6 +167,12 @@ export default {
 
 .q-card__section
   padding: 8px 16px
+
+.q-item
+  min-height: 4px
+
+.q-item__label
+  margin-top: 0
 
 .q-item__section
   padding-right: 0 !important

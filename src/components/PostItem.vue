@@ -1,10 +1,11 @@
 <template>
-  <q-card class="my-card" flat bordered>
+  <q-card flat bordered>
     <q-card-section>
       <div class="row">
         <q-item-label
           class="text-weight-bold q-mt-sm q-mb-sm col"
           :class="$q.platform.is.mobile ? 'text-subtitle1' : 'text-h6'"
+          @click="readPost"
           >{{ title }}</q-item-label
         >
         <q-btn
@@ -24,31 +25,29 @@
       v-if="imagesList && imagesList.length > 0"
     />
 
-    <q-item class="q-pt-none">
+    <q-item
+      class="q-pt-none"
+      clickable
+      :to="{
+        name: userRoute,
+        params: { userId: user.id, lastRoute: $route.name },
+      }"
+    >
       <q-item-section avatar>
         <q-avatar>
-          <img src="https://cdn.quasar.dev/img/boy-avatar.png" />
+          <img :src="user.photo" />
         </q-avatar>
       </q-item-section>
 
       <q-item-section>
-        <q-item-label class="text-weight-bold" caption
-          >Joaquin Coromina •
-          <span>
-            <q-btn
-              align="center"
-              color="inherit"
-              label="5 recommendations"
-              size="inherit"
-              no-caps
-              dense
-              flat
-            /> </span
-        ></q-item-label>
+        <q-item-label class="text-weight-bold" caption>{{
+          user.name
+        }}</q-item-label>
       </q-item-section>
     </q-item>
-    <q-card-actions>
+    <q-card-actions class="q-px-md">
       <q-btn
+        @click="openDialogFoldersList"
         color="primary"
         unelevated
         icon="fas fa-folder"
@@ -61,48 +60,94 @@
         flat
         label="Read now"
         icon-right="fas fa-chevron-right"
-        :to="{ name: 'PagePost', params: { postId: id } }"
+        @click="readPost"
       />
     </q-card-actions>
-
-    <DialogPostActions />
   </q-card>
 </template>
 
 <script>
+import { auth } from "src/boot/firebase";
 import BaseCarousel from "src/components/BaseCarousel.vue";
 import DialogPostActions from "src/components/DialogPostActions.vue";
+import DialogFoldersList from "src/components/DialogFoldersList.vue";
 
 export default {
   name: "PostItem",
   components: {
     BaseCarousel,
-    DialogPostActions,
   },
-  props: ["imagesList", "date", "id", "title"],
-  data() {
-    return {
-      tagsList: ["details", "design-approaches", "residential", "makati"],
-    };
+  props: ["feedItem"],
+  computed: {
+    imagesList() {
+      if (this.feedItem.imagesList && this.feedItem.imagesList.length > 0) {
+        return this.feedItem.imagesList;
+      } else {
+        return [];
+      }
+    },
+    title() {
+      return this.feedItem.title;
+    },
+    postId() {
+      return this.feedItem.postId;
+    },
+    user() {
+      return this.feedItem.user;
+    },
+    userRoute() {
+      return this.$route.meta.profile ? "ProfileUser" : "FeedUser";
+    },
+    postRoute() {
+      return this.$route.meta.profile ? "ProfilePost" : "FeedPost";
+    },
   },
   methods: {
     openPostActionsDialog() {
+      const postData = {
+        title: this.title,
+        id: this.postId,
+        user: this.user,
+        image: "",
+      };
+      if (this.imagesList && this.imagesList.length > 0) {
+        postData.image = this.imagesList[0];
+      }
       this.$q.dialog({
         component: DialogPostActions,
+        componentProps: {
+          postData,
+        },
       });
     },
-  },
-  mounted() {
-    console.log(this.title);
+    openDialogFoldersList() {
+      const postData = {
+        title: this.title,
+        id: this.postId,
+        user: this.user,
+        image: "",
+      };
+      if (this.imagesList && this.imagesList.length > 0) {
+        postData.image = this.imagesList[0];
+      }
+      this.$q.dialog({
+        component: DialogFoldersList,
+        componentProps: {
+          postData,
+        },
+      });
+    },
+    async readPost() {
+      this.$router.push({
+        name: this.postRoute,
+        params: { postId: this.postId },
+      });
+    },
   },
 };
 </script>
 
 <style lang="sass" scoped>
-.q-card
-
-  margin-top: 8px
-
 .q-card__actions
   .q-btn
     width: 50%

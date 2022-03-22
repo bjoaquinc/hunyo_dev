@@ -17,7 +17,7 @@
           round
         />
       </q-card-actions>
-      <q-card-section class="q-mb-md">
+      <q-card-section class="q-mb-md" v-if="!hasSignedGuidelines">
         <div class="text-h5 text-center">
           First, Agree to our Community Guidelines.
         </div>
@@ -27,8 +27,19 @@
           Guidelines before posting.
         </div>
       </q-card-section>
+      <q-card-section class="q-mb-md" v-else>
+        <div class="text-h5 text-center">Community Guidelines</div>
+      </q-card-section>
       <q-card-section class="bg-white q-pt-none">
-        <div class="text-h5 q-mb-md text-weight-bolder">I agree to:</div>
+        <div
+          class="text-h5 q-mb-md text-weight-bolder"
+          v-if="!hasSignedGuidelines"
+        >
+          I agree to:
+        </div>
+        <div class="text-h5 q-mb-md text-weight-bolder" v-else>
+          I agreed to:
+        </div>
         <div class="text-h6">Share knowledge, not self-promote</div>
         <div class="text-caption q-mb-sm text-grey-7">
           We want to help you gain more exposure. The best way to be a thought
@@ -59,8 +70,10 @@
           learning platform.
         </div>
       </q-card-section>
-      <q-card-actions>
+      <q-card-actions v-if="!hasSignedGuidelines">
         <q-btn
+          v-close-popup
+          @click="signGuidelines"
           label="I agree"
           color="primary"
           unelevated
@@ -73,6 +86,8 @@
 
 <script>
 import { useDialogPluginComponent, useQuasar } from "quasar";
+import { useStore } from "vuex";
+import { computed } from "vue";
 
 export default {
   props: {
@@ -87,11 +102,32 @@ export default {
   setup() {
     const { dialogRef, onDialogHide } = useDialogPluginComponent();
     const q = useQuasar();
+    const store = useStore();
+    const hasSignedGuidelines = computed(() => {
+      const userData = store.getters["profile/getUserData"];
+      if (userData) {
+        return userData.hasSignedGuidelines;
+      } else {
+        return null;
+      }
+    });
+
+    async function signGuidelines() {
+      try {
+        await store.dispatch("profile/updateUserData", {
+          hasSignedGuidelines: true,
+        });
+      } catch (error) {
+        console.log(error);
+      }
+    }
 
     return {
       dialogRef,
       onDialogHide,
       q,
+      hasSignedGuidelines,
+      signGuidelines,
     };
   },
 };

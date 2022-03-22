@@ -1,7 +1,7 @@
 <template>
   <div>
     <div class="overflow-hidden" ref="container" style="position: relative">
-      <div style="height: inherit" class="desktop-only">
+      <div style="height: inherit" class="desktop-only" v-if="!isFolderItem">
         <q-btn
           v-if="currentIndex > 0"
           @click="setPositionByIndex(currentIndex - 1)"
@@ -46,7 +46,7 @@
       </div>
     </div>
 
-    <div class="flex justify-center">
+    <div class="flex justify-center" v-if="imagesList.length > 1">
       <q-btn
         v-for="(slide, index) in slides"
         :key="index"
@@ -63,7 +63,7 @@
 
 <script>
 export default {
-  props: ["imagesList"],
+  props: ["imagesList", "isFolderItem"],
   data() {
     return {
       imageWidth: 0,

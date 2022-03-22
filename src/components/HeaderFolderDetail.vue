@@ -5,21 +5,14 @@
       icon="fas fa-chevron-left"
       class="same-width"
       align="left"
-      :to="{ name: 'PageProfile' }"
+      :to="{ name: 'ProfileFolder' }"
       dense
       flat
     />
 
-    <q-toolbar-title class="text-center">Edit Profile</q-toolbar-title>
+    <q-toolbar-title class="text-center">Folder</q-toolbar-title>
 
-    <q-btn
-      color="primary"
-      label="done"
-      class="same-width"
-      align="right"
-      dense
-      flat
-    />
+    <div style="width: 24px; height: 24px" />
   </q-toolbar>
 </template>
 

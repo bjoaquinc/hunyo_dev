@@ -1,39 +1,30 @@
 <template>
   <q-page class="constrain">
     <div class="row q-col-gutter-md">
-      <div class="col-12 col-sm-7 q-ml-sm-sm">
-        <router-view />
+      <div class="col-12 col-sm-7 feed">
+        <router-view v-slot="{ Component }">
+          <component :is="Component" :feedItems="feedItems" />
+        </router-view>
       </div>
-
-      <div class="col desktop-only">
-        <q-item class="fixed">
-          <q-item-section avatar>
-            <q-avatar size="48px">
-              <img src="https://cdn.quasar.dev/img/boy-avatar.png" />
-            </q-avatar>
-          </q-item-section>
-
-          <q-item-section>
-            <q-item-label class="text-bold">Joaquin Coromina</q-item-label>
-            <q-item-label caption> Joaquin Coromina </q-item-label>
-          </q-item-section>
-        </q-item>
-      </div>
+      <div class="col desktop-only"></div>
     </div>
   </q-page>
 </template>
 
 <script>
-import { getDocs } from "firebase/firestore";
-
 export default {
   name: "PageHome",
+  computed: {
+    feedItems() {
+      return this.$store.getters["feed/getFeedItems"];
+    },
+  },
   async created() {
-    console.log("created");
-    this.$store.dispatch(
-      "newPost/getPostsCollection",
-      await getDocs(this.$postsRef)
-    );
+    try {
+      await this.$store.dispatch("feed/setFeedItems");
+    } catch (error) {
+      console.log(error);
+    }
   },
 };
 </script>
@@ -43,4 +34,7 @@ export default {
 .q-page
   @media (min-width: 690px)
     margin-top: 21px
+.feed
+  @media (min-width: 690px)
+    margin-left: 9px
 </style>

@@ -16,7 +16,7 @@ export function updateIsQuestion (state, payload) {
   state.post.isQuestion = payload
 }
 
-export function updateContent (state, payload) {
+export function setContent (state, payload) {
   state.post.content = payload
 }
 
@@ -33,7 +33,7 @@ export function toggleIsMinimized (state, index) {
 }
 
 // image cropper
-export function pushUploadedImages (state, payload) {
+export function setUploadedImages (state, payload) {
   payload.forEach(image => state.uploadedImagesList.push(image))
 }
 
@@ -43,7 +43,7 @@ export function generateImageOrder (state) {
   }
 }
 
-export function addImageOrder (state, payload) {
+export function addOrder (state, payload) {
   let highestOrderNumber = findHighestOrderNumber(state.uploadedImagesList)
   
   state.uploadedImagesList.forEach(image => {
@@ -54,7 +54,7 @@ export function addImageOrder (state, payload) {
   } )
 }
 
-export function removeImageOrder (state, payload) {
+export function removeOrder (state, payload) {
   state.uploadedImagesList.forEach(image => {
 
     if (image.id !== payload.id && image.order > payload.order) {
@@ -83,19 +83,11 @@ export function removeUnsavedImages (state) {
   state.uploadedImagesList = filteredList
 }
 
-export function storeCroppedImages (state, payload) {
-  let index = 0
-  let convertedImagesList = []
-
-  payload.forEach(imageObject => {
-    convertedImagesList.push(imageObject.value)
-    state.uploadedImagesList[index].croppedValue = imageObject.value
-    state.uploadedImagesList[index].canvasData = imageObject.canvasData
-    index++
-  })
-
-  state.croppedImagesList = convertedImagesList
-  index = 0
+export function setCroppedImageAndCanvasData ( state, payload) {
+  const { croppedImage, canvasData, index } = payload
+  
+  state.uploadedImagesList[index].croppedValue = croppedImage
+  state.uploadedImagesList[index].canvasData = canvasData
 }
 
 function moveImage(arr, old_index, new_index) {
@@ -117,7 +109,6 @@ function moveImage(arr, old_index, new_index) {
 
 export function reorderImages (state) {
   const imagesList = state.uploadedImagesList
-  const croppedImagesList = state.croppedImagesList
   for (let index = 0; index < imagesList.length; index++) {
     if (imagesList[index].order) {
       moveImage(imagesList, index, imagesList[index].order - 1)
@@ -138,7 +129,20 @@ export function removeAllImages (state) {
   state.croppedImagesList = []
 }
 
-// PostNewTitlePage route back
-export function setPreviousRouteName (state, previousRouteName) {
-  state.previousRouteName = previousRouteName
+export function setPostId ( state, postId ) {
+  state.postId = postId
+}
+
+
+export function clearState ( state ) {
+  state.post = {
+    topics: [],
+    title: '',
+    withFeedback: false,
+    isQuestion: false,
+    content: '',
+    }
+  state.uploadedImagesList = []
+  state.croppedImagesList = []
+  state.choseBestPracticesList = []
 }

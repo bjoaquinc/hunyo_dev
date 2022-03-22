@@ -19,16 +19,6 @@
       />
       <q-route-tab
         class="col q-mx-xs"
-        :to="{ name: 'PageSearch' }"
-        icon="fas fa-search"
-        size="1rem"
-        :ripple="false"
-        :glossy="false"
-        dense
-        flat
-      />
-      <q-route-tab
-        class="col q-mx-xs"
         @click="hasDrafts ? openDialogPostCreate() : null"
         :to="hasDrafts ? null : { name: 'PagePostNewTitle' }"
         icon="fas fa-plus"
@@ -76,7 +66,7 @@ export default {
   setup() {
     const q = useQuasar();
     const store = useStore();
-    const hasDrafts = computed(() => store.getters["newPost/getHasDrafts"]);
+    const hasDrafts = computed(() => store.getters["getHasDrafts"]);
 
     function openDialogPostCreate() {
       q.dialog({

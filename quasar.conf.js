@@ -10,6 +10,9 @@
 const ESLintPlugin = require('eslint-webpack-plugin')
 const { configure } = require('quasar/wrappers');
 
+// Accessing terminal variables
+console.log(process.env)
+
 module.exports = configure(function (ctx) {
   return {
     // https://quasar.dev/quasar-cli/supporting-ts
@@ -47,7 +50,8 @@ module.exports = configure(function (ctx) {
 
     // Full list of options: https://quasar.dev/quasar-cli/quasar-conf-js#Property%3A-build
     build: {
-      vueRouterMode: 'hash', // available values: 'hash', 'history'
+      env: require('dotenv').config().parsed,
+      vueRouterMode: 'history', // available values: 'hash', 'history'
 
       // transpile: false,
       // publicPath: '/',
@@ -100,7 +104,8 @@ module.exports = configure(function (ctx) {
       // Quasar plugins
       plugins: [
         'Loading',
-        'Dialog'
+        'Dialog',
+        'Notify'
       ]
     },
 

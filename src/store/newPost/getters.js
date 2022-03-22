@@ -7,7 +7,9 @@ export function getNewPost (state) {
 }
 
 export function getCroppedImagesList (state) {
-  return state.croppedImagesList
+  const croppedImagesList = []
+  state.uploadedImagesList.forEach(image => croppedImagesList.push(image.croppedValue))
+  return croppedImagesList
 }
 
 export function getUploadedImagesList (state) {
@@ -44,6 +46,6 @@ export function getHasDrafts (state) {
   return state.hasDrafts
 }
 
-export function getPreviousRouteName (state) {
-  return state.previousRouteName
+export function getPostId (state) {
+  return state.postId
 }

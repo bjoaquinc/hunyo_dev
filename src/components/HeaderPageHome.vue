@@ -1,6 +1,7 @@
 <template>
   <q-toolbar v-if="!pageHeader" class="constrain mobile-only bg-white">
     <q-img
+      @click="$router.push('/')"
       class="q-mr-sm"
       height="20px"
       width="130px"
@@ -30,7 +31,7 @@
     >
       <q-scroll-area class="fit">
         <q-list>
-          <q-item clickable>
+          <q-item :to="{ name: 'PageProfile' }" clickable>
             <q-item-section>
               <q-avatar size="72px">
                 <img src="https://cdn.quasar.dev/img/boy-avatar.png" />
@@ -41,40 +42,28 @@
 
           <q-separator spaced />
 
-          <q-item clickable>
+          <q-item @click="openDialogCommunityGuidelines" clickable>
             <q-item-section>
               <q-item-label>Community Guidelines</q-item-label>
             </q-item-section>
           </q-item>
 
-          <q-item clickable>
-            <q-item-section>
-              <q-item-label>Best Practices</q-item-label>
-            </q-item-section>
-          </q-item>
-
           <q-separator spaced />
 
-          <q-item clickable>
+          <q-item clickable to="/settings">
             <q-item-section>
               <q-item-label>Settings & Privacy</q-item-label>
             </q-item-section>
-            <q-item-section avatar>
-              <q-icon name="fas fa-cog" />
-            </q-item-section>
           </q-item>
-          <q-item clickable>
+          <q-item @click="openDialogHelp" clickable>
             <q-item-section>
               <q-item-label>Help</q-item-label>
-            </q-item-section>
-            <q-item-section avatar>
-              <q-icon name="fas fa-question-circle" />
             </q-item-section>
           </q-item>
 
           <q-separator spaced />
 
-          <q-item clickable>
+          <q-item @click="signout" clickable>
             <q-item-section>
               <q-item-label>Logout</q-item-label>
             </q-item-section>
@@ -86,6 +75,9 @@
 </template>
 
 <script>
+import DialogCommunityGuidelines from "src/components/DialogCommunityGuidelines.vue";
+import DialogHelp from "src/components/DialogHelp.vue";
+
 export default {
   props: ["pageHeader"],
   data() {
@@ -97,6 +89,26 @@ export default {
   methods: {
     toggleDrawer() {
       this.drawer = !this.drawer;
+    },
+    openDialogCommunityGuidelines() {
+      this.$q.dialog({
+        component: DialogCommunityGuidelines,
+      });
+    },
+    openDialogHelp() {
+      this.$q.dialog({
+        component: DialogHelp,
+      });
+    },
+    async signout() {
+      try {
+        await this.$store.dispatch("auth/signout");
+        this.$router.push("/landing");
+      } catch (error) {
+        this.$q.dialog({
+          message: error.message,
+        });
+      }
     },
   },
 };

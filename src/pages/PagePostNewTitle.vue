@@ -1,6 +1,9 @@
 <template>
   <div>
-    <div class="q-px-lg full-width flex column mobile-only">
+    <div
+      class="q-px-lg full-width flex column mobile-only"
+      v-if="$q.platform.is.mobile"
+    >
       <q-select
         v-model="topics"
         :rules="[
@@ -43,6 +46,7 @@
       bordered
       class="my-card absolute-center desktop-only"
       style="max-width: 500px"
+      v-else
     >
       <q-card-section class="flex q-pa-sm">
         <q-btn
@@ -118,6 +122,8 @@
 
 <script>
 import DialogSaveDraft from "src/components/DialogSaveDraft.vue";
+import DialogCommunityGuidelines from "src/components/DialogCommunityGuidelines.vue";
+import { auth } from "src/boot/firebase";
 
 export default {
   components: {
@@ -167,6 +173,14 @@ export default {
     previousRouteName() {
       return this.$store.getters["newPost/getPreviousRouteName"];
     },
+    hasSignedGuidelines() {
+      const userData = this.$store.getters["profile/getUserData"];
+      if (userData) {
+        return userData.hasSignedGuidelines;
+      } else {
+        return null;
+      }
+    },
   },
   methods: {
     confirmSaveDraft() {
@@ -176,30 +190,35 @@ export default {
             component: DialogSaveDraft,
           })
           .onOk(() => {
-            resolve("Saved!");
+            resolve("ok");
           })
           .onCancel(() => {
-            resolve(":(");
+            resolve("not ok");
           });
       });
     },
-    setRouteName(previousRouteName) {
-      console.log(previousRouteName);
-      this.$store.dispatch("newPost/setPreviousRouteName", previousRouteName);
-    },
   },
-  async beforeRouteLeave(to) {
-    if (to.name !== "PagePostNewContent" && this.title) {
-      const result = await this.confirmSaveDraft();
+  async mounted() {
+    try {
+      await this.$store.dispatch("profile/setUserData", auth.currentUser.uid);
+    } catch (error) {
+      console.log(error);
+    }
+    if (!this.hasSignedGuidelines) {
+      this.$q.dialog({
+        component: DialogCommunityGuidelines,
+      });
     }
   },
-  beforeRouteEnter(to, from, next) {
-    if (from.name !== "PagePostNewContent") {
-      next((vm) => {
-        vm.setRouteName(from.name);
-      });
+  async beforeRouteLeave(to) {
+    if (this.title && to.name !== "PagePostNewContent") {
+      const result = await this.confirmSaveDraft();
+      console.log(result);
+      this.$store.commit("newPost/clearState");
+    } else if (to.name !== "PagePostNewContent") {
+      this.$store.commit("newPost/clearState");
     } else {
-      next();
+      return;
     }
   },
 };

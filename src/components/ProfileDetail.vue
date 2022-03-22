@@ -1,130 +1,129 @@
 <template>
-  <q-card class="q-pa-md bg-white container items-start" flat bordered>
-    <div class="flex items-center full-width">
-      <q-avatar size="100px">
-        <img src="https://cdn.quasar.dev/img/boy-avatar.png" />
-      </q-avatar>
-      <q-item class="flex column items-center q-mx-auto" clickable v-ripple>
-        <div class="flex items-center">
-          <q-avatar size="38px">
-            <img src="hunyo_logo_small.png" />
-          </q-avatar>
-          <h4 class="q-my-none q-mr-xs">182</h4>
+  <div>
+    <q-card class="q-pa-md bg-white container items-start" flat bordered>
+      <div class="flex items-center full-width">
+        <q-avatar size="100px" style="border: 1px solid rgba(0, 0, 0, 0.12)">
+          <img :src="userData.photoURL" />
+        </q-avatar>
+        <q-item
+          class="flex column items-center q-mx-auto"
+          :to="{ name: 'ProfileFolder' }"
+          clickable
+          v-ripple
+        >
           <q-btn
-            outline
-            round
+            size="30px"
+            dense
             color="primary"
-            size="6px"
-            icon="fas fa-question"
+            flat
+            class="q-pa-none"
+            icon="fas fa-folder"
           />
-        </div>
-        <p class="text-weight-bold q-ma-none">Impact Score</p>
-      </q-item>
-    </div>
-    <div class="text-subtitle2 q-mt-sm">Fatima Arkin • Current employment</div>
-    <div class="full-width text-caption bio q-mb-xs">
-      Lorem ipsum dolor sit amet consectetur adipisicing elit. Sequi
-      accusantium, eveniet doloribus quisquam odit asperiores eius facilis
-      perferendis.
-    </div>
-    <q-btn
-      color="secondary"
-      class="q-pl-none"
-      size="sm"
-      icon="fas fa-map-marker-alt"
-      label="City, Country"
-      dense
-      flat
-      no-caps
-    />
-    <q-btn
-      color="secondary"
-      size="sm"
-      icon="fas fa-link"
-      label="www.yourwebsite.com"
-      dense
-      flat
-      no-caps
-    />
-    <q-btn
-      class="full-width q-mt-md"
-      color="primary"
-      label="Edit profile"
-      :to="{ name: 'PageProfileEdit' }"
-      no-caps
-      outline
-    />
-    <q-btn class="full-width q-mt-sm" color="primary" no-caps unelevated>
-      <p class="text-weight-light q-ma-none">
-        You have <span class="text-weight-bold">3 invites</span> remaining.
-        <span class="text-weight-bold">Invite now >></span>
-      </p>
-    </q-btn>
-    <div class="flex justify-between items-center q-mt-sm">
-      <p class="text-weight-bold q-ma-none">Peers</p>
+          <p class="text-weight-bold q-ma-none">Saved Posts</p>
+        </q-item>
+      </div>
+      <div class="text-subtitle1 q-mt-sm">
+        {{ userData.displayName
+        }}<span v-if="userData.work"> • {{ userData.work }}</span>
+      </div>
+      <div class="full-width bio q-mb-xs" v-if="userData.bio">
+        {{ userData.bio }}
+      </div>
       <q-btn
-        color="primary"
-        class="q-pa-none"
-        label="Find peers >"
-        no-caps
+        v-if="userData.location"
+        color="secondary"
+        class="q-pl-none"
+        icon="fas fa-map-marker-alt"
+        :label="userData.location"
+        dense
         flat
+        no-caps
       />
-    </div>
-    <q-btn
-      color="secondary"
-      class="q-pl-none q-pt-none"
-      size="11px"
-      label="13 Following"
-      dense
-      flat
-      no-caps
-    />
-    <q-btn
-      color="secondary"
-      class="q-pt-none"
-      size="11px"
-      label="8 Followers"
-      dense
-      flat
-      no-caps
-    />
-    <div class="flex justify-around">
-      <q-item class="q-pa-none q-mt-sm" clickable v-ripple>
-        <q-item-section class="q-pr-none" avatar>
-          <q-avatar class="q-mx-auto" size="60px">
-            <img src="https://cdn.quasar.dev/img/boy-avatar.png" />
-          </q-avatar>
-          <q-item-label class="q-mx-auto q-mt-sm" caption
-            >Joaquin Coromina</q-item-label
-          >
-        </q-item-section>
-      </q-item>
-      <q-item class="q-pa-none q-mt-sm" clickable v-ripple>
-        <q-item-section class="q-pr-none" avatar>
-          <q-avatar class="q-mx-auto" size="60px">
-            <img src="https://cdn.quasar.dev/img/boy-avatar.png" />
-          </q-avatar>
-          <q-item-label class="q-mx-auto q-mt-sm" caption
-            >Joaquin Coromina</q-item-label
-          >
-        </q-item-section>
-      </q-item>
-      <q-item class="q-pa-none q-mt-sm" clickable v-ripple>
-        <q-item-section class="q-pr-none" avatar>
-          <q-avatar class="q-mx-auto" size="60px">
-            <img src="https://cdn.quasar.dev/img/boy-avatar.png" />
-          </q-avatar>
-          <q-item-label class="q-mx-auto q-mt-sm" caption
-            >Joaquin Coromina</q-item-label
-          >
-        </q-item-section>
-      </q-item>
-    </div>
-  </q-card>
+      <q-btn
+        v-if="userData.website"
+        color="secondary"
+        icon="fas fa-link"
+        :label="userData.website"
+        dense
+        flat
+        no-caps
+      />
+      <q-btn
+        class="full-width q-mt-md"
+        color="primary"
+        label="Edit profile"
+        :to="{ name: 'ProfileEdit' }"
+        no-caps
+        outline
+      />
+      <!-- <q-btn class="full-width q-mt-sm" color="primary" no-caps unelevated>
+        <p class="text-weight-light q-ma-none">
+          You have <span class="text-weight-bold">3 invites</span> remaining.
+          <span class="text-weight-bold">Invite now >></span>
+        </p>
+      </q-btn> -->
+    </q-card>
+    <q-card class="q-mt-sm" bordered flat>
+      <q-card-section class="text-weight-bold">Activity</q-card-section>
+    </q-card>
+
+    <FeedList :feedItems="feedItems" />
+  </div>
 </template>
 
 <script>
-export default {};
+import { computed, ref, onMounted } from "vue";
+import { useStore } from "vuex";
+import { onBeforeRouteLeave } from "vue-router";
+import FeedList from "src/components/FeedList.vue";
+
+export default {
+  components: {
+    FeedList,
+  },
+  setup() {
+    const store = useStore();
+    const user = computed(() => store.getters["auth/getUser"]);
+    const selectedUserId = computed(() => userData.value.id);
+    const userData = computed(() => store.getters["profile/getUserData"]);
+    const feedItems = computed(() => store.getters["profile/getActivityFeed"]);
+
+    async function setUserData(userId) {
+      try {
+        await store.dispatch("profile/setUserData", userId);
+      } catch (error) {
+        console.log(error);
+      }
+    }
+
+    async function setActivityFeed(userId) {
+      try {
+        await store.dispatch("profile/setActivityFeed", userId);
+      } catch (error) {
+        console.log(error);
+      }
+    }
+
+    onMounted(async () => {
+      if (selectedUserId.value !== user.value.uid) {
+        store.commit("profile/clearState");
+        await setUserData(user.value.uid);
+        await setActivityFeed(user.value.uid);
+      } else {
+        return;
+      }
+    });
+
+    onBeforeRouteLeave((to) => {
+      if (to.name !== "ProfileEdit") store.commit("profile/clearState");
+    });
+
+    return {
+      userData,
+      feedItems,
+    };
+  },
+};
 </script>
 
 <style lang="sass" scoped>

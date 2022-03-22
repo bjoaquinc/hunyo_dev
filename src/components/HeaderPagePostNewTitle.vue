@@ -35,11 +35,6 @@ import DialogCommunityGuidelines from "src/components/DialogCommunityGuidelines.
 
 export default {
   components: { DialogCommunityGuidelines },
-  data() {
-    return {
-      hasSignedAgreement: true,
-    };
-  },
   computed: {
     title() {
       return this.$store.getters["newPost/getTitle"];
@@ -54,13 +49,7 @@ export default {
       return this.$store.getters["newPost/getPreviousRouteName"];
     },
   },
-  created() {
-    if (!this.hasSignedAgreement) {
-      this.$q.dialog({
-        component: DialogCommunityGuidelines,
-      });
-    }
-  },
+  async created() {},
 };
 </script>
 

@@ -2,11 +2,12 @@ import { initializeApp } from 'firebase/app'
 import { getAnalytics } from 'firebase/analytics'
 import { getFirestore, collection } from 'firebase/firestore'
 import { getStorage, ref } from 'firebase/storage'
+import { getAuth } from 'firebase/auth'
 import { boot } from 'quasar/wrappers'
 
 
 const firebaseConfig = {
-  apiKey: "AIzaSyBbUGDbwNl-hKXKv0DH7T1ZOQA2cQKbv8w",
+  apiKey: process.env.API_KEY,
   authDomain: "hunyo-109e6.firebaseapp.com",
   projectId: "hunyo-109e6",
   storageBucket: "hunyo-109e6.appspot.com",
@@ -22,6 +23,7 @@ const analytics = getAnalytics(firebaseApp);
 // init services
 const db = getFirestore()
 const storage = getStorage(firebaseApp)
+const auth = getAuth()
 
 // collection ref
 const postsRef = collection(db, 'posts')
@@ -36,8 +38,9 @@ export default boot( ({ app }) => {
 
   app.config.globalProperties.$db = db
   app.config.globalProperties.$postsRef = postsRef
+  app.config.globalProperties.auth = auth
   
 })
 
-export { postsRef, storageRef, imagesRef, db }
+export { postsRef, storageRef, imagesRef, db, auth, storage }
 

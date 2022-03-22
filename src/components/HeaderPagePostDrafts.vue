@@ -3,7 +3,7 @@
     <div class="filler" />
     <q-toolbar-title class="text-center">Drafts</q-toolbar-title>
     <q-btn
-      :to="{ name: previousRouteName ? previousRouteName : 'PageHome' }"
+      :to="{ name: 'PageHome' }"
       size="sm"
       icon="fas fa-times"
       dense
@@ -12,24 +12,6 @@
     />
   </q-toolbar>
 </template>
-
-<script>
-export default {
-  data() {
-    return {
-      previousRouteName: "PageHome",
-    };
-  },
-  methods: {
-    setRouteName(previousRouteName) {
-      this.previousRouteName = previousRouteName;
-    },
-  },
-  beforeRouteEnter(to, from, next) {
-    next((vm) => vm.setRouteName(from.name));
-  },
-};
-</script>
 
 <style lang="sass" scoped>
 

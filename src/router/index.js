@@ -11,14 +11,18 @@ import routes from './routes'
  * with the Router instance.
  */
 
-export default route(function (/* { store, ssrContext } */) {
+export default route(function  ({ store, ssrContext }) {
   const createHistory = process.env.SERVER
     ? createMemoryHistory
     : (process.env.VUE_ROUTER_MODE === 'history' ? createWebHistory : createWebHashHistory)
 
   const Router = createRouter({
     scrollBehavior: (to, from, savedPosition) => {
-      if (savedPosition) {
+      if (to.hash) {
+        return {
+          el: to.hash,
+        }
+      } else if (savedPosition) {
         return savedPosition
       } else {
         return {left: 0, top: 0}
@@ -30,6 +34,16 @@ export default route(function (/* { store, ssrContext } */) {
     // quasar.conf.js -> build -> vueRouterMode
     // quasar.conf.js -> build -> publicPath
     history: createHistory(process.env.MODE === 'ssr' ? void 0 : process.env.VUE_ROUTER_BASE)
+  })
+
+  Router.beforeEach((to, from, next) => {
+    if (!to.fullPath.includes('landing') && !to.fullPath.includes('signup') && !store.getters['auth/getIsAuth']) {
+      next({ name: 'PageLanding', query:{ next: to.fullPath}})
+    } else if (to.fullPath.includes('landing') && store.getters['auth/getIsAuth']) {
+      next({ name: 'PageHome' })
+    } else {
+      next()
+    }
   })
 
   return Router

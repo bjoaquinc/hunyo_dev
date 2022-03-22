@@ -5,7 +5,7 @@
         color="primary"
         icon="fas fa-arrow-left"
         label="Return"
-        :to="{ name: 'PageHome' }"
+        @click="$router.go(-1)"
         dense
         flat
       />
@@ -16,18 +16,31 @@
         @click="openDialogPostActions"
         flat
       />
-      <q-btn color="primary" icon="fas fa-folder" label="Save" unelevated />
+      <q-btn
+        @click="openDialogFoldersList"
+        color="primary"
+        icon="fas fa-folder"
+        label="Save"
+        unelevated
+      />
     </div>
-    <PostDetail :content="content" :title="title" :imagesList="imagesList" />
-    <CommentsList />
+    <PostDetail
+      :content="content"
+      :title="title"
+      :imagesList="imagesList"
+      :postId="postId"
+      :user="user"
+    />
+    <CommentsList :postId="postId" id="comments" />
   </div>
 </template>
 
 <script>
-import { getDocs } from "firebase/firestore";
+import { auth } from "src/boot/firebase";
 import PostDetail from "src/components/PostDetail.vue";
 import CommentsList from "src/components/CommentsList.vue";
 import DialogPostActions from "src/components/DialogPostActions.vue";
+import DialogFoldersList from "src/components/DialogFoldersList.vue";
 
 export default {
   name: "PagePost",
@@ -36,6 +49,7 @@ export default {
       content: "",
       imagesList: [],
       title: "",
+      user: null,
     };
   },
   props: ["postId"],
@@ -49,23 +63,68 @@ export default {
     CommentsList,
   },
   methods: {
+    openDialogFoldersList() {
+      const postData = {
+        title: this.title,
+        id: this.postId,
+        user: this.user,
+        image: "",
+      };
+      if (this.imagesList && this.imagesList.length > 0) {
+        postData.image = this.imagesList[0];
+      }
+      this.$q.dialog({
+        component: DialogFoldersList,
+        componentProps: {
+          postData,
+        },
+      });
+    },
     openDialogPostActions() {
+      let image = "";
+      if (this.imagesList && this.imagesList.length > 0) {
+        image = this.imagesList[0];
+      }
       this.$q.dialog({
         component: DialogPostActions,
+        componentProps: {
+          postData: {
+            image: image,
+            title: this.title,
+            id: this.postId,
+            user: this.user,
+          },
+        },
       });
     },
   },
   async created() {
-    console.log(this.postId);
-    this.$store.dispatch(
-      "newPost/getPostsCollection",
-      await getDocs(this.$postsRef)
-    );
-    const selectedPost = this.postsList.find((post) => post.id === this.postId);
-    const { content, title, imagesList } = selectedPost;
-    this.content = content;
-    this.title = title;
-    this.imagesList = imagesList;
+    try {
+      await this.$store.dispatch("posts/setSelectedPost", this.postId);
+      const selectedPost = this.$store.getters["posts/getSelectedPost"];
+      const { content, title, imagesList, user, userReads } = selectedPost;
+      this.content = content;
+      this.title = title;
+      this.imagesList = imagesList;
+      this.user = user;
+
+      if (userReads && userReads.includes(auth.currentUser.uid)) return;
+      if (user.id === auth.currentUser.uid) return;
+      await this.$store.dispatch("posts/readPost", this.postId);
+      await this.$store.dispatch("notifications/createNotification", {
+        type: "postRead",
+        userId: user.id,
+        content: title,
+        route: {
+          name: "FeedUser",
+          params: {
+            userId: auth.currentUser.uid,
+          },
+        },
+      });
+    } catch (error) {
+      console.log(error);
+    }
   },
 };
 </script>
