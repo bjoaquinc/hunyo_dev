@@ -8,10 +8,6 @@ export function updateTitle (state, payload) {
   state.post.title = payload
 }
 
-export function updateWithFeedback (state, payload) {
-  state.post.withFeedback = payload
-}
-
 export function updateIsQuestion (state, payload) {
   state.post.isQuestion = payload
 }
@@ -138,7 +134,6 @@ export function clearState ( state ) {
   state.post = {
     topics: [],
     title: '',
-    withFeedback: false,
     isQuestion: false,
     content: '',
     }

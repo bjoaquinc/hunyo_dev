@@ -8,10 +8,7 @@
     :position="q.platform.is.mobile ? 'bottom' : 'standard'"
   >
     <q-card class="bg-white">
-      <q-card-actions
-        class="full-width q-mt-md q-mb-sm q-px-md"
-        align="between"
-      >
+      <q-card-actions class="full-width q-mt-md q-mb-sm q-px-md" align="around">
         <q-btn
           v-close-popup
           @click="openDialogRecommendCreate"
@@ -36,6 +33,18 @@
           unelevated
           stack
         />
+        <q-btn
+          v-if="isYours"
+          v-close-popup
+          class="button-width"
+          padding="16px 5px"
+          text-color="secondary"
+          color="grey-3"
+          icon="fas fa-times"
+          label="Remove"
+          unelevated
+          stack
+        />
       </q-card-actions>
       <q-card-actions class="full-width q-mb-md q-px-md">
         <q-btn
@@ -52,6 +61,8 @@
 </template>
 
 <script>
+import { computed } from "vue";
+import { useStore } from "vuex";
 import { useDialogPluginComponent, useQuasar } from "quasar";
 import DialogRecommendCreate from "src/components/DialogRecommendCreate.vue";
 import DialogFlag from "src/components/DialogFlag.vue";
@@ -64,9 +75,13 @@ export default {
     ...useDialogPluginComponent.emits,
   ],
   setup(props) {
-    const { dialogRef, onDialogHide, onDialogCancel } =
-      useDialogPluginComponent();
+    const { dialogRef, onDialogHide } = useDialogPluginComponent();
+    const store = useStore();
     const q = useQuasar();
+    const user = computed(() => store.getters["auth/getUser"]);
+    const isYours = computed(() => {
+      return user.value.uid === props.postData.user.id ? true : false;
+    });
 
     function openDialogRecommendCreate() {
       q.dialog({
@@ -89,6 +104,7 @@ export default {
       q,
       openDialogRecommendCreate,
       openDialogFlag,
+      isYours,
     };
   },
 };

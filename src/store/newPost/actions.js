@@ -93,12 +93,11 @@ export async function createPost ( { commit }, { newPost, imagesList} ) {
     console.log('Successfully updated document')
   }
 
-  const { topics, title, withFeedback, isQuestion } = newPost
+  const { topics, title, isQuestion } = newPost
 
   const feedItemData = {
     topics,
     title,
-    withFeedback,
     isQuestion,
     createdAt: serverTimestamp(),
     user: {

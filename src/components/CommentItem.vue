@@ -1,7 +1,11 @@
 <template>
   <div class="flex column full-width">
     <q-card class="full-width" bordered flat>
-      <q-item clickable :to="{ name: userRoute, params: { userId: user.id } }">
+      <q-item
+        clickable
+        :to="{ name: userRoute, params: { userId: user.id } }"
+        style="width: fit-content"
+      >
         <q-item-section avatar>
           <q-avatar size="30px">
             <img :src="user.photo" />
@@ -20,14 +24,6 @@
         {{ comment }}
       </q-card-section>
       <q-card-actions>
-        <!-- <q-btn
-          flat
-          size="sm"
-          dense
-          color="primary"
-          icon="far fa-smile"
-          label="Helpful"
-        /> -->
         <q-btn
           @click="openDialogReplyCreate"
           flat
@@ -46,6 +42,16 @@
           icon="fas fa-flag"
           label="Flag"
         />
+        <q-btn
+          @click="deleteComment"
+          v-if="isYours"
+          flat
+          size="sm"
+          dense
+          color="primary"
+          icon="fas fa-times"
+          label="Remove"
+        />
       </q-card-actions>
       <q-card-section class="q-pl-lg">
         <ReplyList :commentId="id" :postId="postId" />
@@ -57,6 +63,7 @@
 <script>
 import { computed } from "vue";
 import { useQuasar } from "quasar";
+import { useStore } from "vuex";
 import { useRoute } from "vue-router";
 import DialogReplyCreate from "src/components/DialogReplyCreate.vue";
 import DialogFlag from "src/components/DialogFlag.vue";
@@ -69,9 +76,21 @@ export default {
   setup(props) {
     const q = useQuasar();
     const route = useRoute();
-    const userRoute = computed(() =>
-      route.meta.profile ? "ProfileUser" : "FeedUser"
-    );
+    const store = useStore();
+    const user = computed(() => store.getters["auth/getUser"]);
+    const userRoute = computed(() => {
+      const userLocation = route.meta.location;
+      if (userLocation && userLocation === "feed") {
+        return "FeedUser";
+      } else if (userLocation && userLocation === "profile") {
+        return "ProfileUser";
+      } else {
+        return "LandingUser";
+      }
+    });
+    const isYours = computed(() => {
+      return props.user.id === user.value.uid ? true : false;
+    });
 
     function openDialogReplyCreate() {
       q.dialog({
@@ -89,10 +108,23 @@ export default {
       });
     }
 
+    async function deleteComment() {
+      try {
+        await store.dispatch("comments/deleteComment", {
+          commentId: props.id,
+          postId: props.postId,
+        });
+      } catch (error) {
+        console.log(error);
+      }
+    }
+
     return {
       openDialogReplyCreate,
       openDialogFlag,
       userRoute,
+      isYours,
+      deleteComment,
     };
   },
 };

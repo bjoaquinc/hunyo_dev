@@ -30,6 +30,7 @@
           transition: `transform ${easeOut}s ease-out`,
         }"
         class="slide-container"
+        style="border: 1px solid rgba(0, 0, 0, 0.12)"
       >
         <div
           v-for="(image, index) in slides"

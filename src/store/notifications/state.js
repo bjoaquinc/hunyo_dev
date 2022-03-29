@@ -1,6 +1,7 @@
 export default function () {
   return {
     notifications: null,
-    unseenNotifications: 0
+    counter: 0,
+    unsubscribeCounter: null
   }
 }

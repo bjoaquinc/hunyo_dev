@@ -1,5 +1,6 @@
 export default function () {
   return {
-    selectedPost: null
+    selectedPost: null,
+    postItems: []
   }
 }

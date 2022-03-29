@@ -2,18 +2,41 @@ import { auth, db } from "src/boot/firebase";
 import { createUserWithEmailAndPassword, updateProfile, signOut, sendEmailVerification,
 signInWithEmailAndPassword, onAuthStateChanged, sendPasswordResetEmail, updatePassword, reauthenticateWithCredential } from "firebase/auth";
 import { setDoc, doc, updateDoc, serverTimestamp} from 'firebase/firestore'
+import { LocalStorage } from "quasar";
 
 export function setUser ( { commit } ) {
   onAuthStateChanged(auth, (user) => {
     if (user) {
       // User is signed in, see docs for a list of available properties
       // https://firebase.google.com/docs/reference/js/firebase.User
-      commit('setUser', user)
+      console.log('Auth state triggered')
+      LocalStorage.set('userData', user)
+      commit('setUser', {
+        user: user,
+        isAuth: true
+      })
       // ...
     } else {
+      LocalStorage.remove('userData')
       console.log('This user is signed out.')
     }
   });
+}
+
+export async function checkUser ( { commit } ) {
+  const localUserData = LocalStorage.getItem('userData')
+  if (localUserData === null) {
+    commit('setUser', { 
+      user: localUserData,
+      isAuth: false
+    })
+  } else {
+    commit('setUser', {
+      user: localUserData,
+      isAuth: true
+    })
+  }
+  
 }
 
 export async function createUser ( { commit }, { email, password }) {
@@ -70,6 +93,10 @@ export async function signIn ( { commit }, { email, password}) {
   const response = await signInWithEmailAndPassword(auth, email, password)
   if (response) {
     const user = response.user
+    commit('setUser', {
+      user,
+      isAuth: true
+    })
     console.log('Successfully signed in: ', user)
   } else {
     throw new Error('Could not complete sign in.')

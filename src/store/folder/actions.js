@@ -54,12 +54,6 @@ export async function setFolders ( { commit } ) {
     console.log('Could not subscribe to folders')
     throw error
   })
-  // const docsSnapshot = await getDocs(foldersRef).catch(error => {throw error})
-  // if (docsSnapshot) {
-  //   docsSnapshot.forEach(doc => folders.push({ name: doc.data().name, id: doc.id}))
-  // }
-  // commit('setFolders', folders)
-  // console.log('Successfully set folders: ', folders)
 }
 
 export async function setUnorganizedPosts ( { commit } ) {
@@ -75,12 +69,6 @@ export async function setUnorganizedPosts ( { commit } ) {
     console.log('Could not subscribe to unorganized posts')
     throw error
   })
-  // const docsSnapshot = await getDocs(q).catch(error => {throw error})
-  // if (docsSnapshot) {
-  //   docsSnapshot.forEach(doc => unorganizedPosts.push({...doc.data(), id: doc.id}))
-  // }
-  // commit('setUnorganizedPosts', unorganizedPosts)
-  // console.log('Successfully set unorganized posts: ', unorganizedPosts)
 }
 
 export async function setPosts ( { commit }, folderId ) {
@@ -96,14 +84,6 @@ export async function setPosts ( { commit }, folderId ) {
     console.log('Could not subscribe to posts')
     throw error
   })
-  // const docsSnapshot = await getDocs(q).catch(error => {throw error})
-  // if (docsSnapshot) {
-  //   docsSnapshot.forEach(doc => posts.push({...doc.data(), id: doc.id}))
-  //   commit('setPosts', posts)
-  //   console.log('Successfully set posts: ', posts)
-  // } else {
-  //   throw new Error('Could not find posts.')
-  // }
 }
 
 export async function movePosts ( { commit }, { selectedPostsList, folder } ) {

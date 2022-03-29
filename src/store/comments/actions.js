@@ -1,5 +1,6 @@
 import { auth, db } from "src/boot/firebase";
-import { addDoc, collection, serverTimestamp, orderBy, query, onSnapshot } from "firebase/firestore";
+import { addDoc, collection, serverTimestamp, orderBy, 
+  query, onSnapshot, deleteDoc, doc } from "firebase/firestore";
 
 export async function createComment ( { commit }, { postId, comment, selectedType} ) {
 
@@ -70,4 +71,8 @@ export async function setRepliesList ( { commit }, { postId, commentId }) {
   }, (error) => {
     throw error
   })
+}
+
+export async function deleteComment ( { commit }, { postId, commentId }) {
+  await deleteDoc(doc(db, 'posts', postId, 'comments', commentId)).catch(error => {throw error})
 }

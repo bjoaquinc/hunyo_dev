@@ -76,55 +76,6 @@ export default {
         });
         console.log(error);
       }
-
-      // const auth = getAuth();
-
-      // if (email && password) {
-      //   createUserWithEmailAndPassword(auth, email, password)
-      //     .then((cred) => {
-      //       // console.log('User succssfully created!')
-      //       const user = cred.user;
-      //       updateProfile(user, {
-      //         displayName: name,
-      //         photoURL:
-      //           "https://firebasestorage.googleapis.com/v0/b/hunyo-109e6.appspot.com/o/profile_pics%2Fdefault.png?alt=media&token=6311df79-fcb6-4245-8e84-c1afb9ed459f",
-      //       })
-      //         .then(() => {
-      //           // console.log('User successfully updated: ', user.displayName, user.photoURL)
-      //           if (!user.emailVerified) {
-      //             sendEmailVerification(user, {
-      //               url: "http://localhost:8080/",
-      //             });
-      //           }
-      //         })
-      //         .catch((error) => {
-      //           console.log(error.code);
-      //         });
-      //     })
-      //     .catch((error) => {
-      //       const errorCode = error.code;
-      //       const errorMessage = error.message;
-      //       console.log(errorCode, errorMessage);
-      //       if (errorCode === "auth/email-already-in-use") {
-      //         q.dialog({
-      //           message: "Email is already in use. Please try another one.",
-      //         });
-      //       }
-      //       // ..
-      //     });
-      // } else {
-      //   console.log(
-      //     "Missing email, password or name. Please fill in all required fields."
-      //   );
-      // }
-
-      // onAuthStateChanged(auth, (user) => {
-      //   if (user) {
-      //     router.push("/signup/email-verification");
-      //   } else {
-      //     console.log("User is Signed Out.");
-      //   }
-      // });
     }
 
     return {

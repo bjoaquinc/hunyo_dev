@@ -1,37 +1,41 @@
 <template>
-  <div>
-    <div class="flex items-center q-mb-md desktop-only">
-      <q-btn
-        color="primary"
-        icon="fas fa-arrow-left"
-        label="Return"
-        @click="$router.go(-1)"
-        dense
-        flat
+  <div :class="isPublic ? 'row' : ''" class="q-mt-md">
+    <div :class="isPublic ? 'col-12 col-sm-7' : ''">
+      <div class="flex items-center q-mb-md desktop-only">
+        <q-btn
+          color="primary"
+          icon="fas fa-arrow-left"
+          label="Return"
+          @click="$router.go(-1)"
+          dense
+          flat
+        />
+        <q-btn
+          v-if="!isPublic"
+          class="q-ml-auto q-mr-sm"
+          color="primary"
+          icon="fas fa-ellipsis-h"
+          @click="openDialogPostActions"
+          flat
+        />
+        <q-btn
+          v-if="!isPublic"
+          @click="openDialogFoldersList"
+          color="primary"
+          icon="fas fa-folder"
+          label="Save"
+          unelevated
+        />
+      </div>
+      <PostDetail
+        :content="content"
+        :title="title"
+        :imagesList="imagesList"
+        :postId="postId"
+        :user="user"
       />
-      <q-btn
-        class="q-ml-auto q-mr-sm"
-        color="primary"
-        icon="fas fa-ellipsis-h"
-        @click="openDialogPostActions"
-        flat
-      />
-      <q-btn
-        @click="openDialogFoldersList"
-        color="primary"
-        icon="fas fa-folder"
-        label="Save"
-        unelevated
-      />
+      <CommentsList v-if="!isPublic" :postId="postId" id="comments" />
     </div>
-    <PostDetail
-      :content="content"
-      :title="title"
-      :imagesList="imagesList"
-      :postId="postId"
-      :user="user"
-    />
-    <CommentsList :postId="postId" id="comments" />
   </div>
 </template>
 
@@ -56,6 +60,12 @@ export default {
   computed: {
     postsList() {
       return this.$store.getters["newPost/getPostsList"];
+    },
+    isPublic() {
+      return this.$route.name === "LandingPost" ? true : false;
+    },
+    currentUser() {
+      return this.$store.getters["auth/getUser"];
     },
   },
   components: {
@@ -107,9 +117,9 @@ export default {
       this.title = title;
       this.imagesList = imagesList;
       this.user = user;
-
-      if (userReads && userReads.includes(auth.currentUser.uid)) return;
-      if (user.id === auth.currentUser.uid) return;
+      if (!this.currentUser) return;
+      if (userReads && userReads.includes(this.currentUser.uid)) return;
+      if (user.id === this.currentUser.uid) return;
       await this.$store.dispatch("posts/readPost", this.postId);
       await this.$store.dispatch("notifications/createNotification", {
         type: "postRead",
@@ -118,7 +128,7 @@ export default {
         route: {
           name: "FeedUser",
           params: {
-            userId: auth.currentUser.uid,
+            userId: this.currentUser.uid,
           },
         },
       });

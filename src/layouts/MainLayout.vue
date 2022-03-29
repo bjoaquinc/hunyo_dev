@@ -109,3 +109,8 @@ export default {
   },
 };
 </script>
+
+<style lang="sass">
+.q-avatar
+  border: 1px solid rgba(0, 0, 0, 0.12)
+</style>

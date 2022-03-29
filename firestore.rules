@@ -2,24 +2,38 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
   	match /feedItems/{feedItem} {
-      allow read: if request.auth != null;
-      allow write: if resource.data.user.id == request.auth.uid;
+      allow read: if true;
+      allow create: if request.auth.uid == request.resource.data.user.id;
+      allow delete, update: if request.auth.uid == resource.data.user.id;
     }
     match /folderItems/{folderItem} {
-      allow read: if request.auth.uid == folderItem.userId;
-      allow write: if request.auth.uid == request.resource.data.userId;
+      allow read: if resource.data.userId == request.auth.uid;
+      allow create: if request.auth.uid == request.resource.data.userId;
+      allow delete, update: if request.auth.uid == resource.data.userId;
+    }
+    match /followItems/{followItem} {
+      allow read: if request.auth.uid != null;
+      allow create: if request.auth.uid == request.resource.data.followingUser.id;
+      allow delete, update: if request.auth.uid == resource.data.followingUser.id;
     }
     match /posts/{post=**} {
-      allow read: if request.auth != null;
-      allow write: if request.resource.data.user.id == request.auth.uid;
+      allow read: if true;
+      allow update: if request.auth != null;
+      allow create: if request.auth.uid == request.resource.data.user.id;
+      allow delete: if request.auth.uid == resource.data.user.id;
     }
     match /users/{user} {
-      allow read: if request.auth != null;
-      allow write: if request.resource.data.user.id == request.auth.uid;
-    }
-    match /users/{user}/folders/{folder} {
-      allow read: if request.auth.uid == resource.data.userId;
-      allow write: if request.auth.uid == request.resource.data.userId;
+    	allow read: if true;
+      allow write: if request.auth.uid == user;
+      
+      match /folders/{folder} {
+      	allow read, write: if request.auth.uid == user;
+      }
+      
+      match /notifications/{notification} {
+      	allow read: if request.auth.uid == user;
+      	allow write: if request.auth.uid == user || request.auth.uid == request.resource.data.user.id;
+      }
     }
   }
 }

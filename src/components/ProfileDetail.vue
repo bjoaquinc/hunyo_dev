@@ -2,7 +2,7 @@
   <div>
     <q-card class="q-pa-md bg-white container items-start" flat bordered>
       <div class="flex items-center full-width">
-        <q-avatar size="100px" style="border: 1px solid rgba(0, 0, 0, 0.12)">
+        <q-avatar size="100px">
           <img :src="userData.photoURL" />
         </q-avatar>
         <q-item

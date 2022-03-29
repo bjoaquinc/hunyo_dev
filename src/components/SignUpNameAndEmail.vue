@@ -1,7 +1,7 @@
 <template>
   <div>
     <div class="full-width flex justify-center">
-      <q-avatar size="80px">
+      <q-avatar size="80px" style="border: none !important">
         <img src="hunyo_logo_small.png" />
       </q-avatar>
     </div>

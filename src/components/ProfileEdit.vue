@@ -26,6 +26,10 @@
           dense
           flat
         />
+        <div class="text-caption text-italic text-negative">
+          We're an informal community so please upload a picture of yourself not
+          your company logo.
+        </div>
       </div>
 
       <input

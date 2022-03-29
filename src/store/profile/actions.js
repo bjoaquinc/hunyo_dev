@@ -112,12 +112,10 @@ function dataURItoBlob(dataURI) {
 
 export async function setRecommendItem ( { commit }, recommendId) {
   const feedItemRef = doc(db, 'feedItems', recommendId)
-  console.log('Recommend action triggered')
+  console.log(recommendId)
 
   const docSnapshot = await getDoc(feedItemRef).catch(error => {throw error})
-
-  console.log(docSnapshot)
-  if (docSnapshot) {
+  if (docSnapshot.exists()) {
     commit('setRecommendItem', {...docSnapshot.data(), id: docSnapshot.id})
     console.log('Successfully set Recommend Item: ', docSnapshot)
   } else {

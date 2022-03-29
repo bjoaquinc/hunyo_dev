@@ -26,10 +26,6 @@ export function getTopicsList (state) {
   return state.post.topics
 }
 
-export function getWithFeedback (state) {
-  return state.post.withFeedback
-}
-
 export function getIsQuestion (state) {
   return state.post.isQuestion
 }

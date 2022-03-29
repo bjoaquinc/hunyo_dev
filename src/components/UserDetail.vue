@@ -10,6 +10,7 @@
         flat
       />
       <q-btn
+        v-if="!isPublic"
         @click="followItem ? toggleIsFollowing() : followUser()"
         color="primary"
         class="q-ml-auto"
@@ -19,7 +20,7 @@
     </div>
     <q-card class="q-pa-md bg-white container items-start" flat bordered>
       <div class="flex items-center full-width">
-        <q-avatar size="100px" style="border: 1px solid rgba(0, 0, 0, 0.12)">
+        <q-avatar size="100px">
           <img :src="userData.photoURL" />
         </q-avatar>
       </div>
@@ -56,18 +57,20 @@
         </p>
       </q-btn> -->
     </q-card>
-    <q-card class="q-mt-sm" bordered flat>
-      <q-card-section class="text-weight-bold">Activity</q-card-section>
+    <q-card v-if="!isPublic" class="q-mt-sm" bordered flat>
+      <q-card-section>
+        <q-card-label title class="text-weight-bold">Activity</q-card-label>
+      </q-card-section>
     </q-card>
 
-    <FeedList :feedItems="feedItems" />
+    <FeedList v-if="!isPublic" :feedItems="feedItems" />
   </div>
 </template>
 
 <script>
 import { computed, onMounted } from "vue";
 import { useStore } from "vuex";
-import { useRouter, onBeforeRouteLeave } from "vue-router";
+import { useRouter, onBeforeRouteLeave, useRoute } from "vue-router";
 import { auth } from "src/boot/firebase";
 import FeedList from "src/components/FeedList.vue";
 
@@ -79,8 +82,8 @@ export default {
   setup(props) {
     const store = useStore();
     const router = useRouter();
+    const route = useRoute();
     const currentUser = computed(() => store.getters["auth/getUser"]);
-    const selectedUserId = computed(() => userData.value.id);
     const userData = computed(() => store.getters["profile/getUserData"]);
     const unsubscribeUser = computed(
       () => store.getters["profile/getUnsubscribeUser"]
@@ -89,6 +92,9 @@ export default {
     const followItem = computed(() => store.getters["users/getFollowItem"]);
     const unsubscribeFollowItem = computed(
       () => store.getters["users/getUnsubscribeFollowItem"]
+    );
+    const isPublic = computed(() =>
+      route.name === "LandingUser" ? true : false
     );
 
     async function setUserData(userId) {
@@ -108,13 +114,16 @@ export default {
     }
 
     onMounted(async () => {
-      if (props.userId === currentUser.value.uid) {
+      if (currentUser.value && props.userId === currentUser.value.uid) {
         router.push({ name: "PageProfile" });
       } else {
-        await setUserData(props.userId);
-        await setActivityFeed(props.userId);
         try {
-          await store.dispatch("users/setFollowItem", props.userId);
+          console.log(props.userId);
+          await setUserData(props.userId);
+          await setActivityFeed(props.userId);
+          if (!isPublic.value) {
+            await store.dispatch("users/setFollowItem", props.userId);
+          }
         } catch (error) {
           console.log(error);
         }
@@ -172,6 +181,7 @@ export default {
       followUser,
       followItem,
       toggleIsFollowing,
+      isPublic,
     };
   },
 };

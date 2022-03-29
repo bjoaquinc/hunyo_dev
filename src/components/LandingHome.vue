@@ -73,7 +73,7 @@
       class="col-12 flex column items-center q-px-md"
       style="min-height: 80vh"
     >
-      <q-avatar size="100px" square>
+      <q-avatar size="100px" style="border: none !important" square>
         <img src="hunyo_logo_small.png" />
       </q-avatar>
       <div class="text-h4">About Hunyo</div>
@@ -99,6 +99,7 @@
           unelevated
         />
         <q-btn
+          :to="{ name: 'LandingPosts' }"
           class="q-mt-sm"
           :style="{ minWidth: q.platform.is.mobile ? '100%' : '45%' }"
           color="primary"
@@ -167,10 +168,11 @@ export default {
             email: email.value,
             password: password.value,
           });
-          console.log(route.query);
-          router.push(
-            route.query.next ? route.query.next : { name: "PageHome" }
-          );
+          if (route.query.next) {
+            router.push(route.query.next);
+          } else {
+            router.push({ name: "PageHome" });
+          }
         } catch (error) {
           q.dialog({
             message: error.message,

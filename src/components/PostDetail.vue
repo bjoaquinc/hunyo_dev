@@ -23,6 +23,7 @@
     </q-card-section>
 
     <q-item
+      class="q-py-sm"
       clickable
       :to="{
         name: userRoute,
@@ -42,9 +43,9 @@
       </q-item-section>
     </q-item>
 
-    <q-separator />
+    <q-separator v-if="!isPublic" />
 
-    <q-card-actions align="around">
+    <q-card-actions align="around" v-if="!isPublic">
       <q-btn
         @click="openDialogRecommendCreate"
         color="primary"
@@ -67,7 +68,7 @@
 
     <q-separator />
 
-    <q-item>
+    <q-item v-if="!isPublic">
       <q-item-section avatar>
         <q-avatar>
           <img :src="currentUserPhoto" />
@@ -113,7 +114,17 @@ export default {
         : false;
     },
     userRoute() {
-      return this.$route.meta.profile ? "ProfileUser" : "FeedUser";
+      const userLocation = this.$route.meta.location;
+      if (userLocation && userLocation === "feed") {
+        return "FeedUser";
+      } else if (userLocation && userLocation === "profile") {
+        return "ProfileUser";
+      } else {
+        return "LandingUser";
+      }
+    },
+    isPublic() {
+      return this.$route.name === "LandingPost" ? true : false;
     },
   },
   methods: {

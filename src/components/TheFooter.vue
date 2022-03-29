@@ -38,7 +38,9 @@
         dense
         flat
       >
-        <q-badge color="red" floating>2</q-badge>
+        <q-badge v-if="counterValue" color="red" floating>{{
+          counterValue
+        }}</q-badge>
       </q-route-tab>
       <q-route-tab
         class="col q-ml-xs"
@@ -56,9 +58,10 @@
 </template>
 
 <script>
-import { ref, computed } from "vue";
+import { computed, onMounted, watch } from "vue";
 import { useStore } from "vuex";
 import { useQuasar } from "quasar";
+import { auth } from "src/boot/firebase";
 import DialogPostCreate from "src/components/DialogPostCreate.vue";
 
 export default {
@@ -67,6 +70,10 @@ export default {
     const q = useQuasar();
     const store = useStore();
     const hasDrafts = computed(() => store.getters["getHasDrafts"]);
+    const counterValue = computed(
+      () => store.getters["notifications/getCounter"]
+    );
+    const user = computed(() => store.getters["auth/getUser"]);
 
     function openDialogPostCreate() {
       q.dialog({
@@ -74,9 +81,20 @@ export default {
       });
     }
 
+    onMounted(() => {
+      try {
+        if (!user.value) return;
+        store.dispatch("notifications/setCounter", user.value.uid);
+        console.log("Successfully set counter.");
+      } catch (error) {
+        console.log(error);
+      }
+    });
+
     return {
       hasDrafts,
       openDialogPostCreate,
+      counterValue,
     };
   },
 };

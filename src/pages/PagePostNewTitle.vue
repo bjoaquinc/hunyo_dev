@@ -27,14 +27,6 @@
       />
       <div class="q-gutter-sm q-mt-lg text-grey-7">
         <q-checkbox
-          v-model="withFeedback"
-          class="q-ma-none"
-          style="align-items: flex-start !important"
-          label="Check if you want constructive feedback on your post. (All feedback must follow community guidelines. No trolling allowed.)"
-        />
-      </div>
-      <div class="q-gutter-sm q-mt-lg text-grey-7">
-        <q-checkbox
           v-model="isQuestion"
           class="q-ma-none"
           label="Check if you are asking a question."
@@ -45,7 +37,7 @@
     <q-card
       bordered
       class="my-card absolute-center desktop-only"
-      style="max-width: 500px"
+      style="max-width: 500px; min-width: 40vw"
       v-else
     >
       <q-card-section class="flex q-pa-sm">
@@ -92,14 +84,6 @@
       <q-card-section>
         <div class="q-mt-md text-grey-7">
           <q-checkbox
-            v-model="withFeedback"
-            class="q-ma-none"
-            style="align-items: flex-start !important"
-            label="Check if you want constructive feedback on your post. (All feedback must follow community guidelines. No trolling allowed.)"
-          />
-        </div>
-        <div class="q-mt-md text-grey-7">
-          <q-checkbox
             v-model="isQuestion"
             class="q-ma-none"
             label="Check if you are asking a question."
@@ -144,14 +128,6 @@ export default {
       },
       set(value) {
         this.$store.commit("newPost/updateTitle", value);
-      },
-    },
-    withFeedback: {
-      get() {
-        return this.$store.getters["newPost/getWithFeedback"];
-      },
-      set(value) {
-        this.$store.commit("newPost/updateWithFeedback", value);
       },
     },
     isQuestion: {

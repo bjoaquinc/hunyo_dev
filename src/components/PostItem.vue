@@ -9,6 +9,7 @@
           >{{ title }}</q-item-label
         >
         <q-btn
+          v-if="!isPublic"
           class="col-1 q-mb-auto q-mt-xs"
           @click="openPostActionsDialog"
           color="primary"
@@ -26,7 +27,6 @@
     />
 
     <q-item
-      class="q-pt-none"
       clickable
       :to="{
         name: userRoute,
@@ -47,6 +47,7 @@
     </q-item>
     <q-card-actions class="q-px-md">
       <q-btn
+        v-if="!isPublic"
         @click="openDialogFoldersList"
         color="primary"
         unelevated
@@ -96,10 +97,27 @@ export default {
       return this.feedItem.user;
     },
     userRoute() {
-      return this.$route.meta.profile ? "ProfileUser" : "FeedUser";
+      const userLocation = this.$route.meta.location;
+      if (userLocation && userLocation === "feed") {
+        return "FeedUser";
+      } else if (userLocation && userLocation === "profile") {
+        return "ProfileUser";
+      } else {
+        return "LandingUser";
+      }
     },
     postRoute() {
-      return this.$route.meta.profile ? "ProfilePost" : "FeedPost";
+      const postLocation = this.$route.meta.location;
+      if (postLocation && postLocation === "feed") {
+        return "FeedPost";
+      } else if (postLocation && postLocation === "profile") {
+        return "ProfilePost";
+      } else {
+        return "LandingPost";
+      }
+    },
+    isPublic() {
+      return this.$route.name === "LandingPosts" ? true : false;
     },
   },
   methods: {

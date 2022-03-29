@@ -30,6 +30,7 @@
       >
         <q-item-section class="q-pr-none" avatar>
           <q-avatar
+            style="border: none !important"
             class="q-mx-auto"
             text-color="primary"
             size="100px"
@@ -55,9 +56,7 @@
         v-ripple
       >
         <q-item-section avatar>
-          <q-avatar rounded size="xl">
-            <q-icon color="primary" name="fas fa-folder" />
-          </q-avatar>
+          <q-icon color="primary" name="fas fa-folder" />
         </q-item-section>
         <q-item-section>{{ name }}</q-item-section>
       </q-item>

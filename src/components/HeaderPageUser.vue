@@ -8,6 +8,7 @@
       dense
     />
     <q-btn
+      v-if="!isPublic"
       @click="followItem ? toggleIsFollowing() : followUser()"
       color="primary"
       class="q-ml-auto"
@@ -21,12 +22,17 @@
 import { computed } from "vue";
 import { auth } from "src/boot/firebase";
 import { useStore } from "vuex";
+import { useRoute } from "vue-router";
 
 export default {
   setup(props) {
     const store = useStore();
     const userData = computed(() => store.getters["profile/getUserData"]);
     const followItem = computed(() => store.getters["users/getFollowItem"]);
+    const route = useRoute();
+    const isPublic = computed(() =>
+      route.name === "LandingUser" ? true : false
+    );
 
     async function followUser() {
       try {
@@ -50,7 +56,6 @@ export default {
 
     async function toggleIsFollowing() {
       try {
-        console.log("Toggle is following");
         await store.dispatch("users/toggleIsFollowing", {
           followItemId: followItem.value.id,
           isFollowing: followItem.value.isFollowing,
@@ -65,6 +70,7 @@ export default {
       followUser,
       followItem,
       toggleIsFollowing,
+      isPublic,
     };
   },
 };

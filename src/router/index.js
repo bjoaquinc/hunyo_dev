@@ -1,6 +1,7 @@
 import { route } from 'quasar/wrappers'
 import { createRouter, createMemoryHistory, createWebHistory, createWebHashHistory } from 'vue-router'
 import routes from './routes'
+import { auth } from 'src/boot/firebase'
 
 /*
  * If not building with SSR mode, you can
@@ -36,11 +37,21 @@ export default route(function  ({ store, ssrContext }) {
     history: createHistory(process.env.MODE === 'ssr' ? void 0 : process.env.VUE_ROUTER_BASE)
   })
 
-  Router.beforeEach((to, from, next) => {
-    if (!to.fullPath.includes('landing') && !to.fullPath.includes('signup') && !store.getters['auth/getIsAuth']) {
+  Router.beforeResolve( async (to, from, next) => {
+    const isAuth = store.getters['auth/getIsAuth']
+    await store.dispatch('auth/checkUser')
+    if (to.name === 'ProfileUser' || to.name === 'FeedUser' && !isAuth) {
+      next({ name: 'LandingUser', params: to.params })
+    } else if (to.name === 'ProfilePost' || to.name === 'FeedPost' && !isAuth) {
+      next({ name: 'LandingPost', params: to.params })
+    } else if (!to.fullPath.includes('landing') && !to.fullPath.includes('signup') && !isAuth) {
       next({ name: 'PageLanding', query:{ next: to.fullPath}})
-    } else if (to.fullPath.includes('landing') && store.getters['auth/getIsAuth']) {
-      next({ name: 'PageHome' })
+    } else if (to.fullPath.includes('landing') && isAuth && to.query) {
+      console.log('triggered block: ', to.query)
+      next(to.query.next)
+    } else if (to.fullPath.includes('landing') && isAuth) {
+      console.log('also triggered')
+      next({ name: 'PageHome'})
     } else {
       next()
     }

@@ -1,11 +1,13 @@
+import { LocalStorage } from "quasar"
+
 export default function () {
   return {
-    isAuth: true,
     newUser: {
       name: '',
       email: '',
       password: ''
     },
-    user: null
+    user: null,
+    isAuth: false
   }
 }

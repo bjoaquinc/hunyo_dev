@@ -4,7 +4,7 @@
       v-for="(feedItem, index) in feedItems"
       :id="id"
       :key="index"
-      class="q-mt-md"
+      class="q-mb-md"
     >
       <Component :is="type(index)" :feedItem="feedItem" />
     </q-item>
@@ -37,5 +37,5 @@ export default {
   flex-wrap: wrap
   display: inherit
   position: inherit
-  padding: 2px 0 0 0
+  padding: 0 0 0 0
 </style>

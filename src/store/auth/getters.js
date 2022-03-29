@@ -3,7 +3,7 @@ export function getNewUser ( state ) {
 }
 
 export function getIsAuth ( state ) {
-  return state.user ? true : false
+  return state.isAuth
 }
 
 export function getUser (state ) {

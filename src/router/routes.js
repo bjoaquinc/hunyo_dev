@@ -22,6 +22,8 @@ import ProfileEdit from 'src/components/ProfileEdit.vue'
 import ProfileFolder from 'src/components/ProfileFolder.vue'
 import LandingJoin from 'src/components/LandingJoin.vue'
 import LandingHome from 'src/components/LandingHome.vue'
+import LandingPosts from 'src/components/LandingPosts.vue'
+import LandingUser from 'src/components/LandingUser.vue'
 import LandingPasswordReset from 'src/components/LandingPasswordReset.vue'
 import SettingsList from 'src/components/SettingsList.vue'
 import SettingsEmail from 'src/components/SettingsEmail.vue'
@@ -31,9 +33,6 @@ import SettingsPrivacy from 'src/components/SettingsPrivacy.vue'
 import UserDetail from 'src/components/UserDetail.vue'
 import FolderDetail from 'src/components/FolderDetail.vue'
 import ProfileRecommendDetail from 'src/components/ProfileRecommendDetail.vue'
-
-//test
-
 import DialogProfileImageCropper from 'src/components/DialogProfileImageCropper.vue'
 
 
@@ -46,21 +45,23 @@ const routes = [
       { path: '/landing', component: PageLanding,  meta: { header: 'HeaderPageLanding'}, children: [
         { path: '', component: LandingHome, name: 'PageLanding' },
         { path: 'join', component: LandingJoin, name: 'LandingJoin' },
-        { path: 'posts', component: null },
-        { path: 'password-reset', component: LandingPasswordReset, name: 'LandingPasswordReset'}
+        { path: 'password-reset', component: LandingPasswordReset, name: 'LandingPasswordReset'},
+        { path: 'posts', component: LandingPosts, name: 'LandingPosts' },
+        { path: ':postId', component: PagePost, name: 'LandingPost', props: true, meta: { header: 'HeaderPagePost' } },
+        { path: 'members/:userId', component: LandingUser, name: 'LandingUser', props: true, meta: { header: 'HeaderPageUser' }},
       ] },
-      { path: '/', component: PageHome, children: [
+      { path: '/', component: PageHome, meta: { location: 'feed' }, children: [
         { path: '', component: FeedList, name: 'PageHome', meta: { header: 'HeaderPageHome' } },
         { path: 'posts/:postId', component: PagePost, name: 'FeedPost', props: true,  meta: { header: 'HeaderPagePost' } },
         { path: 'members/:userId', component: UserDetail, name: 'FeedUser', props: true,  meta: { header: 'HeaderPageUser' } }
       ] },
-      { path: '/new-post/drafts', component: PagePostDrafts, name: 'PagePostDrafts' },
+      { path: '/new-post/drafts', component: PagePostDrafts, name: 'PagePostDrafts', meta: { header: 'HeaderPagePostDrafts' } },
       { path: '/new-post/title', component: PagePostNewTitle, name: 'PagePostNewTitle',  meta: { header: 'HeaderPagePostNewTitle', withoutDesktopHeader: true }  },
       { path: '/new-post/content', component: PagePostNewContent, name: 'PagePostNewContent', meta: { header: 'HeaderPagePostNewContent', withoutDesktopHeader: true } , children: [
         { path: 'cropper', component: ImageCropper, name: 'ImageCropper' }
       ] },
       { path: '/activity', component: PageActivity, name: 'PageActivity',  meta: { header: 'HeaderPageActivity' } },
-      { path: '/profile', component: PageProfile, meta: { profile: true }, children: [
+      { path: '/profile', component: PageProfile, meta: { location: 'profile' }, children: [
         { path: '', component: ProfileDetail, name: 'PageProfile', meta: { header: 'HeaderPageProfile' } },
         { path: 'edit', component: ProfileEdit, name: 'ProfileEdit', meta: { header: 'HeaderProfileEdit' }, children: [
           { path: 'cropper', component: DialogProfileImageCropper, name: 'ProfileImageCropper'}

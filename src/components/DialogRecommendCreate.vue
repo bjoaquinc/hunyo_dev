@@ -27,10 +27,16 @@
       </q-card-section>
 
       <q-separator />
+
+      <q-card-section class="q-pb-none">
+        <div class="text-subtitle2">
+          {{ postData.title }}
+        </div>
+      </q-card-section>
       <q-card-section>
         <q-input
           outlined
-          label="Why recommend this post? (Optional)"
+          label="Why do you think this post is interesting?"
           type="textarea"
           v-model="caption"
         />
@@ -53,6 +59,7 @@
 import { useDialogPluginComponent, useQuasar } from "quasar";
 import { ref, computed } from "vue";
 import { useStore } from "vuex";
+import { auth } from "src/boot/firebase";
 
 export default {
   props: ["postData"],
@@ -70,6 +77,9 @@ export default {
 
     async function createRecommendation() {
       try {
+        if (props.postData.user.id === auth.currentUser.uid) {
+          throw new Error("You can't recommend your own post.");
+        }
         await store.dispatch("feed/createRecommendation", {
           postData: props.postData,
           caption: caption.value,
@@ -107,6 +117,7 @@ export default {
         }
       } catch (error) {
         console.log(error);
+        q.notify({ message: error.message, color: "negative" });
       }
     }
     return {

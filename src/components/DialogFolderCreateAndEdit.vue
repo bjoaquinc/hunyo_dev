@@ -81,14 +81,27 @@ export default {
       set: (value) => store.commit("folder/setNewFolderName", value),
     });
     const newFolder = computed(() => store.getters["folder/getNewFolder"]);
+    const folderItems = computed(
+      () => store.getters["folder/getSelectedPostsList"]
+    );
+
+    console.log("Folder items: ", folderItems.value);
 
     async function createFolder() {
-      console.log("Function Triggered");
       try {
         await store.dispatch("folder/createFolder", {
           newFolderName: newFolderName.value,
         });
-        if (newFolder.value) {
+        console.log("Folder items: ", folderItems.value);
+        if (folderItems.value && folderItems.value.length > 0) {
+          await store.dispatch("folder/movePosts", {
+            selectedPostsList: folderItems.value,
+            folder: newFolder.value,
+          });
+          q.notify({
+            message: `Moved to ${newFolder.value.name}`,
+          });
+        } else if (newFolder.value) {
           await store.dispatch("folder/savePost", {
             postData: props.postData,
             folder: newFolder.value,

@@ -1,5 +1,5 @@
 import { auth, db } from "src/boot/firebase";
-import { addDoc, collection, onSnapshot, orderBy, serverTimestamp, query } from "firebase/firestore";
+import { addDoc, collection, onSnapshot, orderBy, serverTimestamp, query, updateDoc, setDoc, doc } from "firebase/firestore";
 
 export async function createNotification( { commit }, { content, type, userId, route}) {
   const notificationData = {
@@ -11,7 +11,8 @@ export async function createNotification( { commit }, { content, type, userId, r
     },
     type,
     content: null,
-    route
+    route,
+    userId
   }
 
   if (content) {
@@ -32,12 +33,36 @@ export async function setNotifications( { commit }) {
   onSnapshot(q, (querySnapshot) => {
     const notifications = []
     querySnapshot.forEach(doc => {
-      notifications.push({
-        ...doc.data(),
-        id: doc.id
-      })
+      if (doc.id !== 'counter') {
+          notifications.push({
+          ...doc.data(),
+          id: doc.id
+        })
+      }
     })
     commit('setNotifications', notifications)
     console.log('Successfully set notifications: ', notifications)
   })
+}
+
+export function setCounter ( { commit }, userId ) {
+  const counterRef = doc(db, 'users', userId, 'notifications', 'counter')
+  const unsubscribeCounter = onSnapshot(counterRef, (docSnapshot) => {
+    if (docSnapshot.data()) {
+      const newCount = docSnapshot.data().value
+      commit('setCounter', { newCount, unsubscribeCounter })
+    } else {
+      throw new Error('Could not find counter')
+    } 
+  }, (error) => {
+    throw error
+  })
+}
+
+export async function resetCounter ( { commit } ) {
+  const counterRef = doc(db, 'users', auth.currentUser.uid, 'notifications', 'counter')
+  await updateDoc(counterRef, {
+    value: 0
+  }).catch(error => {throw error})
+  console.log('Successfully reset counter')
 }

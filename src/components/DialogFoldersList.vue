@@ -62,9 +62,7 @@
           v-close-popup
         >
           <q-item-section avatar>
-            <q-avatar rounded>
-              <q-icon color="primary" name="fas fa-star" />
-            </q-avatar>
+            <q-icon color="primary" name="fas fa-star" />
           </q-item-section>
           <q-item-section class="text-subtitle1"
             >Quick Save and Organize Later</q-item-section
@@ -81,9 +79,7 @@
           v-close-popup
         >
           <q-item-section avatar>
-            <q-avatar rounded>
-              <q-icon color="primary" name="fas fa-folder" />
-            </q-avatar>
+            <q-icon color="primary" name="fas fa-folder" />
           </q-item-section>
           <q-item-section>{{ name }}</q-item-section>
         </q-item>
@@ -95,9 +91,7 @@
           v-close-popup
         >
           <q-item-section avatar>
-            <q-avatar rounded>
-              <q-icon color="primary" name="fas fa-plus" />
-            </q-avatar>
+            <q-icon color="primary" name="fas fa-plus" />
           </q-item-section>
           <q-item-section>Create Folder</q-item-section>
         </q-item>

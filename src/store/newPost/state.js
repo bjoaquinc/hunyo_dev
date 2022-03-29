@@ -5,7 +5,6 @@ export default function () {
     post: {
       topics: [],
       title: '',
-      withFeedback: false,
       isQuestion: false,
       content: '',
     },

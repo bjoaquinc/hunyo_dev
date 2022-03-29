@@ -33,8 +33,8 @@
         <q-list>
           <q-item :to="{ name: 'PageProfile' }" clickable>
             <q-item-section>
-              <q-avatar size="72px">
-                <img src="https://cdn.quasar.dev/img/boy-avatar.png" />
+              <q-avatar v-if="user" size="72px">
+                <img :src="user.photoURL" />
               </q-avatar>
               <div class="text-subtitle1 q-mt-md q-mb-xs">View My Profile</div>
             </q-item-section>
@@ -85,6 +85,11 @@ export default {
       text: "",
       drawer: false,
     };
+  },
+  computed: {
+    user() {
+      return this.$store.getters["auth/getUser"];
+    },
   },
   methods: {
     toggleDrawer() {

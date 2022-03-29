@@ -23,16 +23,15 @@
           :options="types"
           class="full-width"
           label="Comment Type *"
-          hint="Choose the type of comment you want to make"
+          hint="Choose the type that best describes your comment"
         />
       </q-card-actions>
       <q-card-actions class="fullwidth q-mb-sm q-px-md">
         <q-input
           v-model="comment"
           class="q-mx-none full-width"
-          hint="Write your comment here"
+          hint="Write your comment"
           label="Comment"
-          placeholder="A guide based on the type of comment chosen here..."
         />
       </q-card-actions>
       <q-card-actions class="full-width q-mb-md q-px-md">

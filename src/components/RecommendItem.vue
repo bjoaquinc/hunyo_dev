@@ -42,13 +42,17 @@
         :to="{ name: postRoute, params: { postId: feedItem.postData.id } }"
       >
         <q-card
-          class="flex items-center full-width q-ml-auto"
+          class="flex column items-between justify-around full-width q-ml-auto"
           style="min-height: 200px"
         >
           <q-card-section>
             <div class="text-subtitle1">{{ feedItem.postData.title }}</div>
           </q-card-section>
-          <q-img :src="feedItem.postData.image" :ratio="1" />
+          <q-img
+            :src="feedItem.postData.image"
+            :ratio="1"
+            v-if="feedItem.postData.image"
+          />
           <q-item class="q-pt-none q-mt-sm">
             <q-item-section avatar>
               <q-avatar>
@@ -76,15 +80,30 @@ import DialogFlag from "src/components/DialogFlag.vue";
 
 export default {
   props: ["feedItem", "withoutPost"],
-  setup() {
+  setup(props) {
     const q = useQuasar();
     const route = useRoute();
-    const postRoute = computed(() =>
-      route.meta.profile ? "ProfilePost" : "FeedPost"
-    );
-    const userRoute = computed(() =>
-      route.meta.profile ? "ProfileUser" : "FeedUser"
-    );
+    const postRoute = computed(() => {
+      const postLocation = route.meta.location;
+      if (postLocation && postLocation === "feed") {
+        return "FeedPost";
+      } else if (postLocation && postLocation === "profile") {
+        return "ProfilePost";
+      } else {
+        return "LandingPost";
+      }
+    });
+    const userRoute = computed(() => {
+      const userLocation = route.meta.location;
+      if (userLocation && userLocation === "feed") {
+        return "FeedUser";
+      } else if (userLocation && userLocation === "profile") {
+        return "ProfileUser";
+      } else {
+        return "LandingUser";
+      }
+    });
+    console.log(props.feedItem);
 
     function openDialogFlag() {
       q.dialog({

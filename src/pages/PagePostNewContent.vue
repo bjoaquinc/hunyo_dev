@@ -13,7 +13,7 @@
         dense
         :placeholder="`Write your ${
           isQuestion ? 'complete question' : 'post'
-        } here. Maximum of 250 words.`"
+        } here. Suggested maximum of 250 words.`"
         type="textarea"
         outlined
       />

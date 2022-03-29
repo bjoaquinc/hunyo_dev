@@ -34,7 +34,6 @@ export default {
 
     async function setRecommendItem(recommendId) {
       try {
-        console.log("setRecommendItem: ", recommendId);
         await store.dispatch("profile/setRecommendItem", recommendId);
       } catch (error) {
         console.log(error);
@@ -44,7 +43,6 @@ export default {
     console.log(props.recommendId);
 
     onMounted(async () => {
-      console.log("Mounted functions triggered");
       await setRecommendItem(props.recommendId);
     });
 

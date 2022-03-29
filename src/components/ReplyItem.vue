@@ -1,6 +1,10 @@
 <template>
   <q-card class="full-width" flat>
-    <q-item clickable :to="{ name: userRoute, params: { userId: user.id } }">
+    <q-item
+      clickable
+      :to="{ name: userRoute, params: { userId: user.id } }"
+      style="width: fit-content"
+    >
       <q-item-section avatar>
         <q-avatar size="30px">
           <img :src="user.photo" />
@@ -19,14 +23,6 @@
       {{ reply }}
     </q-card-section>
     <q-card-actions>
-      <!-- <q-btn
-        flat
-        size="sm"
-        dense
-        color="primary"
-        icon="far fa-smile"
-        label="Helpful"
-      /> -->
       <q-btn
         @click="openDialogFlag"
         flat
@@ -36,6 +32,15 @@
         icon="fas fa-flag"
         label="Flag"
       />
+      <q-btn
+        v-if="isYours"
+        flat
+        size="sm"
+        dense
+        color="primary"
+        icon="fas fa-times"
+        label="Remove"
+      />
     </q-card-actions>
   </q-card>
 </template>
@@ -44,16 +49,27 @@
 import { useQuasar } from "quasar";
 import { computed } from "vue";
 import { useRoute } from "vue-router";
+import { auth } from "src/boot/firebase";
 import DialogFlag from "src/components/DialogFlag.vue";
 
 export default {
   props: ["reply", "id", "user"],
-  setup() {
+  setup(props) {
     const q = useQuasar();
     const route = useRoute();
-    const userRoute = computed(() =>
-      route.meta.profile ? "ProfileUser" : "FeedUser"
-    );
+    const userRoute = computed(() => {
+      const userLocation = route.meta.location;
+      if (userLocation && userLocation === "feed") {
+        return "FeedUser";
+      } else if (userLocation && userLocation === "profile") {
+        return "ProfileUser";
+      } else {
+        return "LandingUser";
+      }
+    });
+    const isYours = computed(() => {
+      return props.user.id === auth.currentUser.uid ? true : false;
+    });
 
     function openDialogFlag() {
       q.dialog({
@@ -64,6 +80,7 @@ export default {
     return {
       openDialogFlag,
       userRoute,
+      isYours,
     };
   },
 };

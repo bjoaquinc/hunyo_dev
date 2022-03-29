@@ -1,6 +1,7 @@
 <template>
   <q-list class="bg-white">
     <component
+      style="border: 1px solid rgba(0, 0, 0, 0.12)"
       :is="type"
       v-for="{ id, content, route, type, user } in notifications"
       :key="id"
@@ -39,17 +40,17 @@ export default {
     const notifications = computed(
       () => store.getters["notifications/getNotifications"]
     );
+    const counter = computed(() => store.getters["notifications/getCounter"]);
 
-    async function setNotifications() {
+    onMounted(async () => {
       try {
         await store.dispatch("notifications/setNotifications");
+        if (counter.value) {
+          await store.dispatch("notifications/resetCounter");
+        }
       } catch (error) {
         console.log(error);
       }
-    }
-
-    onMounted(async () => {
-      await setNotifications();
     });
 
     return {

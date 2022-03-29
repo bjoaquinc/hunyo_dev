@@ -10,12 +10,14 @@ export function setPassword ( state, password ) {
   state.newUser.password = password
 }
 
-export function setUser ( state, user ) {
+export function setUser ( state, { user, isAuth} ) {
   state.user = user
+  state.isAuth = isAuth
 }
 
 export function removeUser ( state ) {
   state.user = null
+  state.isAuth = false
 }
 
 export function logOut ( state ) {

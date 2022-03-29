@@ -3,7 +3,7 @@
     <div class="filler" />
     <q-toolbar-title class="text-center">Drafts</q-toolbar-title>
     <q-btn
-      :to="{ name: 'PageHome' }"
+      @click="$router.go(-1)"
       size="sm"
       icon="fas fa-times"
       dense

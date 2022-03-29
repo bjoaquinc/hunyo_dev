@@ -1,4 +1,4 @@
-import { updateDoc, arrayUnion, doc, getDoc } from "firebase/firestore"
+import { updateDoc, arrayUnion, doc, getDoc, collection, getDocs, query, orderBy, where } from "firebase/firestore"
 import { db, auth } from "src/boot/firebase"
 
 export async function readPost ( { commit }, postId ) {
@@ -21,5 +21,26 @@ export async function setSelectedPost ( { commit }, postId ) {
     console.log('Successfully set post: ', selectedPost)
   } else {
     throw new Error('Could not get post.')
+  }
+}
+
+export async function removePost ( { commit }, postId ) {
+  const postRef = doc(db, 'posts', postId)
+}
+
+export async function setLandingPosts ( { commit } ) {
+  const feedItemsRef = collection(db, 'feedItems')
+  const q = query(feedItemsRef, where('type', '==', 'post'), orderBy('createdAt', 'desc'));
+  const docsSnapshot = await getDocs(q)
+  if (docsSnapshot) {
+    const postItems = []
+    docsSnapshot.forEach(doc => {
+      postItems.push({
+        ...doc.data(), id: doc.id
+      })
+    })
+    commit('setLandingPosts', postItems)
+  } else {
+    throw new Error('Could not find posts')
   }
 }

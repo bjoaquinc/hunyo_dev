@@ -8,6 +8,7 @@
       dense
     />
     <q-btn
+      v-if="!isPublic"
       @click="openPostActionsDialog"
       class="q-ml-auto q-mr-sm"
       color="primary"
@@ -16,6 +17,7 @@
       dense
     />
     <q-btn
+      v-if="!isPublic"
       @click="openDialogFoldersList"
       color="primary"
       label="Save"
@@ -30,6 +32,7 @@
 <script>
 import { computed } from "vue";
 import { useStore } from "vuex";
+import { useRoute } from "vue-router";
 import { useQuasar } from "quasar";
 import DialogPostActions from "src/components/DialogPostActions.vue";
 import DialogFoldersList from "src/components/DialogFoldersList.vue";
@@ -41,7 +44,11 @@ export default {
   setup() {
     const q = useQuasar();
     const store = useStore();
-    const selectedPost = computed(() => store.getters["feed/getSelectedPost"]);
+    const selectedPost = computed(() => store.getters["posts/getSelectedPost"]);
+    const route = useRoute();
+    const isPublic = computed(() =>
+      route.name === "LandingPost" ? true : false
+    );
 
     function openDialogFoldersList() {
       const { title, postId, user, imagesList } = selectedPost.value;
@@ -80,6 +87,7 @@ export default {
     return {
       openPostActionsDialog,
       openDialogFoldersList,
+      isPublic,
     };
   },
 };
