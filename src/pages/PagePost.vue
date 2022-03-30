@@ -40,11 +40,11 @@
 </template>
 
 <script>
-import { auth } from "src/boot/firebase";
 import PostDetail from "src/components/PostDetail.vue";
 import CommentsList from "src/components/CommentsList.vue";
 import DialogPostActions from "src/components/DialogPostActions.vue";
 import DialogFoldersList from "src/components/DialogFoldersList.vue";
+import DialogLandingPopUp from "src/components/DialogLandingPopUp.vue";
 
 export default {
   name: "PagePost",
@@ -134,6 +134,15 @@ export default {
       });
     } catch (error) {
       console.log(error);
+    }
+  },
+  mounted() {
+    if (this.$route.name === "LandingPost") {
+      setTimeout(() => {
+        this.$q.dialog({
+          component: DialogLandingPopUp,
+        });
+      }, 2000);
     }
   },
 };

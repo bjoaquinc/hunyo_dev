@@ -64,6 +64,7 @@
     </q-card>
 
     <FeedList v-if="!isPublic" :feedItems="feedItems" />
+    <LandingCardPrompt v-if="isPublic" />
   </div>
 </template>
 
@@ -73,11 +74,13 @@ import { useStore } from "vuex";
 import { useRouter, onBeforeRouteLeave, useRoute } from "vue-router";
 import { auth } from "src/boot/firebase";
 import FeedList from "src/components/FeedList.vue";
+import LandingCardPrompt from "src/components/LandingCardPrompt.vue";
 
 export default {
   props: ["userId", "lastRoute"],
   components: {
     FeedList,
+    LandingCardPrompt,
   },
   setup(props) {
     const store = useStore();

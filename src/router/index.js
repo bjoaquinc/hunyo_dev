@@ -40,9 +40,9 @@ export default route(function  ({ store, ssrContext }) {
   Router.beforeResolve( async (to, from, next) => {
     const isAuth = store.getters['auth/getIsAuth']
     await store.dispatch('auth/checkUser')
-    if (to.name === 'ProfileUser' || to.name === 'FeedUser' && !isAuth) {
+    if (to.name === 'ProfileUser' && !isAuth || to.name === 'FeedUser' && !isAuth) {
       next({ name: 'LandingUser', params: to.params })
-    } else if (to.name === 'ProfilePost' || to.name === 'FeedPost' && !isAuth) {
+    } else if (to.name === 'ProfilePost' && !isAuth || to.name === 'FeedPost' && !isAuth) {
       next({ name: 'LandingPost', params: to.params })
     } else if (!to.fullPath.includes('landing') && !to.fullPath.includes('signup') && !isAuth) {
       next({ name: 'PageLanding', query:{ next: to.fullPath}})
