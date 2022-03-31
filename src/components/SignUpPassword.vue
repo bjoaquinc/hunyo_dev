@@ -67,8 +67,8 @@ export default {
         await store.dispatch("auth/createUser", {
           email,
           password: password.value,
+          name,
         });
-        await store.dispatch("auth/updateUser", name);
         router.push("/signup/email-verification");
       } catch (error) {
         q.dialog({

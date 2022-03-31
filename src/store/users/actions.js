@@ -1,4 +1,4 @@
-import { collection, doc, addDoc, where, getDoc, updateDoc, query, getDocs, onSnapshot } from "firebase/firestore";
+import { collection, doc, addDoc, where, orderBy, updateDoc, query, getDocs, onSnapshot } from "firebase/firestore";
 import { db, auth } from "src/boot/firebase";
 
 export async function followUser ( { commit }, {name, id, photo}) {
@@ -30,7 +30,6 @@ export async function toggleIsFollowing ( { commit }, {followItemId, isFollowing
 }
 
 export async function setFollowItem ( { commit }, id) {
-  console.log('function worked')
   const followItemsRef = collection(db, 'followItems')
   const q = query(followItemsRef, where('followedUser.id', '==', id), where('followingUser.id', '==', auth.currentUser.uid))
   console.log(q)
@@ -65,4 +64,27 @@ export async function setFollowersList( { commit } ) {
     commit('setFollowersList', followersList)
     console.log('Successfully set followersList: ', followersList)
   }
+}
+
+export async function setActivityFeed ( { commit }, userId ) {
+  const feedList = []
+  const colRef = collection(db, 'feedItems')
+  const q = query(colRef, where('user.id', "==", userId), orderBy('createdAt', 'desc'))
+
+  const docSnapshots = await getDocs(q).catch(error => {throw error})
+
+  docSnapshots.forEach(doc => feedList.push({...doc.data(), id: doc.id}))
+  commit('setActivityFeed', feedList)
+  console.log('Successfully set User Activity Feed: ', feedList)
+}
+
+export async function setUserData ( { commit }, userId) {
+  const unsubscribeUser = onSnapshot(doc(db, 'users', userId), (doc) => {
+    const userData = {...doc.data(), id: doc.id}
+    commit('setUserData', { userData, unsubscribeUser})
+    console.log('Successfully got User Data: ', userData)
+  }, (error) => {
+    console.log('Could not subscribe to userdata')
+    throw error
+  })
 }

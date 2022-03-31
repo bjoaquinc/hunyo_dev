@@ -40,8 +40,6 @@ export default {
       }
     }
 
-    console.log(props.recommendId);
-
     onMounted(async () => {
       await setRecommendItem(props.recommendId);
     });

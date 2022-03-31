@@ -7,6 +7,14 @@ export function setUserData ( state, {userData, unsubscribeUser}) {
   state.unsubscribeUser = unsubscribeUser
 }
 
+export function setEditedUserData ( state, userData ) {
+  state.editedUserData = {...userData}
+}
+
+export function updateEditedUserData (state, { key, value }) {
+  state.editedUserData[key] = value
+}
+
 export function setActivityFeed ( state, feedList ) {
   state.activityFeed = feedList
 }
@@ -16,7 +24,7 @@ export function convertUploadedImage ( state, payload ) {
 }
 
 export function setNewProfilePicture ( state, payload ) {
-  state.newProfilePicture = payload
+  state.editedUserData['photoURL'] = payload
 }
 
 export function clearImages (state) {

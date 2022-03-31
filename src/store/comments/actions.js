@@ -74,5 +74,11 @@ export async function setRepliesList ( { commit }, { postId, commentId }) {
 }
 
 export async function deleteComment ( { commit }, { postId, commentId }) {
-  await deleteDoc(doc(db, 'posts', postId, 'comments', commentId)).catch(error => {throw error})
+  const commentRef = doc(db, 'posts', postId, 'comments', commentId)
+  await deleteDoc(commentRef).catch(error => {throw error})
+}
+
+export async function deleteReply ( { commit }, { postId, commentId, replyId }) {
+  const replyRef = doc(db, 'posts', postId, 'comments', commentId, 'replies', replyId);
+  await deleteDoc(replyRef).catch(error => {throw error})
 }

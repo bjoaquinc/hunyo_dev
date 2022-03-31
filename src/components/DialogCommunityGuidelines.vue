@@ -72,8 +72,7 @@
       </q-card-section>
       <q-card-actions v-if="!hasSignedGuidelines">
         <q-btn
-          v-close-popup
-          @click="signGuidelines"
+          @click="onOKClick"
           label="I agree"
           color="primary"
           unelevated
@@ -100,7 +99,7 @@ export default {
     ...useDialogPluginComponent.emits,
   ],
   setup() {
-    const { dialogRef, onDialogHide } = useDialogPluginComponent();
+    const { dialogRef, onDialogHide, onDialogOK } = useDialogPluginComponent();
     const q = useQuasar();
     const store = useStore();
     const hasSignedGuidelines = computed(() => {
@@ -112,22 +111,18 @@ export default {
       }
     });
 
-    async function signGuidelines() {
-      try {
-        await store.dispatch("profile/updateUserData", {
-          hasSignedGuidelines: true,
-        });
-      } catch (error) {
-        console.log(error);
-      }
-    }
-
     return {
       dialogRef,
       onDialogHide,
       q,
+      onOKClick() {
+        // on OK, it is REQUIRED to
+        // call onDialogOK (with optional payload)
+        onDialogOK();
+        // or with payload: onDialogOK({ ... })
+        // ...and it will also hide the dialog automatically
+      },
       hasSignedGuidelines,
-      signGuidelines,
     };
   },
 };

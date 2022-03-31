@@ -15,7 +15,7 @@
 
     <q-btn
       @click="createPost"
-      :disable="missingFields"
+      :disable="isIncomplete"
       color="primary"
       :to="{ name: 'PagePostNewContent' }"
       label="Post"
@@ -43,12 +43,14 @@ export default {
     const imagesList = computed(
       () => store.getters["newPost/getCroppedImagesList"]
     );
-    const { content, title, topics } = newPost.value;
 
-    console.log(content, title, topics);
-
-    const missingFields = computed(() => {
-      return !topics.length || !title || !content ? true : false;
+    const isIncomplete = computed(() => {
+      console.log("triggered");
+      return newPost.value.topics.length &&
+        newPost.value.title &&
+        newPost.value.content
+        ? false
+        : true;
     });
 
     async function createPost() {
@@ -68,7 +70,7 @@ export default {
     }
 
     return {
-      missingFields,
+      isIncomplete,
       createPost,
     };
   },

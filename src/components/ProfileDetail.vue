@@ -1,6 +1,11 @@
 <template>
-  <div>
-    <q-card class="q-pa-md bg-white container items-start" flat bordered>
+  <div v-if="userData">
+    <q-card
+      class="q-pa-md bg-white container items-start"
+      flat
+      bordered
+      v-if="userData"
+    >
       <div class="flex items-center full-width">
         <q-avatar size="100px">
           <img :src="userData.photoURL" />
@@ -88,14 +93,6 @@ export default {
     const userData = computed(() => store.getters["profile/getUserData"]);
     const feedItems = computed(() => store.getters["profile/getActivityFeed"]);
 
-    async function setUserData(userId) {
-      try {
-        await store.dispatch("profile/setUserData", userId);
-      } catch (error) {
-        console.log(error);
-      }
-    }
-
     async function setActivityFeed(userId) {
       try {
         await store.dispatch("profile/setActivityFeed", userId);
@@ -105,17 +102,7 @@ export default {
     }
 
     onMounted(async () => {
-      if (selectedUserId.value !== user.value.uid) {
-        store.commit("profile/clearState");
-        await setUserData(user.value.uid);
-        await setActivityFeed(user.value.uid);
-      } else {
-        return;
-      }
-    });
-
-    onBeforeRouteLeave((to) => {
-      if (to.name !== "ProfileEdit") store.commit("profile/clearState");
+      await setActivityFeed(user.value.uid);
     });
 
     return {

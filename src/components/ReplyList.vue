@@ -1,7 +1,13 @@
 <template>
   <q-list class="bg-white q-pl-md">
     <q-item v-for="{ reply, id, user } in repliesList" :key="id">
-      <ReplyItem :reply="reply" :id="id" :user="user" />
+      <ReplyItem
+        :reply="reply"
+        :id="id"
+        :user="user"
+        :commentId="commentId"
+        :postId="postId"
+      />
     </q-item>
   </q-list>
 </template>

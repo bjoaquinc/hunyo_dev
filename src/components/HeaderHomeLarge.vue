@@ -65,8 +65,8 @@
           <q-list>
             <q-item clickable :to="{ name: 'PageProfile' }" v-close-popup>
               <q-item-section>
-                <q-avatar size="72px" v-if="user">
-                  <img :src="user.photoURL" />
+                <q-avatar size="72px" v-if="userData">
+                  <img :src="userData.photoURL" />
                 </q-avatar>
                 <div class="text-subtitle1 q-mt-md q-mb-xs">
                   View My Profile
@@ -120,7 +120,6 @@ import NotificationsList from "src/components/NotificationsList.vue";
 import DialogPostCreate from "src/components/DialogPostCreate";
 import DialogCommunityGuidelines from "src/components/DialogCommunityGuidelines.vue";
 import DialogHelp from "src/components/DialogHelp.vue";
-import { auth } from "src/boot/firebase";
 
 export default {
   components: {
@@ -144,6 +143,12 @@ export default {
     user() {
       return this.$store.getters["auth/getUser"];
     },
+    userData() {
+      return this.$store.getters["profile/getUserData"];
+    },
+    unsubscribeUser() {
+      return this.$store.getters["profile/getUnsubscribeUser"];
+    },
   },
   methods: {
     toggleDrawer() {
@@ -166,6 +171,9 @@ export default {
     },
     async signout() {
       try {
+        if (this.unsubscribeUser) {
+          this.unsubscribeUser();
+        }
         await this.$store.dispatch("auth/signout");
         this.$router.push("/landing");
       } catch (error) {

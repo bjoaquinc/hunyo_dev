@@ -103,7 +103,6 @@ export default {
         return "LandingUser";
       }
     });
-    console.log(props.feedItem);
 
     function openDialogFlag() {
       q.dialog({

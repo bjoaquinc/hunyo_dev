@@ -1,7 +1,7 @@
 import { route } from 'quasar/wrappers'
 import { createRouter, createMemoryHistory, createWebHistory, createWebHashHistory } from 'vue-router'
 import routes from './routes'
-import { auth } from 'src/boot/firebase'
+import { LocalStorage } from 'quasar'
 
 /*
  * If not building with SSR mode, you can
@@ -38,7 +38,7 @@ export default route(function  ({ store, ssrContext }) {
   })
 
   Router.beforeResolve( async (to, from, next) => {
-    const isAuth = store.getters['auth/getIsAuth']
+    const isAuth = LocalStorage.getItem('user')
     await store.dispatch('auth/checkUser')
     if (to.name === 'ProfileUser' && !isAuth || to.name === 'FeedUser' && !isAuth) {
       next({ name: 'LandingUser', params: to.params })

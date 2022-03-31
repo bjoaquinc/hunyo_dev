@@ -1,5 +1,5 @@
 <template>
-  <div class="q-pa-md">
+  <div class="q-pa-md" v-if="userId">
     <div class="flex items-center q-mb-md desktop-only">
       <q-btn
         :to="{ name: 'PageProfile' }"
@@ -14,7 +14,7 @@
       <div class="flex column flex-center">
         <q-btn round align="center" @click="manageUploader">
           <q-avatar size="110px">
-            <img :src="newProfilePicture ? newProfilePicture : photoURL" />
+            <img :src="photoURL" />
           </q-avatar>
         </q-btn>
         <q-btn
@@ -46,30 +46,87 @@
         class="full-width"
         filled
         label="Full name *"
-        hint="Name and surname"
+        hint="Real Name Required"
         lazy-rules
         :rules="[(val) => (val && val.length > 0) || 'Please type something']"
       />
 
       <q-input
-        v-model="work"
+        v-model="profession"
         dense
         class="full-width"
         filled
-        label="Work"
-        hint="Current employment or self employed"
+        label="Profession"
+        hint="For Verification Purposes"
         lazy-rules
       />
 
       <q-input
-        v-model="bio"
+        v-model="licenseNumber"
         dense
         class="full-width"
         filled
-        type="textarea"
-        label="Bio"
-        hint="Describe yourself"
+        label="License Number"
+        hint="Will Not Be Made Public. For Verification Purposes"
         lazy-rules
+      />
+
+      <q-input
+        v-model="birthdate"
+        filled
+        dense
+        class="full-width"
+        :rules="['date']"
+        label="Birthdate"
+        hint="yyyy/mm/dd. For Verification Purposes"
+      >
+        <template v-slot:append>
+          <q-icon name="event" class="cursor-pointer">
+            <q-popup-proxy
+              ref="qDateProxy"
+              cover
+              transition-show="scale"
+              transition-hide="scale"
+            >
+              <q-date v-model="birthdate">
+                <div class="row items-center justify-end">
+                  <q-btn v-close-popup label="Close" color="primary" flat />
+                </div>
+              </q-date>
+            </q-popup-proxy>
+          </q-icon>
+        </template>
+      </q-input>
+
+      <q-select
+        v-model="experience"
+        :options="experienceOptions"
+        filled
+        dense
+        class="full-width"
+        label="Years of Professional Experience"
+        hint="Will Not Be Made Public"
+      />
+
+      <q-input
+        v-model="employerName"
+        dense
+        class="full-width"
+        filled
+        label="Employer Name"
+        hint="Name of Company, University, or Self-Employed"
+        lazy-rules
+      />
+
+      <q-select
+        v-model="employerSize"
+        :options="employerSizeOptions"
+        :class="q.platform.is.mobile ? 'q-mb-md' : ''"
+        filled
+        dense
+        class="full-width"
+        label="Company Size"
+        hint="Select size only if your company is based locally, otherwise select Based Abroad or Academe"
       />
 
       <q-input
@@ -88,16 +145,28 @@
         class="full-width"
         filled
         label="Website"
-        hint="Professional website or linkedin page"
+        hint="Professional website or LinkedIn Account"
+        lazy-rules
+      />
+
+      <q-input
+        v-model="bio"
+        autogrow
+        dense
+        class="full-width q-mb-md"
+        filled
+        type="textarea"
+        label="Bio"
+        hint="Describe Yourself. Ex: Job Title, Professional interests/specialties, and maybe one hobby or interesting fact about you. (Designers are fun, too!)"
         lazy-rules
       />
 
       <q-btn
         @click="updateUserData"
-        :disable="isDisabled"
         label="Done"
         color="primary"
         class="full-width q-mt-md"
+        :disable="!isEdited"
         unelevated
       />
     </q-form>
@@ -114,10 +183,11 @@
 </template>
 
 <script>
-import { ref, computed } from "vue";
+import { ref, computed, watch } from "vue";
 import { useStore } from "vuex";
 import { useRouter, onBeforeRouteLeave } from "vue-router";
 import { useQuasar } from "quasar";
+import DialogSaveDraft from "src/components/DialogSaveDraft.vue";
 
 export default {
   setup() {
@@ -126,32 +196,123 @@ export default {
     const q = useQuasar();
     const cropperDialog = ref(false);
     const imageInput = ref(null);
-
-    const name = ref("");
-    const work = ref("");
-    const bio = ref("");
-    const location = ref("");
-    const website = ref("");
-
     const userData = computed(() => store.getters["profile/getUserData"]);
+    const userId = computed(() => store.getters["profile/getUserId"]);
+    const editedUserData = computed(
+      () => store.getters["profile/getEditedUserData"]
+    );
+    const experienceOptions = ref(["0-2", "3-4", "5-10", "11+"]);
+    const employerSizeOptions = ref([
+      "1-5 people",
+      "6-15 people",
+      "16+ people",
+      "Based Abroad",
+      "Academe",
+      "Unsure",
+    ]);
+    store.commit("profile/setEditedUserData", userData.value);
+    const name = computed({
+      get: () => editedUserData.value.displayName,
+      set: (value) =>
+        store.commit("profile/updateEditedUserData", {
+          key: "displayName",
+          value,
+        }),
+    });
+    const profession = computed({
+      get: () => editedUserData.value.profession,
+      set: (value) =>
+        store.commit("profile/updateEditedUserData", {
+          key: "profession",
+          value,
+        }),
+    });
+    const licenseNumber = computed({
+      get: () => editedUserData.value.licenseNumber,
+      set: (value) =>
+        store.commit("profile/updateEditedUserData", {
+          key: "licenseNumber",
+          value,
+        }),
+    });
+    const birthdate = computed({
+      get: () => editedUserData.value.birthdate,
+      set: (value) =>
+        store.commit("profile/updateEditedUserData", {
+          key: "birthdate",
+          value,
+        }),
+    });
+    const experience = computed({
+      get: () => editedUserData.value.experience,
+      set: (value) =>
+        store.commit("profile/updateEditedUserData", {
+          key: "experience",
+          value,
+        }),
+    });
+    const employerName = computed({
+      get: () => editedUserData.value.employerName,
+      set: (value) =>
+        store.commit("profile/updateEditedUserData", {
+          key: "employerName",
+          value,
+        }),
+    });
+    const employerSize = computed({
+      get: () => editedUserData.value.employerSize,
+      set: (value) =>
+        store.commit("profile/updateEditedUserData", {
+          key: "employerSize",
+          value,
+        }),
+    });
+    const location = computed({
+      get: () => editedUserData.value.location,
+      set: (value) =>
+        store.commit("profile/updateEditedUserData", {
+          key: "location",
+          value,
+        }),
+    });
+    const website = computed({
+      get: () => editedUserData.value.website,
+      set: (value) =>
+        store.commit("profile/updateEditedUserData", { key: "website", value }),
+    });
+    const bio = computed({
+      get: () => editedUserData.value.bio,
+      set: (value) =>
+        store.commit("profile/updateEditedUserData", { key: "bio", value }),
+    });
     const newProfilePicture = computed(
       () => store.getters["profile/newProfilePicture"]
     );
-    const { displayName, photoURL } = userData.value;
-    const isDisabled = computed(() => {
-      if (
-        name.value !== displayName ||
-        work.value !== userData.value.work ||
-        bio.value !== userData.value.bio ||
-        location.value !== userData.value.location ||
-        website.value !== userData.value.website ||
-        newProfilePicture.value
-      ) {
+    const photoURL = computed(() => editedUserData.value.photoURL);
+
+    function shallowEqual(object1, object2) {
+      const keys1 = Object.keys(object1);
+      const keys2 = Object.keys(object2);
+      if (keys1.length !== keys2.length) {
         return false;
-      } else {
-        return true;
+      }
+      for (let key of keys1) {
+        if (object1[key] !== object2[key]) {
+          return false;
+        }
+      }
+      return true;
+    }
+
+    watch(userId, (newValue, oldValue) => {
+      if (newValue) {
+        store.commit("profile/setEditedUserData", userData.value);
       }
     });
+
+    const isEdited = computed(() =>
+      shallowEqual(editedUserData.value, userData.value) ? false : true
+    );
 
     function manageUploader() {
       imageInput.value.click();
@@ -172,34 +333,50 @@ export default {
       cropperDialog.value = false;
     }
 
-    name.value = displayName;
-    work.value = userData.value.work ? userData.value.work : "";
-    bio.value = userData.value.bio ? userData.value.bio : "";
-    location.value = userData.value.location ? userData.value.location : "";
-    website.value = userData.value.website ? userData.value.website : "";
-
     async function updateUserData() {
       try {
-        await store.dispatch("profile/updateUserData", {
-          displayName: name.value,
-          work: work.value,
-          bio: bio.value,
-          location: location.value,
-          website: website.value,
-        });
-        if (newProfilePicture.value) {
+        if (userData.value.photoURL !== photoURL.value) {
           await store.dispatch(
             "profile/uploadAndUpdatePhotoURL",
-            newProfilePicture.value
+            photoURL.value
           );
         }
+        if (userData.value.displayName !== editedUserData.value.displayName) {
+          await store.dispatch(
+            "auth/updateUserName",
+            editedUserData.value.displayName
+          );
+        }
+        await store.dispatch("profile/updateUserData", {
+          ...editedUserData.value,
+        });
+        store.commit("profile/setEditedUserData", userData.value);
         router.push({ name: "PageProfile" });
       } catch (error) {
         console.log(error);
       }
     }
 
-    onBeforeRouteLeave((to) => {
+    function confirmSaveDraft() {
+      return new Promise((resolve) => {
+        q.dialog({
+          component: DialogSaveDraft,
+        })
+          .onOk(() => {
+            resolve("Save Changes");
+            updateUserData();
+          })
+          .onCancel(() => {
+            resolve("Delete Changes");
+          });
+      });
+    }
+
+    onBeforeRouteLeave(async (to) => {
+      if (isEdited.value) {
+        const result = await confirmSaveDraft();
+        console.log(result);
+      }
       if (to.name !== "ProfileImageCropper") {
         store.commit("profile/clearImages");
       }
@@ -208,19 +385,27 @@ export default {
     return {
       q,
       cropperDialog,
+      experienceOptions,
+      employerSizeOptions,
       name,
-      work,
+      profession,
+      licenseNumber,
+      birthdate,
+      experience,
+      employerName,
+      employerSize,
       bio,
       location,
       website,
       photoURL,
       newProfilePicture,
       updateUserData,
-      isDisabled,
+      isEdited,
       manageUploader,
       fileChanged,
       imageInput,
       closeDialog,
+      userId,
     };
   },
 };

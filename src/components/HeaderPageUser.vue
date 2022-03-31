@@ -20,19 +20,19 @@
 
 <script>
 import { computed } from "vue";
-import { auth } from "src/boot/firebase";
 import { useStore } from "vuex";
 import { useRoute } from "vue-router";
 
 export default {
   setup(props) {
     const store = useStore();
-    const userData = computed(() => store.getters["profile/getUserData"]);
+    const userData = computed(() => store.getters["users/getUserData"]);
     const followItem = computed(() => store.getters["users/getFollowItem"]);
     const route = useRoute();
     const isPublic = computed(() =>
       route.name === "LandingUser" ? true : false
     );
+    const currentUser = computed(() => store.getters["auth/getUser"]);
 
     async function followUser() {
       try {
@@ -46,7 +46,7 @@ export default {
           userId: userData.value.id,
           route: {
             name: "ProfileUser",
-            params: { userId: auth.currentUser.uid },
+            params: { userId: currentUser.value.uid },
           },
         });
       } catch (error) {

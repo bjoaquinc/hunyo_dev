@@ -6,12 +6,21 @@
       </q-card-section>
 
       <q-card-section class="q-pt-none">
-        <span>If you go back now your current post will be deleted.</span>
+        <span>{{
+          $route.name === "ProfileEdit"
+            ? "If you go back now your changes will be deleted"
+            : "If you go back now your current post will be deleted."
+        }}</span>
       </q-card-section>
 
       <q-card-actions align="right">
         <q-btn flat label="Delete" color="red" @click="onDeleteClick" />
-        <q-btn flat label="Save Draft" color="primary" @click="onSaveClick" />
+        <q-btn
+          flat
+          :label="$route.name === 'ProfileEdit' ? 'Save Changes' : 'Save Draft'"
+          color="primary"
+          @click="onSaveClick"
+        />
       </q-card-actions>
     </q-card>
   </q-dialog>

@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div v-if="userData">
     <div class="flex items-center q-mb-md desktop-only">
       <q-btn
         color="primary"
@@ -59,7 +59,7 @@
     </q-card>
     <q-card v-if="!isPublic" class="q-mt-sm" bordered flat>
       <q-card-section>
-        <q-card-label title class="text-weight-bold">Activity</q-card-label>
+        <div class="text-weight-bold text-h6">Activity</div>
       </q-card-section>
     </q-card>
 
@@ -87,11 +87,11 @@ export default {
     const router = useRouter();
     const route = useRoute();
     const currentUser = computed(() => store.getters["auth/getUser"]);
-    const userData = computed(() => store.getters["profile/getUserData"]);
+    const userData = computed(() => store.getters["users/getUserData"]);
     const unsubscribeUser = computed(
-      () => store.getters["profile/getUnsubscribeUser"]
+      () => store.getters["users/getUnsubscribeUser"]
     );
-    const feedItems = computed(() => store.getters["profile/getActivityFeed"]);
+    const feedItems = computed(() => store.getters["users/getActivityFeed"]);
     const followItem = computed(() => store.getters["users/getFollowItem"]);
     const unsubscribeFollowItem = computed(
       () => store.getters["users/getUnsubscribeFollowItem"]
@@ -102,7 +102,7 @@ export default {
 
     async function setUserData(userId) {
       try {
-        await store.dispatch("profile/setUserData", userId);
+        await store.dispatch("users/setUserData", userId);
       } catch (error) {
         console.log(error);
       }
@@ -110,7 +110,7 @@ export default {
 
     async function setActivityFeed(userId) {
       try {
-        await store.dispatch("profile/setActivityFeed", userId);
+        await store.dispatch("users/setActivityFeed", userId);
       } catch (error) {
         console.log(error);
       }
@@ -121,7 +121,6 @@ export default {
         router.push({ name: "PageProfile" });
       } else {
         try {
-          console.log(props.userId);
           await setUserData(props.userId);
           await setActivityFeed(props.userId);
           if (!isPublic.value) {
@@ -174,7 +173,6 @@ export default {
         unsubscribeFollowItem.value();
         console.log("Unsubscribed Follow Item");
       }
-      store.commit("profile/clearState");
       store.commit("users/clearState");
     });
 

@@ -10,21 +10,21 @@ export function setUser ( { commit } ) {
       // User is signed in, see docs for a list of available properties
       // https://firebase.google.com/docs/reference/js/firebase.User
       console.log('Auth state triggered')
-      LocalStorage.set('userData', user)
+      LocalStorage.set('user', user)
       commit('setUser', {
         user: user,
         isAuth: true
       })
       // ...
     } else {
-      LocalStorage.remove('userData')
+      LocalStorage.remove('user')
       console.log('This user is signed out.')
     }
   });
 }
 
 export async function checkUser ( { commit } ) {
-  const localUserData = LocalStorage.getItem('userData')
+  const localUserData = LocalStorage.getItem('user')
   if (localUserData === null) {
     commit('setUser', { 
       user: localUserData,
@@ -39,41 +39,47 @@ export async function checkUser ( { commit } ) {
   
 }
 
-export async function createUser ( { commit }, { email, password }) {
+export async function createUser ( { commit }, { email, password, name }) {
   if ( email, password ) {
-    const response = await createUserWithEmailAndPassword(auth, email, password)
+    const response = await createUserWithEmailAndPassword(auth, email, password).catch(error => {throw error})
     if (response) {
       const user = response.user
-      console.log('Successfully created User: ', user, user.uid)
+      await updateProfile(user, {
+        displayName: name,
+        photoURL:
+          "https://firebasestorage.googleapis.com/v0/b/hunyo-109e6.appspot.com/o/profile_pics%2Fdefault.png?alt=media&token=6311df79-fcb6-4245-8e84-c1afb9ed459f",
+      }).catch(error => {throw error})
       await setDoc(doc(db, 'users', user.uid), {
         createdAt: serverTimestamp(),
         email: email,
-        id: user.uid
-      })
+        id: user.uid,
+        displayName: name,
+        photoURL:
+          "https://firebasestorage.googleapis.com/v0/b/hunyo-109e6.appspot.com/o/profile_pics%2Fdefault.png?alt=media&token=6311df79-fcb6-4245-8e84-c1afb9ed459f",
+        profession: '',
+        licenseNumber: '',
+        birthdate: null,
+        experience: null,
+        employerName: '',
+        employerSize: '',
+        location: '',
+        website: '',
+        bio: '',
+        hasSignedGuidelines: false
+      }).catch(error => {throw error})
+      console.log('Successfully created User: ', user, user.uid)
     } else {
       throw new Error('Could not complete signup')
     }
   }
 }
 
-export async function updateUser ( { commit }, name) {
+export async function updateUserName ( { commit }, name ) {
   await updateProfile(auth.currentUser, {
-    displayName: name,
-    photoURL:
-      "https://firebasestorage.googleapis.com/v0/b/hunyo-109e6.appspot.com/o/profile_pics%2Fdefault.png?alt=media&token=6311df79-fcb6-4245-8e84-c1afb9ed459f",
-    hasSignedGuidelines: false  
-  }).then(() => {console.log('Successfully updated User: ', auth.currentUser)}).catch( error => {
-    throw error
-  })
-  await updateDoc(doc(db, 'users', auth.currentUser.uid), {
-    displayName: name,
-    photoURL:
-      "https://firebasestorage.googleapis.com/v0/b/hunyo-109e6.appspot.com/o/profile_pics%2Fdefault.png?alt=media&token=6311df79-fcb6-4245-8e84-c1afb9ed459f",
-  }).catch(error => {
-    throw error
-  })
-
+      displayName: name,
+    }).catch(error => {throw error})
 }
+
 
 export async function verifyEmail ( { commit }) {
   const user = auth.currentUser

@@ -2,10 +2,11 @@ import { auth, db, storage } from 'src/boot/firebase'
 import { updateProfile } from 'firebase/auth'
 import { doc, getDoc, getDocs, updateDoc, collection, query, where, orderBy, onSnapshot } from 'firebase/firestore'
 import { ref, getDownloadURL, uploadBytes } from 'firebase/storage'
+import { setEditedUserData } from './mutations'
 
 export async function setUserData ( { commit }, userId) {
   const unsubscribeUser = onSnapshot(doc(db, 'users', userId), (doc) => {
-    const userData = {...doc.data(), userId: doc.id}
+    const userData = {...doc.data(), id: doc.id}
     commit('setUserData', { userData, unsubscribeUser})
     console.log('Successfully got User Data: ', userData)
   }, (error) => {
@@ -24,6 +25,23 @@ export async function setActivityFeed ( { commit }, userId ) {
   docSnapshots.forEach(doc => feedList.push({...doc.data(), id: doc.id}))
   commit('setActivityFeed', feedList)
   console.log('Successfully set User Activity Feed: ', feedList)
+}
+
+export async function uploadAndUpdatePhotoURL ({ commit }, image) {
+  const blob = dataURItoBlob(image);
+  const imageId = auth.currentUser.uid
+  const storageRef = ref(storage, `profile_pics/${imageId}`)
+
+  await uploadBytes(storageRef, blob).catch((error) => {
+        throw error
+      })
+  const downloadURL = await getDownloadURL(storageRef)
+  console.log('Successfully uploaded image to storage: ', downloadURL)
+  await updateProfile(auth.currentUser, {
+    photoURL: downloadURL
+  }).catch(error => {throw error})
+  commit('updateEditedUserData', { key: 'photoURL', value: downloadURL})
+  console.log('Successfully updated auth photoURL')
 }
 
 export async function updateUserData ( {commit }, payload) {
@@ -46,26 +64,6 @@ export async function convertUploadedImage ({ commit }, file) {
     fileType
   })
   
-}
-
-export async function uploadAndUpdatePhotoURL ({ commit }, image) {
-  const blob = dataURItoBlob(image);
-  const imageId = auth.currentUser.uid
-  const storageRef = ref(storage, `profile_pics/${imageId}`)
-
-  await uploadBytes(storageRef, blob).catch((error) => {
-        throw error
-      })
-  const downloadURL = await getDownloadURL(storageRef)
-  console.log('Successfully uploaded image to storage: ', downloadURL)
-  await updateProfile(auth.currentUser, {
-    photoURL: downloadURL
-  }).catch(error => {throw error})
-  await updateDoc(doc(db, 'users', auth.currentUser.uid), {
-    photoURL: downloadURL
-  }).catch(error => {throw error})
-  console.log('Successfully updated auth and database')
-
 }
 
 function readUploadedFileAsDataURL (file) {

@@ -88,6 +88,9 @@ export default {
         return "HeaderPageLanding";
       }
     },
+    user() {
+      return this.$store.getters["auth/getUser"];
+    },
   },
   watch: {
     $route(newValue) {
@@ -105,6 +108,15 @@ export default {
       this.header = this.$route.meta.header;
     } else {
       this.header = null;
+    }
+  },
+  mounted() {
+    try {
+      if (this.user) {
+        this.$store.dispatch("profile/setUserData", this.user.uid);
+      }
+    } catch (error) {
+      console.log(error);
     }
   },
 };

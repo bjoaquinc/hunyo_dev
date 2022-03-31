@@ -1,13 +1,13 @@
 export function getUserId ( state ) {
-  return state.userId
+  return state.userData.id
 }
 
 export function getUserData ( state ) {
-  if (state.userData) {
-    return state.userData
-  } else {
-    return {displayName: '', photoURL : '', bio: '', work: '', location: '', website: ''}
-  }
+  return state.userData
+}
+
+export function getEditedUserData ( state ) {
+  return state.editedUserData
 }
 
 export function getActivityFeed ( state ) {

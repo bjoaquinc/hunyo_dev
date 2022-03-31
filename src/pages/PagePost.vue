@@ -139,6 +139,7 @@ export default {
   mounted() {
     if (this.$route.name === "LandingPost") {
       setTimeout(() => {
+        if (this.$route.name !== "LandingPost") return;
         this.$q.dialog({
           component: DialogLandingPopUp,
         });

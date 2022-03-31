@@ -11,3 +11,12 @@ export function clearState ( state ) {
 export function setFollowersList ( state, followersList) {
   state.followersList = followersList
 }
+
+export function setActivityFeed ( state, feedList ) {
+  state.activityFeed = feedList
+}
+
+export function setUserData ( state, {userData, unsubscribeUser}) {
+  state.userData = userData
+  state.unsubscribeUser = unsubscribeUser
+}

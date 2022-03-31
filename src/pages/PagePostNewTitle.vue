@@ -107,7 +107,6 @@
 <script>
 import DialogSaveDraft from "src/components/DialogSaveDraft.vue";
 import DialogCommunityGuidelines from "src/components/DialogCommunityGuidelines.vue";
-import { auth } from "src/boot/firebase";
 
 export default {
   components: {
@@ -149,12 +148,32 @@ export default {
     previousRouteName() {
       return this.$store.getters["newPost/getPreviousRouteName"];
     },
-    hasSignedGuidelines() {
-      const userData = this.$store.getters["profile/getUserData"];
-      if (userData) {
-        return userData.hasSignedGuidelines;
+    user() {
+      const user = this.$store.getters["auth/getUser"];
+      return user;
+    },
+    userData() {
+      return this.$store.getters["profile/getUserData"];
+    },
+  },
+  watch: {
+    userData(newValue) {
+      if (newValue && newValue.hasSignedGuidelines) {
+        console.log("Agreement signed");
       } else {
-        return null;
+        this.$q
+          .dialog({
+            component: DialogCommunityGuidelines,
+          })
+          .onOk(() => {
+            try {
+              this.$store.dispatch("profile/updateUserData", {
+                hasSignedGuidelines: true,
+              });
+            } catch (error) {
+              console.log(error);
+            }
+          });
       }
     },
   },
@@ -173,18 +192,6 @@ export default {
           });
       });
     },
-  },
-  async mounted() {
-    try {
-      await this.$store.dispatch("profile/setUserData", auth.currentUser.uid);
-    } catch (error) {
-      console.log(error);
-    }
-    if (!this.hasSignedGuidelines) {
-      this.$q.dialog({
-        component: DialogCommunityGuidelines,
-      });
-    }
   },
   async beforeRouteLeave(to) {
     if (this.title && to.name !== "PagePostNewContent") {

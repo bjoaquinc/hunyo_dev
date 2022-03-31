@@ -33,6 +33,7 @@
         label="Flag"
       />
       <q-btn
+        @click="deleteReply"
         v-if="isYours"
         flat
         size="sm"
@@ -47,16 +48,18 @@
 
 <script>
 import { useQuasar } from "quasar";
+import { useStore } from "vuex";
 import { computed } from "vue";
 import { useRoute } from "vue-router";
 import { auth } from "src/boot/firebase";
 import DialogFlag from "src/components/DialogFlag.vue";
 
 export default {
-  props: ["reply", "id", "user"],
+  props: ["reply", "id", "user", "commentId", "postId"],
   setup(props) {
     const q = useQuasar();
     const route = useRoute();
+    const store = useStore();
     const userRoute = computed(() => {
       const userLocation = route.meta.location;
       if (userLocation && userLocation === "feed") {
@@ -77,10 +80,23 @@ export default {
       });
     }
 
+    async function deleteReply() {
+      try {
+        await store.dispatch("comments/deleteReply", {
+          replyId: props.id,
+          commentId: props.commentId,
+          postId: props.postId,
+        });
+      } catch (error) {
+        console.log(error);
+      }
+    }
+
     return {
       openDialogFlag,
       userRoute,
       isYours,
+      deleteReply,
     };
   },
 };
