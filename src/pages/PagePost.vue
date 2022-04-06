@@ -40,6 +40,7 @@
 </template>
 
 <script>
+import amplitude from "amplitude-js";
 import PostDetail from "src/components/PostDetail.vue";
 import CommentsList from "src/components/CommentsList.vue";
 import DialogPostActions from "src/components/DialogPostActions.vue";
@@ -112,11 +113,16 @@ export default {
     try {
       await this.$store.dispatch("posts/setSelectedPost", this.postId);
       const selectedPost = this.$store.getters["posts/getSelectedPost"];
-      const { content, title, imagesList, user, userReads } = selectedPost;
+      const { content, title, imagesList, user, userReads, topics } =
+        selectedPost;
       this.content = content;
       this.title = title;
       this.imagesList = imagesList;
       this.user = user;
+      // amplitude.getInstance().logEvent("save - view post", {
+      //   "post id": this.postId,
+      //   "post type": topics,
+      // });
       if (!this.currentUser) return;
       if (userReads && userReads.includes(this.currentUser.uid)) return;
       if (user.id === this.currentUser.uid) return;

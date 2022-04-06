@@ -27,24 +27,6 @@ const auth = getAuth()
 const db = getFirestore()
 const functions = getFunctions(getApp());
 
-// enableIndexedDbPersistence(db, {
-//   forceOwnership: true
-// })
-//   .catch((err) => {
-//     if (err.code == 'failed-precondition') {
-//       // Multiple tabs open, persistence can only be enabled
-//       // in one tab at a a time.
-//       // ...
-//       console.log(err.message)
-//     } else if (err.code == 'unimplemented') {
-//       // The current browser does not support all of the
-//       // features required to enable persistence
-//       // ...
-//       console.log(err.message)
-//     }
-//     console.log(err.message)
-//   });
-
 // collection ref
 const postsRef = collection(db, 'posts')
 
@@ -59,7 +41,30 @@ if (location.hostname === 'localhost') {
   connectAuthEmulator(auth, 'http://localhost:9099', { disableWarnings: true });
   connectStorageEmulator(storage, 'localhost', 9199);
   connectFunctionsEmulator(functions, 'localhost', 5001)
+} else {
+  // Setting offline persistence
+  enableIndexedDbPersistence(db, {
+    forceOwnership: true
+  })
+    .catch((err) => {
+      if (err.code == 'failed-precondition') {
+        // Multiple tabs open, persistence can only be enabled
+        // in one tab at a a time.
+        // ...
+        console.log(err.message)
+      } else if (err.code == 'unimplemented') {
+        // The current browser does not support all of the
+        // features required to enable persistence
+        // ...
+        console.log(err.message)
+      }
+      console.log(err.message)
+    });
 }
+
+
+
+
 
 // get collection data
 

@@ -59,6 +59,7 @@
 import { useDialogPluginComponent, useQuasar } from "quasar";
 import { ref, computed } from "vue";
 import { useStore } from "vuex";
+import { useRouter } from "vue-router";
 import { auth } from "src/boot/firebase";
 
 export default {
@@ -72,11 +73,13 @@ export default {
     const { dialogRef, onDialogHide } = useDialogPluginComponent();
     const q = useQuasar();
     const store = useStore();
+    const router = useRouter();
     const caption = ref("");
     const recommendId = computed(() => store.getters["feed/getRecommendId"]);
 
     async function createRecommendation() {
       try {
+        q.loading.show({ message: "Recommending..." });
         if (props.postData.user.id === auth.currentUser.uid) {
           throw new Error("You can't recommend your own post.");
         }
@@ -115,6 +118,9 @@ export default {
             });
           }
         }
+        await store.dispatch("feed/setFeedItems");
+        q.loading.hide();
+        router.push({ name: "PageHome" });
       } catch (error) {
         console.log(error);
         q.notify({ message: error.message, color: "negative" });

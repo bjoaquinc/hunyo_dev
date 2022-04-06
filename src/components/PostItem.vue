@@ -68,7 +68,7 @@
 </template>
 
 <script>
-import { auth } from "src/boot/firebase";
+import amplitude from "amplitude-js";
 import BaseCarousel from "src/components/BaseCarousel.vue";
 import DialogPostActions from "src/components/DialogPostActions.vue";
 import DialogFoldersList from "src/components/DialogFoldersList.vue";
@@ -139,6 +139,11 @@ export default {
       });
     },
     openDialogFoldersList() {
+      amplitude.getInstance().logEvent("save - start", {
+        "post id": this.postId,
+        source:
+          this.$route.name === "PageHome" ? "feed - post" : "profile - post",
+      });
       const postData = {
         title: this.title,
         id: this.postId,
@@ -156,6 +161,7 @@ export default {
       });
     },
     async readPost() {
+      // amplitude.getInstance().logEvent("save - click read post");
       this.$router.push({
         name: this.postRoute,
         params: { postId: this.postId },

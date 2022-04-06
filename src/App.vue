@@ -1,12 +1,12 @@
-<template>
+<template @scroll="logEvent">
   <router-view />
 </template>
 <script>
-import { defineComponent } from 'vue';
+import { defineComponent } from "vue";
 
 export default defineComponent({
-  name: 'App'
-})
+  name: "App",
+});
 </script>
 
 <style lang="sass">
@@ -18,5 +18,4 @@ body
 
 .q-tab__content
   min-width: 10px !important
-
 </style>

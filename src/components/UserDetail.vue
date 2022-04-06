@@ -24,32 +24,74 @@
           <img :src="userData.photoURL" />
         </q-avatar>
       </div>
-      <div class="text-subtitle1 q-mt-sm">
+      <div class="text-subtitle1 text-weight-bold q-mt-sm">
         {{ userData.displayName
-        }}<span v-if="userData.work"> • {{ userData.work }}</span>
+        }}<span v-if="userData.employerName">
+          • {{ userData.employerName }}</span
+        >
       </div>
       <div class="full-width bio q-mb-xs" v-if="userData.bio">
         {{ userData.bio }}
       </div>
-      <q-btn
-        v-if="userData.location"
-        color="secondary"
-        class="q-pl-none"
-        icon="fas fa-map-marker-alt"
-        :label="userData.location"
-        dense
-        flat
-        no-caps
-      />
-      <q-btn
-        v-if="userData.website"
-        color="secondary"
-        icon="fas fa-link"
-        :label="userData.website"
-        dense
-        flat
-        no-caps
-      />
+      <div class="flex items-center">
+        <q-btn
+          v-if="userData.location"
+          size="12px"
+          color="secondary"
+          class="q-pl-none, text-weight-regular"
+          icon="fas fa-map-marker-alt"
+          :label="userData.location"
+          dense
+          flat
+          no-caps
+        />
+        <q-btn
+          class="text-weight-regular"
+          :class="userData.location ? 'q-ml-sm' : ''"
+          v-if="website"
+          style="max-width: 190px"
+          size="11px"
+          no-wrap
+          color="secondary"
+          icon="fas fa-link"
+          :href="website"
+          target="_blank"
+          dense
+          flat
+          no-caps
+        >
+          <div
+            class="q-ml-sm ellipsis"
+            style="max-width: 80vw; font-size: 12px"
+          >
+            {{ website }}
+          </div>
+        </q-btn>
+      </div>
+      <div class="full-width flex">
+        <q-btn
+          no-caps
+          dense
+          size="12px"
+          class="text-weight-regular"
+          :label="`${userData.following} Following`"
+          flat
+          v-if="userData.following"
+          color="secondary"
+        />
+        <q-btn
+          no-caps
+          dense
+          size="12px"
+          class="text-weight-regular"
+          :label="`${userData.followers} ${
+            userData.followers > 1 ? 'Followers' : 'Follower'
+          }`"
+          flat
+          v-if="userData.followers"
+          color="secondary"
+        />
+      </div>
       <!-- <q-btn class="full-width q-mt-sm" color="primary" no-caps unelevated>
         <p class="text-weight-light q-ma-none">
           You have <span class="text-weight-bold">3 invites</span> remaining.
@@ -59,7 +101,7 @@
     </q-card>
     <q-card v-if="!isPublic" class="q-mt-sm" bordered flat>
       <q-card-section>
-        <div class="text-weight-bold text-h6">Activity</div>
+        <div class="text-weight-bold">Activity</div>
       </q-card-section>
     </q-card>
 
@@ -91,6 +133,16 @@ export default {
     const unsubscribeUser = computed(
       () => store.getters["users/getUnsubscribeUser"]
     );
+    const website = computed(() => {
+      if (!userData.value.website) return null;
+      const websiteSplit = userData.value.website.split(":");
+      if (websiteSplit[0] === "http" || websiteSplit[0] === "https") {
+        return userData.value.website;
+      } else {
+        const webURL = "https://" + userData.value.website;
+        return webURL;
+      }
+    });
     const feedItems = computed(() => store.getters["users/getActivityFeed"]);
     const followItem = computed(() => store.getters["users/getFollowItem"]);
     const unsubscribeFollowItem = computed(
@@ -178,6 +230,7 @@ export default {
 
     return {
       userData,
+      website,
       feedItems,
       followUser,
       followItem,

@@ -40,13 +40,15 @@ export default {
     const notifications = computed(
       () => store.getters["notifications/getNotifications"]
     );
-    const counter = computed(() => store.getters["notifications/getCounter"]);
+    const userData = computed(() => store.getters["profile/getUserData"]);
 
     onMounted(async () => {
       try {
         await store.dispatch("notifications/setNotifications");
-        if (counter.value) {
-          await store.dispatch("notifications/resetCounter");
+        if (userData.value.counter) {
+          await store.dispatch("profile/updateUserData", {
+            counter: 0,
+          });
         }
       } catch (error) {
         console.log(error);

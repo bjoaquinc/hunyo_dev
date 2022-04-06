@@ -11,6 +11,7 @@
   },
   "dependencies": {
     "@quasar/extras": "^1.0.0",
+    "amplitude-js": "^8.17.0",
     "axios": "^0.21.1",
     "core-js": "^3.6.5",
     "cropperjs": "^1.5.12",
@@ -22,6 +23,7 @@
     "@babel/eslint-parser": "^7.13.14",
     "@quasar/app": "^3.0.0",
     "@quasar/quasar-app-extension-dotenv": "^1.1.0",
+    "@types/amplitude-js": "^8.16.0",
     "dotenv": "^16.0.0",
     "eslint": "^7.14.0",
     "eslint-config-prettier": "^8.1.0",

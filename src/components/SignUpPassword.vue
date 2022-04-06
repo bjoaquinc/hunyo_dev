@@ -71,9 +71,23 @@ export default {
         });
         router.push("/signup/email-verification");
       } catch (error) {
-        q.dialog({
-          message: error.message,
-        });
+        if (error.code === "auth/email-already-in-use") {
+          q.dialog({
+            message:
+              "Account has already been created. You will be redirected to our homepage to sign in.",
+            ok: {
+              push: true,
+            },
+            persistent: true,
+          }).onOk(() => {
+            router.push("/landing");
+          });
+          console.log(error);
+        } else {
+          q.dialog({
+            message: error.message,
+          });
+        }
         console.log(error);
       }
     }

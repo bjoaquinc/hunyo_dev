@@ -29,7 +29,7 @@
         label="Submit"
         class="full-width desktop-only q-mt-sm"
         color="primary"
-        :disable="email && email === 'fatima.arkin@gmail.com'"
+        :disable="!isEdited"
         unelevated
       />
     </div>
@@ -37,14 +37,24 @@
 </template>
 
 <script>
-import { ref } from "vue";
+import { ref, computed, onMounted } from "vue";
+import { useStore } from "vuex";
 
 export default {
   setup() {
-    const email = ref("fatima.arkin@gmail.com");
+    const store = useStore();
+    const user = computed(() => store.getters["auth/getUser"]);
+    const email = ref("");
+    onMounted(() => {
+      email.value = user.value.email;
+    });
+    const isEdited = computed(() => {
+      return email.value !== user.value.email ? true : false;
+    });
 
     return {
       email,
+      isEdited,
     };
   },
 };

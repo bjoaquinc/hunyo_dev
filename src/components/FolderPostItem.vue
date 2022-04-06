@@ -1,5 +1,5 @@
 <template>
-  <q-item clickable v-ripple>
+  <q-item clickable v-ripple :to="route">
     <q-card
       class="flex items-center full-width q-ml-auto"
       style="min-height: 260px"
@@ -27,7 +27,7 @@
 <script>
 export default {
   name: "PostItem",
-  props: ["postData", "id"],
+  props: ["postData", "id", "route"],
   data() {
     return {
       image: "",

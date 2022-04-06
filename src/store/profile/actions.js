@@ -2,16 +2,20 @@ import { auth, db, storage } from 'src/boot/firebase'
 import { updateProfile } from 'firebase/auth'
 import { doc, getDoc, getDocs, updateDoc, collection, query, where, orderBy, onSnapshot } from 'firebase/firestore'
 import { ref, getDownloadURL, uploadBytes } from 'firebase/storage'
-import { setEditedUserData } from './mutations'
+import amplitude from 'amplitude-js'
 
 export async function setUserData ( { commit }, userId) {
-  const unsubscribeUser = onSnapshot(doc(db, 'users', userId), (doc) => {
-    const userData = {...doc.data(), id: doc.id}
-    commit('setUserData', { userData, unsubscribeUser})
-    console.log('Successfully got User Data: ', userData)
-  }, (error) => {
-    console.log('Could not subscribe to userdata')
-    throw error
+  return new Promise(( resolve, reject ) => {
+    const unsubscribeUser = onSnapshot(doc(db, 'users', userId), (doc) => {
+      const userData = {...doc.data(), id: doc.id}
+      amplitude.getInstance().setUserProperties(userData)
+      commit('setUserData', { userData, unsubscribeUser})
+      resolve(userData)
+      console.log('Successfully got User Data: ', userData)
+    }, (error) => {
+      console.log('Could not subscribe to userdata')
+      reject(error)
+    })
   })
 }
 
@@ -44,13 +48,14 @@ export async function uploadAndUpdatePhotoURL ({ commit }, image) {
   console.log('Successfully updated auth photoURL')
 }
 
-export async function updateUserData ( {commit }, payload) {
+export async function updateUserData ( { getters }, payload) {
   await updateDoc(doc(db, 'users', auth.currentUser.uid), {
     ...payload
   }).catch(error => {
     throw error
   })
-  console.log('Successfully updated User Data: ', auth.currentUser)
+  const userData = getters['getUserData']
+  console.log('Successfully updated User Data: ', userData)
 }
 
 export async function convertUploadedImage ({ commit }, file) {

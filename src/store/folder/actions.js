@@ -9,7 +9,7 @@ export async function savePost ( { commit }, { postData, folder}) {
     createdAt: serverTimestamp(),
     postData,
     userId: auth.currentUser.uid,
-    isOrganized: false
+    isOrganized: false,
   }
   if (folder) {
     folderItem.folder = folder

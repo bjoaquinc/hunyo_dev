@@ -159,7 +159,10 @@ export default {
         component: DialogRecommendCreate,
         componentProps: {
           postData: {
-            image: this.imagesList[0],
+            image:
+              this.imagesList && this.imagesList.length
+                ? this.imagesList[0]
+                : null,
             title: this.title,
             id: this.postId,
             user: this.user,

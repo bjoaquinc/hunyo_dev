@@ -58,6 +58,11 @@
         :key="id"
         :id="id"
         :postData="postData"
+        :route="
+          remove
+            ? null
+            : { name: 'ProfilePost', params: { postId: postData.id } }
+        "
         :class="removeList.includes(id) ? 'is-selected' : ''"
       />
     </q-card-section>

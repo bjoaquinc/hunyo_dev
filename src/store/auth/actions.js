@@ -1,16 +1,19 @@
 import { auth, db } from "src/boot/firebase";
 import { createUserWithEmailAndPassword, updateProfile, signOut, sendEmailVerification,
 signInWithEmailAndPassword, onAuthStateChanged, sendPasswordResetEmail, updatePassword, reauthenticateWithCredential } from "firebase/auth";
-import { setDoc, doc, updateDoc, serverTimestamp} from 'firebase/firestore'
+import { setDoc, doc, serverTimestamp} from 'firebase/firestore'
 import { LocalStorage } from "quasar";
+import amplitude from "amplitude-js";
 
-export function setUser ( { commit } ) {
-  onAuthStateChanged(auth, (user) => {
+export function setUser ( { commit, dispatch, rootGetters } ) {
+  onAuthStateChanged(auth, async (user) => {
     if (user) {
       // User is signed in, see docs for a list of available properties
       // https://firebase.google.com/docs/reference/js/firebase.User
       console.log('Auth state triggered')
       LocalStorage.set('user', user)
+      amplitude.getInstance().setUserId(user.uid)
+      await dispatch('profile/setUserData', user.uid, { root: true })
       commit('setUser', {
         user: user,
         isAuth: true
@@ -40,7 +43,10 @@ export async function checkUser ( { commit } ) {
 }
 
 export async function createUser ( { commit }, { email, password, name }) {
-  if ( email, password ) {
+  if ( email && password && name ) {
+    const nameList = name.split(" ")
+    const firstName = nameList[0]
+    const lastName = nameList.at(-1)
     const response = await createUserWithEmailAndPassword(auth, email, password).catch(error => {throw error})
     if (response) {
       const user = response.user
@@ -65,8 +71,15 @@ export async function createUser ( { commit }, { email, password, name }) {
         location: '',
         website: '',
         bio: '',
-        hasSignedGuidelines: false
+        hasSignedGuidelines: false,
+        following: 0,
+        followers: 0,
       }).catch(error => {throw error})
+      await setDoc(doc(db, 'registrations', user.uid), {
+        firstName,
+        lastName,
+        emailAddress: email
+      })
       console.log('Successfully created User: ', user, user.uid)
     } else {
       throw new Error('Could not complete signup')
@@ -86,7 +99,7 @@ export async function verifyEmail ( { commit }) {
 
   if (user && !user.emailVerified) {
     await sendEmailVerification(user, {
-      url: 'http://localhost:8080/',
+      url: 'https://hunyo.com/#/',
     }).then(() => console.log('Successfully sent email')).catch(error => {
       throw error
     })
@@ -96,14 +109,20 @@ export async function verifyEmail ( { commit }) {
 }
 
 export async function signIn ( { commit }, { email, password}) {
-  const response = await signInWithEmailAndPassword(auth, email, password)
+  const response = await signInWithEmailAndPassword(auth, email, password).catch(error => {throw error})
   if (response) {
+    console.log('response: ', response)
     const user = response.user
-    commit('setUser', {
-      user,
-      isAuth: true
-    })
-    console.log('Successfully signed in: ', user)
+    if (user.emailVerified) {
+      console.log('verified', user.emailVerified)
+      commit('setUser', {
+        user,
+        isAuth: true
+      })
+      console.log('Successfully signed in: ', user)
+    } else {
+      throw new Error('User not verified')
+    }
   } else {
     throw new Error('Could not complete sign in.')
   }
@@ -121,7 +140,9 @@ export async function signout ( { commit } ) {
 
 
 export async function resetPasswordEmail ( { commit }, email ) {
-  await sendPasswordResetEmail(auth, email).catch(error => {throw error})
+  await sendPasswordResetEmail(auth, email, {
+      url: 'https://hunyo.com/#/',
+    }).catch(error => {throw error})
 }
 
 

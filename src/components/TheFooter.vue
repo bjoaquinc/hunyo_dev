@@ -38,10 +38,20 @@
         dense
         flat
       >
-        <q-badge v-if="counterValue" color="red" floating>{{
-          counterValue
+        <q-badge v-if="userData.counter" color="red" floating>{{
+          userData.counter
         }}</q-badge>
       </q-route-tab>
+      <q-route-tab
+        class="col q-ml-xs"
+        :to="{ name: 'ProfileFolder' }"
+        icon="fas fa-folder"
+        size="1rem"
+        :ripple="false"
+        :glossy="false"
+        dense
+        flat
+      />
       <q-route-tab
         class="col q-ml-xs"
         :to="{ name: 'PageProfile' }"
@@ -70,9 +80,7 @@ export default {
     const q = useQuasar();
     const store = useStore();
     const hasDrafts = computed(() => store.getters["getHasDrafts"]);
-    const counterValue = computed(
-      () => store.getters["notifications/getCounter"]
-    );
+    const userData = computed(() => store.getters["profile/getUserData"]);
     const user = computed(() => store.getters["auth/getUser"]);
 
     function openDialogPostCreate() {
@@ -81,20 +89,10 @@ export default {
       });
     }
 
-    onMounted(() => {
-      try {
-        if (!user.value) return;
-        store.dispatch("notifications/setCounter", user.value.uid);
-        console.log("Successfully set counter.");
-      } catch (error) {
-        console.log(error);
-      }
-    });
-
     return {
       hasDrafts,
       openDialogPostCreate,
-      counterValue,
+      userData,
     };
   },
 };

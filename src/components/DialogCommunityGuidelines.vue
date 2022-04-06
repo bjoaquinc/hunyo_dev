@@ -5,11 +5,13 @@
     transition-show="slide-up"
     transition-hide="slide-down"
     :maximized="q.platform.is.mobile"
+    :persistent="hasSignedGuidelines ? false : true"
   >
     <q-card class="bg-white">
       <q-card-actions>
         <q-btn
           v-close-popup
+          v-if="hasSignedGuidelines"
           icon="fas fa-times"
           class="q-pa-none"
           dense

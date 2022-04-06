@@ -1,7 +1,7 @@
 <template>
   <q-toolbar class="constrain desktop-only">
     <q-img
-      @click="$router.push('/')"
+      @click="$router.push({ name: 'PageHome' })"
       class="q-mr-sm"
       height="20px"
       width="130px"
@@ -34,8 +34,8 @@
       </q-route-tab>
       <q-tab no-caps flat>
         <q-icon name="fas fa-bell" size="sm" class="items-start">
-          <q-badge v-if="counterValue" color="red" floating>{{
-            counterValue
+          <q-badge v-if="userData.counter" color="red" floating>{{
+            userData.counter
           }}</q-badge>
         </q-icon>
         <div class="text-caption">Notifications</div>
@@ -43,6 +43,14 @@
           <NotificationsList style="max-width: 500px" />
         </q-menu>
       </q-tab>
+      <q-route-tab
+        :to="{ name: 'ProfileFolder' }"
+        icon="fas fa-folder"
+        no-caps
+        flat
+      >
+        <div class="text-caption">Saved</div>
+      </q-route-tab>
       <q-route-tab
         :to="{ name: 'PageProfile' }"
         icon="fas fa-user"
@@ -137,9 +145,6 @@ export default {
     hasDrafts() {
       return this.$store.getters["getHasDrafts"];
     },
-    counterValue() {
-      return this.$store.getters["notifications/getCounter"];
-    },
     user() {
       return this.$store.getters["auth/getUser"];
     },
@@ -182,15 +187,6 @@ export default {
         });
       }
     },
-  },
-  mounted() {
-    try {
-      if (this.user) {
-        this.$store.dispatch("notifications/setCounter", this.user.uid);
-      }
-    } catch (error) {
-      console.log(error);
-    }
   },
 };
 </script>

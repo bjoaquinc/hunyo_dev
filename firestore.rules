@@ -35,5 +35,8 @@ service cloud.firestore {
       	allow write: if request.auth.uid == user || request.auth.uid == request.resource.data.user.id;
       }
     }
+    match /registrations/{registration} {
+      allow read, write: if request.auth.uid != null;
+    }
   }
 }

@@ -65,6 +65,7 @@
       >
         <q-item
           v-for="{ id, order, value } in uploadedImagesList"
+          :style="{ order: order ? order : uploadedImagesList.length + 1 }"
           :key="id"
           clickable
           @click="selectImage(id)"
@@ -77,6 +78,7 @@
               @click="order ? removeOrder(id, order) : addOrder(id)"
               :label="order ? `${order}` : ''"
               class="z-top"
+              :style="{ fontSize: q.platform.is.mobile ? '' : '15px' }"
               color="primary"
               floating
               rounded
@@ -152,7 +154,7 @@ export default {
         const cropper = new Cropper(imgRefList.value[index], {
           aspectRatio: 1,
           minCropBoxWidth: cropperWidth.value,
-          viewMode: 3,
+          viewMode: 0,
           dragMode: "move",
           background: false,
           cropBoxMovable: false,
@@ -240,10 +242,6 @@ export default {
       emit("openPreview");
     }
 
-    function reorderImages() {
-      store.dispatch("newPost/reorderImages");
-    }
-
     function removeUploadedImage(uid) {
       store.commit("newPost/removeUploadedImage", uid);
     }
@@ -263,7 +261,6 @@ export default {
       cropperWidth,
       q,
       selectorWidthPercentage,
-      reorderImages,
     };
   },
 };

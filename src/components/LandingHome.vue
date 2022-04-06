@@ -146,7 +146,7 @@
 </template>
 
 <script>
-import { ref } from "vue";
+import { ref, computed } from "vue";
 import { useQuasar } from "quasar";
 import { useStore } from "vuex";
 import { useRouter, useRoute } from "vue-router";
@@ -156,6 +156,7 @@ export default {
     const isPassword = ref(true);
     const q = useQuasar();
     const store = useStore();
+    const user = computed(() => store.getters["auth/getUser"]);
     const router = useRouter();
     const route = useRoute();
     const email = ref("");
@@ -174,8 +175,16 @@ export default {
             router.push({ name: "PageHome" });
           }
         } catch (error) {
+          let message = error.message;
+          if (error.message === "User not verified") {
+            router.push({ path: "/signup/email-verification" });
+          } else if (error.code === "auth/user-not-found") {
+            message = "User does not exist";
+          } else if (error.code === "auth/wrong-password") {
+            message = "Incorrect Password";
+          }
           q.dialog({
-            message: error.message,
+            message: message,
           });
         }
       }

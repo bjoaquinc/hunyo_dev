@@ -104,7 +104,7 @@
         filled
         dense
         class="full-width"
-        label="Years of Professional Experience"
+        label="Years of Work Experience After License"
         hint="Will Not Be Made Public"
       />
 
@@ -134,7 +134,7 @@
         dense
         class="full-width"
         filled
-        label="Location"
+        label="Location (City, Country)"
         hint="City, Country"
         lazy-rules
       />

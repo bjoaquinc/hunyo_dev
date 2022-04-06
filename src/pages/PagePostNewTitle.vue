@@ -156,26 +156,26 @@ export default {
       return this.$store.getters["profile/getUserData"];
     },
   },
-  watch: {
-    userData(newValue) {
-      if (newValue && newValue.hasSignedGuidelines) {
-        console.log("Agreement signed");
-      } else {
-        this.$q
-          .dialog({
-            component: DialogCommunityGuidelines,
-          })
-          .onOk(() => {
-            try {
-              this.$store.dispatch("profile/updateUserData", {
-                hasSignedGuidelines: true,
-              });
-            } catch (error) {
-              console.log(error);
-            }
-          });
-      }
-    },
+  created() {
+    console.log(this.userData.hasSignedGuidelines);
+    if (!this.userData.hasSignedGuidelines) {
+      console.log("hello");
+      this.$q
+        .dialog({
+          component: DialogCommunityGuidelines,
+        })
+        .onOk(() => {
+          try {
+            this.$store.dispatch("profile/updateUserData", {
+              hasSignedGuidelines: true,
+            });
+          } catch (error) {
+            console.log(error);
+          }
+        });
+    } else {
+      console.log("Has signed agreement");
+    }
   },
   methods: {
     confirmSaveDraft() {

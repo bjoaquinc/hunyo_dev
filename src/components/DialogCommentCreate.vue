@@ -28,6 +28,8 @@
       </q-card-actions>
       <q-card-actions class="fullwidth q-mb-sm q-px-md">
         <q-input
+          type="textarea"
+          autogrow
           v-model="comment"
           class="q-mx-none full-width"
           hint="Write your comment"

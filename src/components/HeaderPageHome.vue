@@ -1,7 +1,7 @@
 <template>
   <q-toolbar v-if="!pageHeader" class="constrain mobile-only bg-white">
     <q-img
-      @click="$router.push('/')"
+      @click="$router.push({ name: 'PageHome' })"
       class="q-mr-sm"
       height="20px"
       width="130px"

@@ -88,8 +88,8 @@ const routes = [
   },
 
   {
-    path: '/recommend',
-    component: () => import('src/components/RecommendItem.vue')
+    path: '/emailtemplate',
+    component: () => import('src/components/BaseEmailTemplate.vue')
   },
 
   // Always leave this as last one,

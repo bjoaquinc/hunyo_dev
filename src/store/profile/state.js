@@ -16,7 +16,7 @@ export default function () {
       location: '',
       website: '',
       bio: '',
-      hasSignedGuidelines: false
+      hasSignedGuidelines: true
     },
     editedUserData: null,
     unsubscribeUser: null,

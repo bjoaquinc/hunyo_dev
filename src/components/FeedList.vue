@@ -12,8 +12,8 @@
 </template>
 
 <script>
-import PostItem from "src/components/PostItem.vue";
 import RecommendItem from "src/components/RecommendItem.vue";
+import PostItem from "src/components/PostItem.vue";
 
 export default {
   props: ["feedItems"],

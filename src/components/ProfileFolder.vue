@@ -22,11 +22,12 @@
           name: 'FolderDetail',
           params: { folderId: id },
         }"
-        class="q-pa-none q-py-sm item-width"
+        class="q-px-sm q-py-sm item-width"
         clickable
         v-ripple
         v-for="{ name, id } in foldersList"
         :key="id"
+        style="max-width: 130px"
       >
         <q-item-section class="q-pr-none" avatar>
           <q-avatar
@@ -56,9 +57,9 @@
         v-ripple
       >
         <q-item-section avatar>
-          <q-icon color="primary" name="fas fa-folder" />
+          <q-icon size="lg" color="primary" name="fas fa-folder" />
         </q-item-section>
-        <q-item-section>{{ name }}</q-item-section>
+        <q-item-section class="text-subtitle1">{{ name }}</q-item-section>
       </q-item>
     </q-list>
 
@@ -86,6 +87,7 @@
         :key="id"
         :id="id"
         :postData="postData"
+        :route="{ name: 'ProfilePost', params: { postId: postData.id } }"
       />
     </q-card-section>
   </q-card>
@@ -133,8 +135,12 @@ export default {
     }
 
     onBeforeRouteLeave(() => {
-      unsubscribeFolders.value();
-      unsubscribeUnorganizedPosts.value();
+      if (unsubscribeFolders.value) {
+        unsubscribeFolders.value();
+      }
+      if (unsubscribeUnorganizedPosts.value) {
+        unsubscribeUnorganizedPosts.value();
+      }
     });
 
     return {

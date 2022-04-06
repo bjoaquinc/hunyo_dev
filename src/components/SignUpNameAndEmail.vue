@@ -35,7 +35,7 @@
         class="q-mt-sm full-width"
         label="Join"
         color="primary"
-        :to="{ path: '/signup/new-password' }"
+        @click="logEvent"
       />
     </div>
     <div class="text-caption q-mt-sm">
@@ -57,10 +57,13 @@
 <script>
 import { computed } from "vue";
 import { useStore } from "vuex";
+import { useRouter } from "vue-router";
+import amplitude from "amplitude-js";
 
 export default {
   setup() {
     const store = useStore();
+    const router = useRouter();
     const name = computed({
       get: () => store.getters["auth/getNewUser"].name,
       set: (value) => store.commit("auth/setName", value),
@@ -70,9 +73,18 @@ export default {
       set: (value) => store.commit("auth/setEmail", value),
     });
 
+    function logEvent() {
+      try {
+        router.push("/signup/new-password");
+      } catch (error) {
+        console.log(error);
+      }
+    }
+
     return {
       name,
       email,
+      logEvent,
     };
   },
 };
