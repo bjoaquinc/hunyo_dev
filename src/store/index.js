@@ -10,6 +10,8 @@ import feed from 'src/store/feed/index.js'
 import notifications from 'src/store/notifications/index.js'
 import users from 'src/store/users/index.js'
 import posts from 'src/store/posts/index.js'
+import subscriptions from 'src/store/subscriptions/index.js'
+import admin from 'src/store/admin/index.js'
 
 // import example from './module-example'
 /*
@@ -34,7 +36,9 @@ export default store(function (/* { ssrContext } */) {
       feed,
       notifications,
       users,
-      posts
+      posts,
+      subscriptions,
+      admin
     },
     // enable strict mode (adds overhead!)
     // for dev mode and --debug builds only

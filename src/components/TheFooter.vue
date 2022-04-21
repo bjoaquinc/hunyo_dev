@@ -1,5 +1,5 @@
 <template>
-  <q-footer class="bg-white mobile-only" bordered>
+  <q-footer class="bg-white lt-sm" bordered>
     <q-tabs
       class="row q-px-0 text-primary full-width"
       active-bg-color="primary"
@@ -11,6 +11,16 @@
         class="col q-mr-xs"
         :to="{ name: 'PageHome' }"
         icon="fas fa-home"
+        size="1rem"
+        :ripple="false"
+        :glossy="false"
+        dense
+        flat
+      />
+      <q-route-tab
+        class="col q-ml-xs"
+        :to="{ name: 'ProfileFolder' }"
+        icon="fas fa-folder"
         size="1rem"
         :ripple="false"
         :glossy="false"
@@ -44,16 +54,6 @@
       </q-route-tab>
       <q-route-tab
         class="col q-ml-xs"
-        :to="{ name: 'ProfileFolder' }"
-        icon="fas fa-folder"
-        size="1rem"
-        :ripple="false"
-        :glossy="false"
-        dense
-        flat
-      />
-      <q-route-tab
-        class="col q-ml-xs"
         :to="{ name: 'PageProfile' }"
         icon="fas fa-user"
         size="1rem"
@@ -71,7 +71,6 @@
 import { computed, onMounted, watch } from "vue";
 import { useStore } from "vuex";
 import { useQuasar } from "quasar";
-import { auth } from "src/boot/firebase";
 import DialogPostCreate from "src/components/DialogPostCreate.vue";
 
 export default {

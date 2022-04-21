@@ -14,7 +14,7 @@
       <q-space />
 
       <q-item-section>
-        <q-item-label lines="1" class="comment-user"
+        <q-item-label lines="1" class="comment-user text-grey-6"
           >{{ user.name }}
         </q-item-label>
       </q-item-section>

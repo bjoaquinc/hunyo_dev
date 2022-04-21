@@ -2,21 +2,25 @@
   <q-dialog
     @hide="onDialogHide"
     ref="dialogRef"
-    :full-width="q.platform.is.mobile"
+    :full-width="q.platform.is.mobile && !q.platform.is.ipad"
     transition-show="slide-up"
     transition-hide="slide-down"
-    :position="q.platform.is.mobile ? 'bottom' : 'standard'"
+    :position="
+      q.platform.is.mobile && !q.platform.is.ipad ? 'bottom' : 'standard'
+    "
   >
     <q-card
       class="bg-white"
       style="max-height: 100%; min-height: 200px"
       :style="
-        q.platform.is.desktop ? { width: '600px', maxWidth: '70vw' } : null
+        q.platform.is.desktop || q.platform.is.ipad
+          ? { width: '600px', maxWidth: '70vw' }
+          : null
       "
     >
       <q-card-section
         class="full-width"
-        :class="q.platform.is.desktop ? 'q-mx-auto' : ''"
+        :class="q.platform.is.desktop || q.platform.is.ipad ? 'q-mx-auto' : ''"
         style="width: fit-content"
       >
         <div class="flex full-width justify-between items-center">

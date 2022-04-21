@@ -5,3 +5,11 @@ export function setFeedItems ( state, feedItemsList ) {
 export function setRecommendID ( state, recommendId ) {
   state.recommendId = recommendId
 }
+
+export function clearStateFeedItems ( state ) {
+  state.feedItems = [];
+}
+
+export function clearStateRecommendationItem ( state ) {
+  state.recommendId = '';
+}

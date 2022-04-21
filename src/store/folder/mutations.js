@@ -29,6 +29,11 @@ export function setFolders ( state, { folders, unsubscribeFolders} ) {
   state.unsubscribeFolders = unsubscribeFolders
 }
 
+export function clearStateFolders ( state ) {
+  state.folders = []
+  state.unsubscribeFolders = null
+}
+
 export function setUnorganizedPosts ( state, { unorganizedPosts, unsubscribeUnorganizedPosts } ) {
   state.unorganizedPosts = unorganizedPosts
   state.unsubscribeUnorganizedPosts = unsubscribeUnorganizedPosts
@@ -48,4 +53,21 @@ export function clearState ( state ) {
   state.selectedFolder = ''
   state.selectedPostsList = []
   state.newFolderName = ''
+  state.newFolder = null
+}
+
+export function clearStateFolderDetail ( state ) {
+  state.folder = null
+  state.unsubscribeFolder = null
+  state.posts = []
+  state.unsubscribePosts = null
+}
+
+export function clearStateProfileFolder ( state ) {
+  state.unorganizedPosts = []
+  state.unsubscribeUnorganizedPosts = null
+}
+
+export function clearStatePostData ( state ) {
+  state.postData = null
 }

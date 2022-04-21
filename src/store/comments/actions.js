@@ -17,7 +17,7 @@ export async function createComment ( { commit }, { postId, comment, selectedTyp
     createdAt: serverTimestamp()
   }).catch(error => {throw error})
   commit('setCommentId', docRef.id)
-  console.log('Successfully created comment: ', docRef)
+  // console.log('Successfully created comment: ', docRef)
 }
 
 export function setCommentsList ( { commit }, postId) {
@@ -34,7 +34,7 @@ export function setCommentsList ( { commit }, postId) {
       commentsList.push(comment)
     })
     commit('setCommentsList', {commentsList, unsubscribeComments})
-    console.log('Successfully set comments list: ', commentsList)
+    // console.log('Successfully set comments list: ', commentsList)
   }, (error) => {
     throw error
   })
@@ -54,7 +54,7 @@ export async function createReply ( { commit }, { postId, commentId, reply } ) {
     createdAt: serverTimestamp()
   }).catch(error => {throw error})
   commit('setReplyId', docRef.id)
-  console.log('Successfully created reply: ', docRef)
+  // console.log('Successfully created reply: ', docRef)
 }
 
 export async function setRepliesList ( { commit }, { postId, commentId }) {
@@ -67,7 +67,7 @@ export async function setRepliesList ( { commit }, { postId, commentId }) {
       repliesList.push({...doc.data(), id: doc.id})
     })
     commit('setRepliesList', {commentId, repliesList, unsubscribeReplies})
-    console.log('Successfully set replies list: ', repliesList)
+    // console.log('Successfully set replies list: ', repliesList)
   }, (error) => {
     throw error
   })

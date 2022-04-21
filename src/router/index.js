@@ -47,10 +47,8 @@ export default route(function  ({ store, ssrContext }) {
     } else if (!to.fullPath.includes('landing') && !to.fullPath.includes('signup') && !isAuth) {
       next({ name: 'PageLanding', query:{ next: to.fullPath}})
     } else if (to.fullPath.includes('landing') && isAuth && to.query) {
-      console.log('triggered block: ', to.query)
       next(to.query.next)
     } else if (to.fullPath.includes('landing') && isAuth) {
-      console.log('also triggered')
       next({ name: 'PageHome'})
     } else {
       next()

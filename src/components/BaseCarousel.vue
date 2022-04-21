@@ -1,7 +1,7 @@
 <template>
   <div>
     <div class="overflow-hidden" ref="container" style="position: relative">
-      <div style="height: inherit" class="desktop-only" v-if="!isFolderItem">
+      <div style="height: inherit" class="gt-xs" v-if="!isFolderItem">
         <q-btn
           v-if="currentIndex > 0"
           @click="setPositionByIndex(currentIndex - 1)"
@@ -143,7 +143,11 @@ export default {
     },
   },
   mounted() {
-    this.imageWidth = this.$refs.container.clientWidth;
+    if (this.$q.platform.is.desktop || this.$q.platform.is.ipad) {
+      this.imageWidth = this.$refs.container.clientWidth;
+    } else {
+      this.imageWidth = this.$refs.container.clientWidth;
+    }
   },
 };
 </script>

@@ -1,6 +1,6 @@
 <template>
   <div v-if="userData">
-    <div class="flex items-center q-mb-md desktop-only">
+    <div class="flex items-center q-mb-md gt-xs">
       <q-btn
         color="primary"
         icon="fas fa-arrow-left"
@@ -9,26 +9,29 @@
         dense
         flat
       />
-      <q-btn
-        v-if="!isPublic"
-        @click="followItem ? toggleIsFollowing() : followUser()"
-        color="primary"
-        class="q-ml-auto"
-        :label="followItem && followItem.isFollowing ? 'Following' : 'Follow'"
-        :outline="followItem && followItem.isFollowing ? false : true"
-      />
     </div>
     <q-card class="q-pa-md bg-white container items-start" flat bordered>
-      <div class="flex items-center full-width">
-        <q-avatar size="100px">
-          <img :src="userData.photoURL" />
-        </q-avatar>
-      </div>
-      <div class="text-subtitle1 text-weight-bold q-mt-sm">
-        {{ userData.displayName
-        }}<span v-if="userData.employerName">
-          • {{ userData.employerName }}</span
-        >
+      <div class="flex items-center justify-between no-wrap">
+        <div class="flex column">
+          <q-avatar size="100px">
+            <img :src="userData.photoURL" />
+          </q-avatar>
+          <div class="text-subtitle1 text-weight-bold q-mt-sm">
+            {{ userData.displayName
+            }}<span v-if="userData.employerName">
+              • {{ userData.employerName }}</span
+            >
+          </div>
+        </div>
+        <q-btn
+          v-if="!isPublic"
+          @click="followItem ? toggleIsFollowing() : subscribe()"
+          color="primary"
+          class="q-ml-auto"
+          :label="isFollowing ? 'Subscribed' : 'Subscribe'"
+          :flat="isFollowing"
+          unelevated
+        />
       </div>
       <div class="full-width bio q-mb-xs" v-if="userData.bio">
         {{ userData.bio }}
@@ -49,7 +52,10 @@
           class="text-weight-regular"
           :class="userData.location ? 'q-ml-sm' : ''"
           v-if="website"
-          style="max-width: 190px"
+          :style="{
+            maxWidth:
+              q.platform.is.mobile && !q.platform.is.ipad ? '150px' : '250px',
+          }"
           size="11px"
           no-wrap
           color="secondary"
@@ -68,30 +74,20 @@
           </div>
         </q-btn>
       </div>
-      <div class="full-width flex">
-        <q-btn
-          no-caps
-          dense
-          size="12px"
-          class="text-weight-regular"
-          :label="`${userData.following} Following`"
-          flat
-          v-if="userData.following"
-          color="secondary"
-        />
+      <!-- <div class="full-width flex">
         <q-btn
           no-caps
           dense
           size="12px"
           class="text-weight-regular"
           :label="`${userData.followers} ${
-            userData.followers > 1 ? 'Followers' : 'Follower'
+            userData.followers > 1 ? 'Subscribers' : 'Subscriber'
           }`"
           flat
           v-if="userData.followers"
           color="secondary"
         />
-      </div>
+      </div> -->
       <!-- <q-btn class="full-width q-mt-sm" color="primary" no-caps unelevated>
         <p class="text-weight-light q-ma-none">
           You have <span class="text-weight-bold">3 invites</span> remaining.
@@ -106,7 +102,7 @@
     </q-card>
 
     <FeedList v-if="!isPublic" :feedItems="feedItems" />
-    <LandingCardPrompt v-if="isPublic" />
+    <LandingCardPrompt v-else />
   </div>
 </template>
 
@@ -117,6 +113,7 @@ import { useRouter, onBeforeRouteLeave, useRoute } from "vue-router";
 import { auth } from "src/boot/firebase";
 import FeedList from "src/components/FeedList.vue";
 import LandingCardPrompt from "src/components/LandingCardPrompt.vue";
+import { useQuasar } from "quasar";
 
 export default {
   props: ["userId", "lastRoute"],
@@ -125,6 +122,7 @@ export default {
     LandingCardPrompt,
   },
   setup(props) {
+    const q = useQuasar();
     const store = useStore();
     const router = useRouter();
     const route = useRoute();
@@ -143,11 +141,23 @@ export default {
         return webURL;
       }
     });
-    const feedItems = computed(() => store.getters["users/getActivityFeed"]);
-    const followItem = computed(() => store.getters["users/getFollowItem"]);
-    const unsubscribeFollowItem = computed(
-      () => store.getters["users/getUnsubscribeFollowItem"]
+    const followItem = computed(
+      () => store.getters["subscriptions/getFollowItem"]
     );
+    const unsubscribeFollowItem = computed(
+      () => store.getters["subscriptions/unsubscribeFollowItem"]
+    );
+    const followingList = computed(
+      () => store.getters["subscriptions/getFollowingList"]
+    );
+    const feedItems = computed(() => store.getters["users/getActivityFeed"]);
+    const isFollowing = computed(() => {
+      if (followingList.value.includes(userData.value.id)) {
+        return true;
+      } else {
+        return false;
+      }
+    });
     const isPublic = computed(() =>
       route.name === "LandingUser" ? true : false
     );
@@ -176,7 +186,7 @@ export default {
           await setUserData(props.userId);
           await setActivityFeed(props.userId);
           if (!isPublic.value) {
-            await store.dispatch("users/setFollowItem", props.userId);
+            await store.dispatch("subscriptions/setFollowItem", props.userId);
           }
         } catch (error) {
           console.log(error);
@@ -184,21 +194,23 @@ export default {
       }
     });
 
-    async function followUser() {
+    async function subscribe() {
       try {
-        await store.dispatch("users/followUser", {
+        await store.dispatch("subscriptions/subscribe", {
           name: userData.value.displayName,
           id: props.userId,
           photo: userData.value.photoURL,
         });
-        await store.dispatch("notifications/createNotification", {
-          type: "followerNew",
-          userId: userData.value.id,
-          route: {
-            name: "ProfileUser",
-            params: { userId: auth.currentUser.uid },
-          },
-        });
+        if (!userData.value.admin) {
+          await store.dispatch("notifications/createNotification", {
+            type: "followerNew",
+            userId: userData.value.id,
+            route: {
+              name: "ProfileUser",
+              params: { userId: auth.currentUser.uid },
+            },
+          });
+        }
       } catch (error) {
         console.log(error);
       }
@@ -206,8 +218,7 @@ export default {
 
     async function toggleIsFollowing() {
       try {
-        console.log("Toggle is following");
-        await store.dispatch("users/toggleIsFollowing", {
+        await store.dispatch("subscriptions/toggleIsFollowing", {
           followItemId: followItem.value.id,
           isFollowing: followItem.value.isFollowing,
         });
@@ -219,23 +230,26 @@ export default {
     onBeforeRouteLeave(() => {
       if (unsubscribeUser.value) {
         unsubscribeUser.value();
-        console.log("Unsubscribed User");
+        // console.log("Unsubscribed User");
       }
       if (unsubscribeFollowItem.value) {
         unsubscribeFollowItem.value();
-        console.log("Unsubscribed Follow Item");
+        // console.log("Unsubscribed Follow Item");
       }
       store.commit("users/clearState");
+      store.commit("subscriptions/clearState");
     });
 
     return {
+      q,
       userData,
       website,
       feedItems,
-      followUser,
-      followItem,
+      subscribe,
       toggleIsFollowing,
       isPublic,
+      followItem,
+      isFollowing,
     };
   },
 };

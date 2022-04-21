@@ -2,7 +2,8 @@
   <q-card
     class="bg-white"
     :style="
-      q.platform.is.desktop && $route.name === 'LandingPost'
+      (q.platform.is.desktop || q.platform.is.ipad) &&
+      $route.name === 'LandingPost'
         ? { maxWidth: '70vw', minWidth: '600px' }
         : null
     "
@@ -12,12 +13,12 @@
     <q-card-section
       v-if="$route.name === 'LandingPost'"
       class="full-width"
-      :class="q.platform.is.desktop ? 'q-mx-auto' : ''"
+      :class="q.platform.is.desktop || q.platform.is.ipad ? 'q-mx-auto' : ''"
       style="width: fit-content"
     >
-      <div class="flex full-width justify-between items-center">
+      <!-- <div class="flex full-width justify-between items-center">
         <q-btn flat icon="fas fa-times" v-close-popup />
-      </div>
+      </div> -->
     </q-card-section>
 
     <q-card-section class="flex column justify-center items-center">
@@ -30,7 +31,7 @@
         class="text-subtitle1 text-center"
       >
         {{
-          q.platform.is.mobile
+          q.platform.is.mobile && !q.platform.is.ipad
             ? "Free, unlimited access to design tips"
             : "Free, unlimited access to design tips, ideas and more"
         }}

@@ -17,7 +17,7 @@ export async function savePost ( { commit }, { postData, folder}) {
   }
   const folderItemsRef = collection(db, 'folderItems')
   const docRef = await addDoc(folderItemsRef, folderItem ).catch(error => {throw error})
-  console.log('Successfully saved post: ', docRef)
+  // console.log('Successfully saved post: ', docRef)
 }
 
 export async function createFolder ( { commit }, { newFolderName}) {
@@ -27,8 +27,7 @@ export async function createFolder ( { commit }, { newFolderName}) {
     name: newFolderName,
   }).catch(error => {throw error})
   commit('createFolder', {name: newFolderName, id: docRef.id})
-  commit('clearState')
-  console.log('Successfully created folder: ', docRef)
+  // console.log('Successfully created folder: ', docRef)
 }
 
 export async function renameFolder ( { commit }, { newFolderName, folderId } ) {
@@ -36,8 +35,7 @@ export async function renameFolder ( { commit }, { newFolderName, folderId } ) {
   await updateDoc(folderRef, {
     name: newFolderName
   }).catch(error => {throw error})
-  commit('clearState')
-  console.log('Successfully updated folder name')
+  // console.log('Successfully updated folder name')
 }
 
 export async function setFolders ( { commit } ) {
@@ -49,24 +47,24 @@ export async function setFolders ( { commit } ) {
       folders.push({ name: doc.data().name, id: doc.id})
     })
     commit('setFolders', {folders, unsubscribeFolders})
-    console.log('Successfully set folders: ', folders)
+    // console.log('Successfully set folders: ', folders)
   }, (error) => {
-    console.log('Could not subscribe to folders')
+    // console.log('Could not subscribe to folders')
     throw error
   })
 }
 
-export async function setUnorganizedPosts ( { commit } ) {
-  const q = query(folderItemsRef, where('isOrganized', '==', false), where('userId', '==', auth.currentUser.uid), orderBy('createdAt', 'desc'))
+export async function setUnorganizedPosts ( { commit, rootGetters } ) {
+  const q = query(folderItemsRef, where('isOrganized', '==', false), where('userId', '==', rootGetters['auth/getUser'].uid), orderBy('createdAt', 'desc'))
   const unsubscribeUnorganizedPosts = onSnapshot(q, (querySnapshot) => {
     const unorganizedPosts = []
     querySnapshot.forEach(doc => {
       unorganizedPosts.push({...doc.data(), id: doc.id})
     })
     commit('setUnorganizedPosts', {unorganizedPosts, unsubscribeUnorganizedPosts})
-    console.log('Successfully set unorganized posts: ', unorganizedPosts)
+    // console.log('Successfully set unorganized posts: ', unorganizedPosts)
   }, (error) => {
-    console.log('Could not subscribe to unorganized posts')
+    // console.log('Could not subscribe to unorganized posts')
     throw error
   })
 }
@@ -79,9 +77,9 @@ export async function setPosts ( { commit }, folderId ) {
       posts.push({...doc.data(), id: doc.id})
     })
     commit('setPosts', {posts, unsubscribePosts})
-    console.log('Successfully set posts: ', posts)
+    // console.log('Successfully set posts: ', posts)
   }, (error) => {
-    console.log('Could not subscribe to posts')
+    // console.log('Could not subscribe to posts')
     throw error
   })
 }
@@ -93,8 +91,7 @@ export async function movePosts ( { commit }, { selectedPostsList, folder } ) {
       folder: folder,
       isOrganized: true
     }).catch(error => {throw error})
-    commit('clearState')
-    console.log('Successfully update unorganized posts')
+    // console.log('Successfully update unorganized posts')
   }
 }
 
@@ -103,9 +100,9 @@ export async function setFolder ( { commit }, folderId ) {
   const unsubscribeFolder = onSnapshot(folderRef, (doc) => {
     const folder = { name: doc.data().name, id: folderId}
     commit('setFolder', { folder, unsubscribeFolder})
-    console.log('Successfully set folder: ', folder)
+    // console.log('Successfully set folder: ', folder)
   }, (error) => {
-    console.log('Could not subscribe to folder')
+    // console.log('Could not subscribe to folder')
     throw error
   })
 }

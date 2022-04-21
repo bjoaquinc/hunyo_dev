@@ -1,5 +1,5 @@
 <template>
-  <q-toolbar class="constrain mobile-only bg-white">
+  <q-toolbar class="constrain lt-sm bg-white">
     <q-btn
       color="secondary"
       icon="fas fa-chevron-left"

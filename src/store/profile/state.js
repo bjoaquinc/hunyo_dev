@@ -16,11 +16,13 @@ export default function () {
       location: '',
       website: '',
       bio: '',
-      hasSignedGuidelines: true
+      hasSignedGuidelines: true,
+      counter: 0
     },
     editedUserData: null,
     unsubscribeUser: null,
     uploadedImage: null,
-    recommendItem: null
+    recommendItem: null,
+    activityFeed: null,
   }
 }

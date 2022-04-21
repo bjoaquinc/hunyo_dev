@@ -16,13 +16,13 @@
       <q-btn
         :disable="disableChangePassword"
         @click="changePassword"
-        class="mobile-only"
+        class="lt-sm"
         color="secondary"
         label="Done"
         dense
         flat
       />
-      <div class="desktop-only" style="width: 28px; height: 28px" />
+      <div class="gt-xs" style="width: 28px; height: 28px" />
     </q-card>
     <div class="q-mx-md q-mt-md">
       <q-input
@@ -61,7 +61,7 @@
         :disable="disableChangePassword"
         @click="changePassword"
         label="Done"
-        class="full-width desktop-only q-mt-lg"
+        class="full-width gt-xs q-mt-lg"
         color="primary"
         unelevated
       />

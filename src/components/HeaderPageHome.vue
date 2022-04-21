@@ -1,5 +1,5 @@
 <template>
-  <q-toolbar v-if="!pageHeader" class="constrain mobile-only bg-white">
+  <q-toolbar v-if="!pageHeader" class="constrain lt-sm bg-white">
     <q-img
       @click="$router.push({ name: 'PageHome' })"
       class="q-mr-sm"

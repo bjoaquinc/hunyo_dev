@@ -3,21 +3,25 @@
     @hide="onDialogHide"
     persistent
     ref="dialogRef"
-    :full-width="q.platform.is.mobile"
+    :full-width="q.platform.is.mobile && !q.platform.is.ipad"
     transition-show="slide-up"
     transition-hide="slide-down"
-    :position="q.platform.is.mobile ? 'bottom' : 'standard'"
+    :position="
+      q.platform.is.mobile && !q.platform.is.ipad ? 'bottom' : 'standard'
+    "
   >
     <q-card
       class="bg-white"
       style="max-height: 100%"
       :style="
-        q.platform.is.desktop ? { width: '600px', maxWidth: '70vw' } : null
+        q.platform.is.desktop || q.platform.is.ipad
+          ? { width: '600px', maxWidth: '70vw' }
+          : null
       "
     >
       <q-card-section
         class="full-width"
-        :class="q.platform.is.desktop ? 'q-mx-auto' : ''"
+        :class="q.platform.is.desktop || q.platform.is.ipad ? 'q-mx-auto' : ''"
         style="width: fit-content"
       >
         <div class="flex full-width justify-between items-center">
@@ -29,7 +33,10 @@
                 : "Click Posts to Organize"
             }}
           </div>
-          <q-btn flat icon="fas fa-times" v-close-popup />
+          <q-btn flat icon="fas fa-times" v-close-popup @click="clearState" />
+        </div>
+        <div class="text-caption text-negative text-center text-italic">
+          * Note: Can only save posts to one folder at a time.
         </div>
       </q-card-section>
 
@@ -114,12 +121,15 @@ export default {
       });
     }
 
-    console.log(unorganizedPosts.value);
+    function clearState() {
+      store.commit("folder/clearState");
+    }
 
     return {
       dialogRef,
       onDialogHide,
       q,
+      clearState,
       unorganizedPosts,
       updateSelectedPost,
       selectedPostsList,

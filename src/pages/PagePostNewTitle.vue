@@ -1,8 +1,8 @@
 <template>
   <div>
     <div
-      class="q-px-lg full-width flex column mobile-only"
-      v-if="$q.platform.is.mobile"
+      class="q-px-lg full-width flex column lt-sm"
+      v-if="$q.platform.is.mobile && !$q.platform.is.ipad"
     >
       <q-select
         v-model="topics"
@@ -36,7 +36,7 @@
     </div>
     <q-card
       bordered
-      class="my-card absolute-center desktop-only"
+      class="my-card absolute-center gt-xs"
       style="max-width: 500px; min-width: 40vw"
       v-else
     >
@@ -157,9 +157,7 @@ export default {
     },
   },
   created() {
-    console.log(this.userData.hasSignedGuidelines);
     if (!this.userData.hasSignedGuidelines) {
-      console.log("hello");
       this.$q
         .dialog({
           component: DialogCommunityGuidelines,
@@ -174,7 +172,8 @@ export default {
           }
         });
     } else {
-      console.log("Has signed agreement");
+      // console.log("Has signed agreement");
+      return;
     }
   },
   methods: {
@@ -195,8 +194,8 @@ export default {
   },
   async beforeRouteLeave(to) {
     if (this.title && to.name !== "PagePostNewContent") {
-      const result = await this.confirmSaveDraft();
-      console.log(result);
+      // const result = await this.confirmSaveDraft();
+      // console.log(result);
       this.$store.commit("newPost/clearState");
     } else if (to.name !== "PagePostNewContent") {
       this.$store.commit("newPost/clearState");

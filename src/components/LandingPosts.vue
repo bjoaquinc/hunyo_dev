@@ -1,9 +1,9 @@
 <template>
   <div class="row q-col-gutter-md">
-    <div class="col-12 col-sm-7 feed">
+    <div class="col-12 col-sm-7 q-mx-auto feed">
       <q-btn
         color="primary"
-        :class="q.platform.is.mobile ? 'q-mx-sm' : ''"
+        :class="q.platform.is.mobile && !q.platform.is.ipad ? 'q-mx-sm' : ''"
         class="q-my-md"
         icon="fas fa-arrow-left"
         label="Back to Home Page"
@@ -17,7 +17,7 @@
 </template>
 
 <script>
-import { computed, onMounted } from "vue";
+import { computed, onMounted, onUnmounted } from "vue";
 import { useStore } from "vuex";
 import { useQuasar } from "quasar";
 import FeedList from "src/components/FeedList.vue";
@@ -35,6 +35,10 @@ export default {
       } catch (error) {
         console.log(error);
       }
+    });
+
+    onUnmounted(() => {
+      store.commit("posts/clearStatePosts");
     });
 
     return {

@@ -13,8 +13,8 @@
         :to="{ path: '/settings' }"
       />
       <div class="text-h6">Email</div>
-      <q-btn class="mobile-only" color="secondary" label="Submit" dense flat />
-      <div class="desktop-only" style="width: 28px; height: 28px" />
+      <q-btn class="lt-sm" color="secondary" label="Submit" dense flat />
+      <div class="gt-xs" style="width: 28px; height: 28px" />
     </q-card>
     <div class="q-mx-md q-mt-md">
       <q-input
@@ -27,7 +27,7 @@
       />
       <q-btn
         label="Submit"
-        class="full-width desktop-only q-mt-sm"
+        class="full-width gt-xs q-mt-sm"
         color="primary"
         :disable="!isEdited"
         unelevated

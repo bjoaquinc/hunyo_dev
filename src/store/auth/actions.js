@@ -10,10 +10,13 @@ export function setUser ( { commit, dispatch, rootGetters } ) {
     if (user) {
       // User is signed in, see docs for a list of available properties
       // https://firebase.google.com/docs/reference/js/firebase.User
-      console.log('Auth state triggered')
+      // console.log('Auth state triggered')
       LocalStorage.set('user', user)
       amplitude.getInstance().setUserId(user.uid)
       await dispatch('profile/setUserData', user.uid, { root: true })
+      await dispatch('folder/setFolders', null, { root: true})
+      await dispatch('subscriptions/setFollowersList', null, { root: true })
+      await dispatch('subscriptions/setFollowingList', null, { root: true })
       commit('setUser', {
         user: user,
         isAuth: true
@@ -21,7 +24,7 @@ export function setUser ( { commit, dispatch, rootGetters } ) {
       // ...
     } else {
       LocalStorage.remove('user')
-      console.log('This user is signed out.')
+      // console.log('This user is signed out.')
     }
   });
 }
@@ -80,7 +83,7 @@ export async function createUser ( { commit }, { email, password, name }) {
         lastName,
         emailAddress: email
       })
-      console.log('Successfully created User: ', user, user.uid)
+      // console.log('Successfully created User: ', user, user.uid)
     } else {
       throw new Error('Could not complete signup')
     }
@@ -92,7 +95,6 @@ export async function updateUserName ( { commit }, name ) {
       displayName: name,
     }).catch(error => {throw error})
 }
-
 
 export async function verifyEmail ( { commit }) {
   const user = auth.currentUser
@@ -111,15 +113,15 @@ export async function verifyEmail ( { commit }) {
 export async function signIn ( { commit }, { email, password}) {
   const response = await signInWithEmailAndPassword(auth, email, password).catch(error => {throw error})
   if (response) {
-    console.log('response: ', response)
+    // console.log('response: ', response)
     const user = response.user
     if (user.emailVerified) {
-      console.log('verified', user.emailVerified)
+      // console.log('verified', user.emailVerified)
       commit('setUser', {
         user,
         isAuth: true
       })
-      console.log('Successfully signed in: ', user)
+      // console.log('Successfully signed in: ', user)
     } else {
       throw new Error('User not verified')
     }
@@ -128,23 +130,34 @@ export async function signIn ( { commit }, { email, password}) {
   }
 }
 
-
-
-export async function signout ( { commit } ) {
+export async function signout ( { commit, rootGetters } ) {
+  const unsubscribeFolders = rootGetters['folder/getUnsubscribeFolders'];
+  const unsubscribeUser = rootGetters['profile/getUnsubscribeUser']
+  const unsubscribeFollowers = rootGetters['subscriptions/getUnsubscribeFollowers'] 
+  const unsubscribeFollowing = rootGetters['subscriptions/getUnsubscribeFollowing']
   await signOut(auth).catch(error => {
     throw error
   })
+  if (unsubscribeUser) unsubscribeUser();
+  // console.log('Unsubscribed from user')
+  if (unsubscribeFolders) unsubscribeFolders();
+  // console.log('Unsubscribed from folders')
+  if (unsubscribeFollowers) unsubscribeFollowers();
+  // console.log('Unsubscribed from followers')
+  if (unsubscribeFollowing) unsubscribeFollowing();
+  // console.log('Unsubscribed from folders')
+  commit('profile/clearStateUserData', null, { root: true })
+  commit('folder/clearStateFolders', null, { root: true })
+  commit('subscriptions/clearStateFollowingFollowers', null, { root: true })
   commit('removeUser')
-  console.log('Successfully signed out.')
+  // console.log('Successfully signed out.')
 }
-
 
 export async function resetPasswordEmail ( { commit }, email ) {
   await sendPasswordResetEmail(auth, email, {
       url: 'https://hunyo.com/#/',
     }).catch(error => {throw error})
 }
-
 
 export async function changePassword ( { commit }, newPassword ) {
   const user = auth.currentUser

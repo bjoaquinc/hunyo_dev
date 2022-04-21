@@ -1,12 +1,11 @@
 <template>
   <q-page class="constrain">
     <div class="row q-col-gutter-md">
-      <div class="col-12 col-sm-7 feed">
+      <div class="col-12 col-sm-7 q-mx-auto feed">
         <router-view v-slot="{ Component }">
           <component :is="Component" :feedItems="feedItems" />
         </router-view>
       </div>
-      <div class="col desktop-only"></div>
     </div>
   </q-page>
 </template>
@@ -26,6 +25,9 @@ export default {
       console.log(error);
     }
   },
+  beforeRouteLeave() {
+    this.$store.commit("feed/clearStateFeedItems");
+  },
 };
 </script>
 
@@ -34,7 +36,4 @@ export default {
 .q-page
   @media (min-width: 690px)
     margin-top: 21px
-.feed
-  @media (min-width: 690px)
-    margin-left: 9px
 </style>

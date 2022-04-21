@@ -18,7 +18,10 @@
     <div
       class="flex q-px-md q-py-lg"
       style="flex-wrap: wrap !important; overflow: auto"
-      :style="{ maxHeight: q.platform.is.mobile ? '90vh' : '70vh' }"
+      :style="{
+        maxHeight:
+          q.platform.is.mobile && !q.platform.is.ipad ? '90vh' : '70vh',
+      }"
     >
       <div class="text-h4 p-mt-6 p-mb-3 p-mx-auto">Hunyo Terms of Use</div>
       <div class="q-mt-lg">

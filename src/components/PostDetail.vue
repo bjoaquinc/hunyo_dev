@@ -1,13 +1,12 @@
 <template>
   <q-card class="my-card" bordered flat v-if="isReady">
     <q-item>
-      <q-item-label class="text-weight-bold text-h6 q-pt-md desktop-only">{{
+      <q-item-label class="text-weight-bold text-h6 q-pt-md gt-xs">{{
         title
       }}</q-item-label>
-      <q-item-label
-        class="text-weight-bold text-subtitle1 q-pt-md mobile-only"
-        >{{ title }}</q-item-label
-      >
+      <q-item-label class="text-weight-bold text-subtitle1 q-pt-md lt-sm">{{
+        title
+      }}</q-item-label>
     </q-item>
 
     <BaseCarousel
@@ -22,31 +21,8 @@
       </div>
     </q-card-section>
 
-    <q-item
-      class="q-py-sm"
-      clickable
-      :to="{
-        name: userRoute,
-        params: { userId: user.id },
-      }"
-    >
-      <q-item-section avatar>
-        <q-avatar>
-          <img :src="user.photo" />
-        </q-avatar>
-      </q-item-section>
-
-      <q-item-section>
-        <q-item-label class="text-weight-bold" caption>{{
-          user.name
-        }}</q-item-label>
-      </q-item-section>
-    </q-item>
-
-    <q-separator v-if="!isPublic" />
-
     <q-card-actions align="around" v-if="!isPublic">
-      <q-btn
+      <!-- <q-btn
         @click="openDialogRecommendCreate"
         color="primary"
         icon="fas fa-check"
@@ -54,19 +30,44 @@
         size="md"
         flat
         style="width: 45%"
-      />
+      /> -->
       <q-btn
         @click="openDialogFoldersList"
+        class="full-width"
         color="primary"
         icon="fas fa-folder"
         label="Save"
         size="md"
         unelevated
-        style="width: 45%"
       />
     </q-card-actions>
 
     <q-separator />
+
+    <q-card-actions align="between">
+      <q-item
+        class="q-py-sm q-px-sm"
+        clickable
+        :to="{
+          name: userRoute,
+          params: { userId: user.id },
+        }"
+      >
+        <q-item-section avatar>
+          <q-avatar>
+            <img :src="user.photo" />
+          </q-avatar>
+        </q-item-section>
+
+        <q-item-section>
+          <q-item-label class="text-weight-bold" caption>{{
+            user.name
+          }}</q-item-label>
+        </q-item-section>
+      </q-item>
+    </q-card-actions>
+
+    <q-separator v-if="!isPublic" />
 
     <q-item v-if="!isPublic">
       <q-item-section avatar>

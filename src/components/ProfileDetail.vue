@@ -6,12 +6,20 @@
       bordered
       v-if="userData"
     >
-      <div class="flex items-center full-width">
-        <q-avatar size="100px">
-          <img :src="userData.photoURL" />
-        </q-avatar>
+      <div class="flex items-center justify-between no-wrap">
+        <div class="flex column">
+          <q-avatar size="100px">
+            <img :src="userData.photoURL" />
+          </q-avatar>
+          <div class="text-subtitle1 text-weight-bold q-mt-sm">
+            {{ userData.displayName
+            }}<span v-if="userData.employerName">
+              • {{ userData.employerName }}</span
+            >
+          </div>
+        </div>
         <q-item
-          class="flex column items-center q-mx-auto"
+          class="flex column items-center q-ml-auto"
           :to="{ name: 'ProfileFolder' }"
           clickable
           v-ripple
@@ -24,14 +32,8 @@
             class="q-pa-none"
             icon="fas fa-folder"
           />
-          <p class="text-weight-bold q-ma-none">Saved Posts</p>
+          <p class="text-weight-bold q-ma-none text-no-wrap">Saved Posts</p>
         </q-item>
-      </div>
-      <div class="text-subtitle1 text-weight-bold q-mt-sm">
-        {{ userData.displayName
-        }}<span v-if="userData.employerName">
-          • {{ userData.employerName }}</span
-        >
       </div>
       <div class="full-width bio q-mb-xs" v-if="userData.bio">
         {{ userData.bio }}
@@ -52,7 +54,10 @@
           class="text-weight-regular"
           :class="userData.location ? 'q-ml-sm' : ''"
           v-if="website"
-          style="max-width: 190px"
+          :style="{
+            maxWidth:
+              q.platform.is.mobile && !q.platform.is.ipad ? '150px' : '250px',
+          }"
           size="11px"
           no-wrap
           color="secondary"
@@ -71,30 +76,20 @@
           </div>
         </q-btn>
       </div>
-      <div class="full-width flex">
-        <q-btn
-          no-caps
-          dense
-          size="12px"
-          class="text-weight-regular"
-          :label="`${userData.following} Following`"
-          flat
-          v-if="userData.following"
-          color="secondary"
-        />
+      <!-- <div class="full-width flex">
         <q-btn
           no-caps
           dense
           size="12px"
           class="text-weight-regular"
           :label="`${userData.followers} ${
-            userData.followers > 1 ? 'Followers' : 'Follower'
+            userData.followers > 1 ? 'Subscribers' : 'Subscriber'
           }`"
           flat
           v-if="userData.followers"
           color="secondary"
         />
-      </div>
+      </div> -->
       <q-btn
         class="full-width q-mt-sm"
         color="primary"
@@ -119,9 +114,9 @@
 </template>
 
 <script>
-import { computed, ref, onMounted } from "vue";
+import { computed, ref, onMounted, onUnmounted } from "vue";
 import { useStore } from "vuex";
-import { onBeforeRouteLeave } from "vue-router";
+import { useQuasar } from "quasar";
 import FeedList from "src/components/FeedList.vue";
 
 export default {
@@ -129,6 +124,7 @@ export default {
     FeedList,
   },
   setup() {
+    const q = useQuasar();
     const store = useStore();
     const user = computed(() => store.getters["auth/getUser"]);
     const userData = computed(() => store.getters["profile/getUserData"]);
@@ -156,10 +152,15 @@ export default {
       await setActivityFeed(user.value.uid);
     });
 
+    onUnmounted(() => {
+      store.commit("profile/clearStateFeed");
+    });
+
     return {
       userData,
       feedItems,
       website,
+      q,
     };
   },
 };

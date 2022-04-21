@@ -6,7 +6,7 @@
     />
     <div style="width: 100%; border-bottom: 1px solid rgba(0, 0, 0, 0.12)" />
     <p style="margin: 30px 0; font-size: 20px">
-      Arch. Joaquin Coromina viewed your post entitled: Connecting Two Edges
+      Arch. Joaquin Coromina commented on your Hunyo post: Connecting Two Edges
     </p>
     <a
       href="https://www.hunyo.com"
@@ -22,7 +22,7 @@
         font-size: 16px;
         font-weight: bold;
       "
-      >View the Designer's Profile</a
+      >View Now</a
     >
     <div
       style="

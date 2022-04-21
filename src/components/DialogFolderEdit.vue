@@ -2,15 +2,17 @@
   <q-dialog
     @hide="onDialogHide"
     ref="dialogRef"
-    :full-width="q.platform.is.mobile"
+    :full-width="q.platform.is.mobile && !q.platform.is.ipad"
     transition-show="slide-up"
     transition-hide="slide-down"
-    :position="q.platform.is.mobile ? 'bottom' : 'standard'"
+    :position="
+      q.platform.is.mobile && !q.platform.is.ipad ? 'bottom' : 'standard'
+    "
   >
     <q-card class="bg-white">
       <q-card-section
         class="full-width"
-        :class="q.platform.is.desktop ? 'q-mx-auto' : ''"
+        :class="q.platform.is.desktop || q.platform.is.ipad ? 'q-mx-auto' : ''"
         style="width: fit-content"
       >
         <div class="flex full-width justify-between items-center">
@@ -27,7 +29,9 @@
         <q-btn
           v-close-popup
           @click="openDialogFolderCreateAndEdit"
-          :class="q.platform.is.mobile ? 'full-width' : ''"
+          :class="
+            q.platform.is.mobile && !q.platform.is.ipad ? 'full-width' : ''
+          "
           style="min-width: 80px"
           text-color="secondary"
           color="grey-3"
@@ -36,7 +40,9 @@
         />
         <q-btn
           @click="onRemoveClick"
-          :class="q.platform.is.mobile ? 'full-width' : ''"
+          :class="
+            q.platform.is.mobile && !q.platform.is.ipad ? 'full-width' : ''
+          "
           style="min-width: 80px"
           text-color="negative"
           color="grey-1"

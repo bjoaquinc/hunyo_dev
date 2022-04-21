@@ -1,6 +1,6 @@
 <template>
   <q-card class="q-pa-md bg-white container items-start" flat bordered>
-    <q-card-section class="desktop-only q-px-none">
+    <q-card-section class="gt-xs q-px-none">
       <q-btn
         color="primary"
         icon="fas fa-arrow-left"
@@ -97,8 +97,6 @@ export default {
     const remove = ref(false);
     const removeList = ref([]);
 
-    console.log(posts.value);
-
     onMounted(async () => {
       try {
         if (props.folderId) {
@@ -146,12 +144,13 @@ export default {
     onBeforeRouteLeave(() => {
       if (unsubscribeFolder.value) {
         unsubscribeFolder.value();
-        console.log("Successfully unsubscribed folder");
+        // console.log("Successfully unsubscribed folder");
       }
       if (unsubscribePosts.value) {
         unsubscribePosts.value();
-        console.log("Successfully unsubscribed posts");
+        // console.log("Successfully unsubscribed posts");
       }
+      store.commit("folder/clearStateFolderDetail");
     });
 
     return {

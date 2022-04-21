@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div class="flex items-center q-mb-md desktop-only">
+    <div class="flex items-center q-mb-md gt-xs">
       <q-btn
         :to="{ name: 'PageProfile' }"
         color="primary"

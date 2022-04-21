@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div class="q-px-lg full-width flex column mobile-only">
+    <div class="q-px-lg full-width flex column lt-sm">
       <DropdownBestPractices class="q-mt-lg" />
       <label class="text-body1 q-mt-lg text-grey-7" for="description"
         >Description *</label
@@ -76,7 +76,7 @@
     </div>
 
     <div
-      class="absolute-center desktop-only row items-start"
+      class="absolute-center gt-xs row items-start"
       style="max-width: 600px"
       :style="{ minWidth: isQuestion ? '40vw' : '70vw' }"
     >
@@ -174,6 +174,7 @@
           </q-card-section>
           <q-card-actions>
             <q-btn
+              :disable="content ? false : true"
               @click="createPost"
               label="Post"
               color="primary"
@@ -189,7 +190,7 @@
     <q-dialog
       v-model="preview"
       persistent
-      :maximized="q.platform.is.mobile"
+      :maximized="q.platform.is.mobile && !q.platform.is.ipad"
       transition-show="slide-up"
       transition-hide="slide-down"
     >
@@ -206,7 +207,10 @@
         </q-card-section>
         <BaseCarousel
           :imagesList="imagesList"
-          :style="{ minWidth: q.platform.is.desktop ? '35vw' : '100%' }"
+          :style="{
+            minWidth:
+              q.platform.is.desktop || q.platform.is.ipad ? '35vw' : '100%',
+          }"
         />
       </q-card>
     </q-dialog>
@@ -343,9 +347,8 @@ export default {
           newPost: { ...newPost.value },
           imagesList: imagesList.value,
         });
-        await store.dispatch("users/setFollowersList");
         const followersList = computed(
-          () => store.getters["users/getFollowersList"]
+          () => store.getters["subscriptions/getFollowersList"]
         );
         for (let index = 0; index < followersList.value.length; index++) {
           const followingUser = followersList.value[index].followingUser;

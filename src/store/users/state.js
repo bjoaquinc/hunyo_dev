@@ -1,9 +1,7 @@
 export default function () {
   return {
-    followItem: null,
-    unsubscribeFollowItem: null,
-    followersList: [],
     userData: null,
+    activityFeed: null,
     unsubscribeUser: null,
   }
 }

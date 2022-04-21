@@ -1,7 +1,8 @@
 import { uid } from 'quasar'
-import { storage, auth, db } from 'src/boot/firebase'
+import { storage, auth, db, functions } from 'src/boot/firebase'
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage'
 import { serverTimestamp, collection, doc, updateDoc, addDoc } from 'firebase/firestore'
+import { httpsCallable } from 'firebase/functions'
 
 // firestore collection data
 export function getPostsCollection ({ commit }, postsCol) {
@@ -28,6 +29,7 @@ export async function setUploadedImages ({ commit }, payload) {
       selectedImages.push({
         id: uid(),
         value: fileContents,
+        file: payload.files[index],
         order: null,
         type: fileType,
         croppedValue: null,
@@ -70,7 +72,7 @@ export async function createPost ( { commit }, { newPost, imagesList} ) {
     }
   }).catch(error => {throw error})
 
-  console.log('Successfully added document: ', docRef)
+  // console.log('Successfully added document: ', docRef)
 
   
   if (imagesList && imagesList.length > 0) {
@@ -85,12 +87,12 @@ export async function createPost ( { commit }, { newPost, imagesList} ) {
         imageURLList.push(downloadURL)
       }
     }
-    console.log('Successfully uploaded images to storage: ', imageURLList)
+    // console.log('Successfully uploaded images to storage: ', imageURLList)
     const postRef = doc(db, "posts", docRef.id);
     await updateDoc(postRef, {
       imagesList: imageURLList,
     }).catch(error => {throw error})
-    console.log('Successfully updated document')
+    // console.log('Successfully updated document')
   }
 
   const { topics, title, isQuestion } = newPost
@@ -116,11 +118,25 @@ export async function createPost ( { commit }, { newPost, imagesList} ) {
   const feedItemDocRef = await addDoc(collection(db, 'feedItems'), {...feedItemData})
     .catch(error => {throw error})
 
-  console.log('Successfully added feed item: ', feedItemDocRef)
+  // console.log('Successfully added feed item: ', feedItemDocRef)
 
   commit('setPostId', docRef.id)
 
 }
+
+// export async function cropImage ( { commit }, { file, id, cropData, contentType}) {
+//   const filePath = `images/${id}`
+//   const imageRef = ref(storage, filePath)
+//   await uploadBytes(imageRef, file).catch(error => {throw error})
+//   const crop = httpsCallable(functions, 'images-cropImage');
+//   const croppedImageRef = await crop({
+//     filePath,
+//     cropData,
+//     fileName: id,
+//     contentType
+//   }).catch(error => { throw error })
+//   // // return croppedImageRef;
+// }
 
 function dataURItoBlob(dataURI) {
   // convert base64 to raw binary data held in a string

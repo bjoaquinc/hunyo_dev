@@ -4,7 +4,11 @@
       <div class="row">
         <q-item-label
           class="text-weight-bold q-mt-sm q-mb-sm col"
-          :class="$q.platform.is.mobile ? 'text-subtitle1' : 'text-h6'"
+          :class="
+            $q.platform.is.mobile && !$q.platform.is.ipad
+              ? 'text-subtitle1'
+              : 'text-h6'
+          "
           @click="readPost"
           >{{ title }}</q-item-label
         >
@@ -14,7 +18,7 @@
           @click="openPostActionsDialog"
           color="primary"
           icon="fas fa-ellipsis-h"
-          :size="$q.platform.is.mobile ? 'sm' : 'md'"
+          :size="$q.platform.is.mobile && !$q.platform.is.ipad ? 'sm' : 'md'"
           dense
           flat
         />

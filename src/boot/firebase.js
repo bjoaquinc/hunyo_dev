@@ -76,5 +76,5 @@ export default boot( ({ app }) => {
   
 })
 
-export { postsRef, storageRef, imagesRef, db, auth, storage }
+export { postsRef, storageRef, imagesRef, db, auth, storage, functions }
 

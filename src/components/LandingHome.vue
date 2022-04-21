@@ -1,19 +1,23 @@
 <template>
   <div
     class="row"
-    :class="q.platform.is.mobile ? 'justify-center' : 'justify-between'"
+    :class="
+      q.platform.is.mobile && !q.platform.is.ipad
+        ? 'justify-center'
+        : 'justify-between'
+    "
   >
     <div
       class="flex column items-start col-12 col-sm-6 q-px-md q-mt-xl"
       style="min-height: 79vh"
     >
       <!-- Title mobile sizing -->
-      <div class="text-h4 mobile-only text-grey-8 text-weight-bold">
+      <div class="text-h4 lt-sm text-grey-8 text-weight-bold">
         Welcome to Your Design Community
       </div>
 
       <!-- Title desktop sizing -->
-      <div class="text-h3 desktop-only text-grey-8">
+      <div class="text-h3 gt-xs text-grey-8">
         Welcome to Your Design Community
       </div>
 
@@ -62,7 +66,7 @@
       />
     </div>
 
-    <div class="desktop-only q-px-md q-mt-xl col-5">
+    <div class="gt-xs q-px-md q-mt-xl col-5">
       <q-img
         src="https://images.pexels.com/photos/416405/pexels-photo-416405.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940"
         :ratio="1"
@@ -79,7 +83,10 @@
       <div class="text-h4">About Hunyo</div>
       <div
         class="q-mt-sm text-center"
-        :style="{ maxWidth: q.platform.is.mobile ? '100%' : '50%' }"
+        :style="{
+          maxWidth:
+            q.platform.is.mobile && !q.platform.is.ipad ? '100%' : '50%',
+        }"
       >
         Hunyo is a free, closed community of Southeast Asian designers in the
         built environment dedicated to knowledge sharing. Community members post
@@ -92,7 +99,10 @@
         <q-btn
           class="q-mt-sm"
           :to="{ name: 'LandingJoin' }"
-          :style="{ minWidth: q.platform.is.mobile ? '100%' : '45%' }"
+          :style="{
+            minWidth:
+              q.platform.is.mobile && !q.platform.is.ipad ? '100%' : '45%',
+          }"
           color="primary"
           label="Join Hunyo"
           no-caps
@@ -101,7 +111,10 @@
         <q-btn
           :to="{ name: 'LandingPosts' }"
           class="q-mt-sm"
-          :style="{ minWidth: q.platform.is.mobile ? '100%' : '45%' }"
+          :style="{
+            minWidth:
+              q.platform.is.mobile && !q.platform.is.ipad ? '100%' : '45%',
+          }"
           color="primary"
           label="See Posts"
           no-caps

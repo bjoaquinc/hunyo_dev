@@ -2,15 +2,19 @@
   <q-dialog
     @hide="onDialogHide"
     ref="dialogRef"
-    :full-width="q.platform.is.mobile"
+    :full-width="q.platform.is.mobile && !q.platform.is.ipad"
     transition-show="slide-up"
     transition-hide="slide-down"
-    :position="q.platform.is.mobile ? 'bottom' : 'standard'"
+    :position="
+      q.platform.is.mobile && !q.platform.is.ipad ? 'bottom' : 'standard'
+    "
   >
     <q-card
       class="bg-white"
       :style="
-        q.platform.is.desktop ? { width: '600px', maxWidth: '70vw' } : null
+        q.platform.is.desktop || q.platform.is.ipad
+          ? { width: '600px', maxWidth: '70vw' }
+          : null
       "
     >
       <q-card-actions>
@@ -76,6 +80,8 @@ export default {
     const selectedType = ref("");
     const comment = ref("");
     const commentId = computed(() => store.getters["comments/getCommentId"]);
+    const user = computed(() => store.getters["auth/getUser"]);
+    const userData = computed(() => store.getters["profile/getUserData"]);
 
     async function createComment() {
       try {
@@ -84,18 +90,20 @@ export default {
           comment: comment.value,
           selectedType: selectedType.value,
         });
-        await store.dispatch("notifications/createNotification", {
-          type: "postComment",
-          content: comment.value,
-          userId: props.user.id,
-          route: {
-            name: "FeedPost",
-            params: {
-              postId: props.postId,
+        if (props.user.id !== user.value.uid && !userData.value.admin) {
+          await store.dispatch("notifications/createNotification", {
+            type: "postComment",
+            content: comment.value,
+            userId: props.user.id,
+            route: {
+              name: "FeedPost",
+              params: {
+                postId: props.postId,
+              },
+              hash: `#comments`,
             },
-            hash: `#comments`,
-          },
-        });
+          });
+        }
         selectedType.value = "";
         comment.value = "";
       } catch (error) {

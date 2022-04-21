@@ -13,7 +13,7 @@
 </template>
 
 <script>
-import { computed, onMounted } from "vue";
+import { computed, onMounted, onUnmounted } from "vue";
 import { useStore } from "vuex";
 import NotificationFollowerNew from "src/components/notifications/NotificationFollowerNew.vue";
 import NotificationFollowPost from "src/components/notifications/NotificationFollowPost.vue";
@@ -21,8 +21,8 @@ import NotificationFollowRecommend from "src/components/notifications/Notificati
 import NotificationPostComment from "src/components/notifications/NotificationPostComment.vue";
 import NotificationPostRead from "src/components/notifications/NotificationPostRead.vue";
 import NotificationPostRecommend from "src/components/notifications/NotificationPostRecommend.vue";
+import NotificationsPostReply from "src/components/notifications/NotificationPostReply.vue";
 import NotificationPostSave from "src/components/notifications/NotificationPostSave.vue";
-import NotificationRecommendClicked from "src/components/notifications/NotificationRecommendClicked.vue";
 
 export default {
   components: {
@@ -32,7 +32,8 @@ export default {
     postComment: NotificationPostComment,
     postRead: NotificationPostRead,
     postRecommend: NotificationPostRecommend,
-    //   postSave: NotificationPostSave,
+    postReply: NotificationsPostReply,
+    postSave: NotificationPostSave,
     //   recommendClicked: NotificationRecommendClicked,
   },
   setup() {
@@ -53,6 +54,10 @@ export default {
       } catch (error) {
         console.log(error);
       }
+    });
+
+    onUnmounted(() => {
+      store.commit("notifications/clearState");
     });
 
     return {

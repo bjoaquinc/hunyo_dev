@@ -1,15 +1,15 @@
 <template>
   <div>
     <div
-      v-if="q.platform.is.mobile"
-      class="q-px-lg q-mt-sm q-mt-sm-lg q-mt-xs-none full-width flex column mobile-only"
+      v-if="q.platform.is.mobile && !q.platform.is.ipad"
+      class="q-px-lg q-mt-sm q-mt-sm-lg q-mt-xs-none full-width flex column lt-sm"
     >
       <router-view />
     </div>
     <q-card
       v-else
       bordered
-      class="my-card absolute-center desktop-only q-pa-md"
+      class="my-card absolute-center gt-xs q-pa-md"
       style="max-width: 500px; min-width: 400px; min-height: 400px"
     >
       <router-view />

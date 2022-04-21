@@ -18,7 +18,10 @@
     <div
       class="flex q-px-md q-py-lg"
       style="flex-wrap: wrap !important; overflow: auto"
-      :style="{ maxHeight: q.platform.is.mobile ? '90vh' : '70vh' }"
+      :style="{
+        maxHeight:
+          q.platform.is.mobile && !q.platform.is.ipad ? '90vh' : '70vh',
+      }"
     >
       <div class="text-h4 q-pb-lg">Privacy Policy</div>
       <div class="text-h5 q-mt-md">1. Information You Share With Us</div>

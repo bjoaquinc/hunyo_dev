@@ -2,14 +2,16 @@
   <q-dialog
     @hide="onDialogHide"
     ref="dialogRef"
-    :full-width="q.platform.is.mobile"
+    :full-width="q.platform.is.mobile && !q.platform.is.ipad"
     transition-show="slide-up"
     transition-hide="slide-down"
-    :position="q.platform.is.mobile ? 'bottom' : 'standard'"
+    :position="
+      q.platform.is.mobile && !q.platform.is.ipad ? 'bottom' : 'standard'
+    "
   >
     <q-card class="bg-white">
       <q-card-actions class="full-width q-mt-md q-mb-sm q-px-md" align="around">
-        <q-btn
+        <!-- <q-btn
           v-close-popup
           @click="openDialogRecommendCreate"
           class="button-width"
@@ -20,7 +22,7 @@
           label="Recommend"
           unelevated
           stack
-        />
+        /> -->
         <q-btn
           v-close-popup
           @click="openDialogFlag"

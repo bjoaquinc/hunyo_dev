@@ -11,11 +11,8 @@ exports.emailNotifications = functions.firestore
     .document("users/{userId}/notifications/{notificationId}")
     .onCreate( async (snap, context) => {
       const docData = snap.data();
-      functions.logger.log(docData);
       const content = docData.content ? docData.content : null;
-      functions.logger.log(content);
-      const {type, user, userId} = docData;
-      functions.logger.log(type, user, userId);
+      const {type, user, userId, route} = docData;
       let userEmail = "";
 
       const recipient = await db.collection("users").doc(userId).get();
@@ -31,29 +28,30 @@ exports.emailNotifications = functions.firestore
       let url = "";
       let subject = "";
 
-      if (type === "postRead") {
-        subject = `${user.name} viewed your Hunyo post`;
-        message = `${user.name} viewed your Hunyo post: ${content}`;
-        buttonMessage = "See the Designer's Profile";
-        url = `https://hunyo.com/#/members/${user.id}`;
+      if (type === "postComment") {
+        subject = `${user.name} commented on your Hunyo post`;
+        message = `${user.name} commented on your Hunyo post: ${content}`;
+        buttonMessage = "View Now";
+        url = `https://hunyo.com/#/posts/${route.params.postId}`;
+      } else if (type === "postReply") {
+        subject = `${user.name} replied to your comment on Hunyo`;
+        message = `${user.name} replied to your comment on Hunyo`;
+        buttonMessage = "View Now";
+        url = `https://hunyo.com/#/posts/${route.params.postId}`;
+      } else if (type === "followerNew") {
+        subject = "You have a new subscriber on Hunyo";
+        message = "You have a new subscriber on Hunyo";
+        buttonMessage = "View Subscriber's Profile";
+        url = `https://hunyo.com/#/members/${route.params.userId}`;
+      } else if (type === "followPost") {
+        subject = `${user.name} created a new Hunyo post`;
+        message = `${user.name} created a new Hunyo post`;
+        buttonMessage = "View Post";
+        url = `https://hunyo.com/#/posts/${route.params.postId}`;
       } else {
-        functions.logger.log("No email available for type yet");
+        functions.logger.log("No email for that notification type yet");
         return;
       }
-
-      // if (type === "postComment") {
-      //   subject = `${user.name} commented on your Hunyo post`;
-      //   message = `${user.name} commented on your Hunyo post: ${content}`;
-      //   buttonMessage = "View Now";
-      //   url = `https://hunyo.com/posts/${route.params.postId}`;
-      // }
-
-      // if (type === "postRecommend") {
-      //   subject = `${user.name} recommended your Hunyo post`;
-      //   message = `${user.name} recommended your Hunyo post: ${content}`;
-      //   buttonMessage = "View Now";
-      //   url = `https://hunyo.com/posts/${route.params.postId}`;
-      // }
 
       const notificationTemplate = `
       <div style="margin-top: 30px; max-width: 500px">

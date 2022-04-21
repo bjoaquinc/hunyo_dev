@@ -1,5 +1,5 @@
 <template>
-  <q-toolbar class="constrain mobile-only bg-white">
+  <q-toolbar class="constrain lt-sm bg-white">
     <q-btn
       color="secondary"
       icon="fas fa-chevron-left"
@@ -43,9 +43,9 @@ export default {
     const imagesList = computed(
       () => store.getters["newPost/getCroppedImagesList"]
     );
+    const postId = computed(() => store.getters["newPost/getPostId"]);
 
     const isIncomplete = computed(() => {
-      console.log("triggered");
       return newPost.value.topics.length &&
         newPost.value.title &&
         newPost.value.content
@@ -60,6 +60,23 @@ export default {
           newPost: { ...newPost.value },
           imagesList: imagesList.value,
         });
+        const followersList = computed(
+          () => store.getters["subscriptions/getFollowersList"]
+        );
+        for (let index = 0; index < followersList.value.length; index++) {
+          const followingUser = followersList.value[index].followingUser;
+          await store.dispatch("notifications/createNotification", {
+            type: "followPost",
+            content: newPost.value.title,
+            userId: followingUser.id,
+            route: {
+              name: "FeedPost",
+              params: {
+                postId: postId.value,
+              },
+            },
+          });
+        }
         store.commit("newPost/clearState");
         q.loading.hide();
         router.push({ name: "PageHome" });

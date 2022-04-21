@@ -2,14 +2,14 @@
   <q-layout view="lHh Lpr lFf">
     <q-header class="bg-white" bordered>
       <component
-        v-if="$q.platform.is.mobile"
+        v-if="$q.platform.is.mobile && !$q.platform.is.ipad"
         :is="header"
-        class="mobile-only"
+        class="lt-sm"
       />
       <component
         :is="desktopHeader"
         v-else-if="!$route.meta.withoutDesktopHeader"
-        class="desktop-only"
+        class="gt-xs"
       />
     </q-header>
 
@@ -112,8 +112,3 @@ export default {
   },
 };
 </script>
-
-<style lang="sass">
-.q-avatar
-  border: 1px solid rgba(0, 0, 0, 0.12)
-</style>

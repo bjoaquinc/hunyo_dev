@@ -1,5 +1,5 @@
 <template>
-  <q-toolbar class="constrain desktop-only">
+  <q-toolbar class="constrain gt-xs">
     <q-img
       @click="$router.push({ name: 'PageHome' })"
       class="q-mr-sm"
@@ -23,15 +23,6 @@
       <q-route-tab :to="{ name: 'PageHome' }" icon="fas fa-home" no-caps flat>
         <div class="text-caption">Home</div>
       </q-route-tab>
-      <q-route-tab
-        @click="openDialogPostCreate()"
-        :to="hasDrafts ? null : { name: 'PagePostNewTitle' }"
-        icon="fas fa-plus"
-        no-caps
-        flat
-      >
-        <div class="text-caption">Create</div>
-      </q-route-tab>
       <q-tab no-caps flat>
         <q-icon name="fas fa-bell" size="sm" class="items-start">
           <q-badge v-if="userData.counter" color="red" floating>{{
@@ -43,6 +34,15 @@
           <NotificationsList style="max-width: 500px" />
         </q-menu>
       </q-tab>
+      <q-route-tab
+        @click="openDialogPostCreate()"
+        :to="hasDrafts ? null : { name: 'PagePostNewTitle' }"
+        icon="fas fa-plus"
+        no-caps
+        flat
+      >
+        <div class="text-caption">Create</div>
+      </q-route-tab>
       <q-route-tab
         :to="{ name: 'ProfileFolder' }"
         icon="fas fa-folder"
@@ -108,6 +108,17 @@
               </q-item-section>
             </q-item>
 
+            <q-item
+              clickable
+              v-if="userData.admin && userData.admin === true"
+              @click="openDialogEditContent"
+              v-close-popup
+            >
+              <q-item-section>
+                <q-item-label>Edit Content</q-item-label>
+              </q-item-section>
+            </q-item>
+
             <q-separator spaced />
 
             <q-item @click="signout" clickable v-close-popup>
@@ -128,6 +139,7 @@ import NotificationsList from "src/components/NotificationsList.vue";
 import DialogPostCreate from "src/components/DialogPostCreate";
 import DialogCommunityGuidelines from "src/components/DialogCommunityGuidelines.vue";
 import DialogHelp from "src/components/DialogHelp.vue";
+import DialogEditContent from "src/components/admin/DialogEditContent.vue";
 
 export default {
   components: {
@@ -151,9 +163,6 @@ export default {
     userData() {
       return this.$store.getters["profile/getUserData"];
     },
-    unsubscribeUser() {
-      return this.$store.getters["profile/getUnsubscribeUser"];
-    },
   },
   methods: {
     toggleDrawer() {
@@ -174,11 +183,13 @@ export default {
         component: DialogHelp,
       });
     },
+    openDialogEditContent() {
+      this.$q.dialog({
+        component: DialogEditContent,
+      });
+    },
     async signout() {
       try {
-        if (this.unsubscribeUser) {
-          this.unsubscribeUser();
-        }
         await this.$store.dispatch("auth/signout");
         this.$router.push("/landing");
       } catch (error) {

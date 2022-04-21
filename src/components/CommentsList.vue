@@ -47,12 +47,12 @@ export default {
         ) {
           unsubscribeRepliesList.value.forEach((unsubscribe) => {
             unsubscribe();
-            console.log("Successfully unsubscribed replies");
+            // console.log("Successfully unsubscribed replies");
           });
         }
         if (unsubscribeComments.value) {
           unsubscribeComments.value();
-          console.log("Successfully unsubscribed comments");
+          // console.log("Successfully unsubscribed comments");
         }
         store.commit("comments/clearState");
       } catch (error) {

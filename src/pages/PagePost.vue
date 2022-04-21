@@ -1,7 +1,7 @@
 <template>
   <div :class="isPublic ? 'row' : ''" class="q-mt-md">
-    <div :class="isPublic ? 'col-12 col-sm-7' : ''">
-      <div class="flex items-center q-mb-md desktop-only">
+    <div :class="isPublic ? 'col-12 col-sm-7 q-mx-auto' : ''">
+      <div class="flex items-center q-mb-md gt-xs">
         <q-btn
           color="primary"
           icon="fas fa-arrow-left"
@@ -68,6 +68,9 @@ export default {
     currentUser() {
       return this.$store.getters["auth/getUser"];
     },
+    userData() {
+      return this.$store.getters["profile/getUserData"];
+    },
   },
   components: {
     PostDetail,
@@ -126,6 +129,7 @@ export default {
       if (!this.currentUser) return;
       if (userReads && userReads.includes(this.currentUser.uid)) return;
       if (user.id === this.currentUser.uid) return;
+      if (this.userData.admin) return;
       await this.$store.dispatch("posts/readPost", this.postId);
       await this.$store.dispatch("notifications/createNotification", {
         type: "postRead",
@@ -151,6 +155,9 @@ export default {
         });
       }, 2000);
     }
+  },
+  beforeRouteLeave() {
+    this.$store.commit("posts/clearStatePost");
   },
 };
 </script>

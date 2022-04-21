@@ -39,6 +39,6 @@ export async function setNotifications( { commit }) {
       })
     })
     commit('setNotifications', notifications)
-    console.log('Successfully set notifications: ', notifications)
+    // console.log('Successfully set notifications: ', notifications)
   })
 }

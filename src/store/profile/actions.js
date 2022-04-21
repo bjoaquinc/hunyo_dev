@@ -11,9 +11,9 @@ export async function setUserData ( { commit }, userId) {
       amplitude.getInstance().setUserProperties(userData)
       commit('setUserData', { userData, unsubscribeUser})
       resolve(userData)
-      console.log('Successfully got User Data: ', userData)
+      // console.log('Successfully got User Data: ', userData)
     }, (error) => {
-      console.log('Could not subscribe to userdata')
+      // console.log('Could not subscribe to userdata')
       reject(error)
     })
   })
@@ -22,13 +22,13 @@ export async function setUserData ( { commit }, userId) {
 export async function setActivityFeed ( { commit }, userId ) {
   const feedList = []
   const colRef = collection(db, 'feedItems')
-  const q = query(colRef, where('user.id', "==", userId), orderBy('createdAt', 'desc'))
+  const q = query(colRef, where('user.id', "==", userId), where('type', '==', 'post'), orderBy('createdAt', 'desc'))
 
   const docSnapshots = await getDocs(q).catch(error => {throw error})
 
   docSnapshots.forEach(doc => feedList.push({...doc.data(), id: doc.id}))
   commit('setActivityFeed', feedList)
-  console.log('Successfully set User Activity Feed: ', feedList)
+  // console.log('Successfully set User Activity Feed: ', feedList)
 }
 
 export async function uploadAndUpdatePhotoURL ({ commit }, image) {
@@ -40,12 +40,12 @@ export async function uploadAndUpdatePhotoURL ({ commit }, image) {
         throw error
       })
   const downloadURL = await getDownloadURL(storageRef)
-  console.log('Successfully uploaded image to storage: ', downloadURL)
+  // console.log('Successfully uploaded image to storage: ', downloadURL)
   await updateProfile(auth.currentUser, {
     photoURL: downloadURL
   }).catch(error => {throw error})
   commit('updateEditedUserData', { key: 'photoURL', value: downloadURL})
-  console.log('Successfully updated auth photoURL')
+  // console.log('Successfully updated auth photoURL')
 }
 
 export async function updateUserData ( { getters }, payload) {
@@ -55,7 +55,7 @@ export async function updateUserData ( { getters }, payload) {
     throw error
   })
   const userData = getters['getUserData']
-  console.log('Successfully updated User Data: ', userData)
+  // console.log('Successfully updated User Data: ', userData)
 }
 
 export async function convertUploadedImage ({ commit }, file) {
@@ -115,12 +115,11 @@ function dataURItoBlob(dataURI) {
 
 export async function setRecommendItem ( { commit }, recommendId) {
   const feedItemRef = doc(db, 'feedItems', recommendId)
-  console.log(recommendId)
 
   const docSnapshot = await getDoc(feedItemRef).catch(error => {throw error})
   if (docSnapshot.exists()) {
     commit('setRecommendItem', {...docSnapshot.data(), id: docSnapshot.id})
-    console.log('Successfully set Recommend Item: ', docSnapshot)
+    // console.log('Successfully set Recommend Item: ', docSnapshot)
   } else {
     throw new Error('Could not find Recommendation')
   }

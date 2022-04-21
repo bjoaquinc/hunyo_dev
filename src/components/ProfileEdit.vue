@@ -1,6 +1,6 @@
 <template>
-  <div class="q-pa-md" v-if="userId">
-    <div class="flex items-center q-mb-md desktop-only">
+  <div class="q-pa-md" v-if="editedUserData">
+    <div class="flex items-center q-mb-md gt-xs">
       <q-btn
         :to="{ name: 'PageProfile' }"
         color="primary"
@@ -121,7 +121,7 @@
       <q-select
         v-model="employerSize"
         :options="employerSizeOptions"
-        :class="q.platform.is.mobile ? 'q-mb-md' : ''"
+        :class="q.platform.is.mobile && !q.platform.is.ipad ? 'q-mb-md' : ''"
         filled
         dense
         class="full-width"
@@ -174,7 +174,7 @@
       <q-dialog
         v-model="cropperDialog"
         persistent
-        :maximized="q.platform.is.mobile ? true : false"
+        :maximized="q.platform.is.mobile && !q.platform.is.ipad ? true : false"
       >
         <component :is="Component" @closeDialog="closeDialog" />
       </q-dialog>
@@ -350,6 +350,7 @@ export default {
         await store.dispatch("profile/updateUserData", {
           ...editedUserData.value,
         });
+        //  To stop the save draft dialog from triggering again
         store.commit("profile/setEditedUserData", userData.value);
         router.push({ name: "PageProfile" });
       } catch (error) {
@@ -362,9 +363,9 @@ export default {
         q.dialog({
           component: DialogSaveDraft,
         })
-          .onOk(() => {
+          .onOk(async () => {
+            await updateUserData();
             resolve("Save Changes");
-            updateUserData();
           })
           .onCancel(() => {
             resolve("Delete Changes");
@@ -375,10 +376,13 @@ export default {
     onBeforeRouteLeave(async (to) => {
       if (isEdited.value) {
         const result = await confirmSaveDraft();
-        console.log(result);
-      }
-      if (to.name !== "ProfileImageCropper") {
+        store.commit("profile/clearStateEditedData");
         store.commit("profile/clearImages");
+      } else if (to.name !== "ProfileImageCropper") {
+        store.commit("profile/clearStateEditedData");
+        store.commit("profile/clearImages");
+      } else {
+        return true;
       }
     });
 
@@ -400,6 +404,7 @@ export default {
       photoURL,
       newProfilePicture,
       updateUserData,
+      editedUserData,
       isEdited,
       manageUploader,
       fileChanged,

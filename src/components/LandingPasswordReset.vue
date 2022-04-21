@@ -1,8 +1,8 @@
 <template>
   <div>
     <div
-      class="q-px-lg full-width flex column mobile-only"
-      v-if="$q.platform.is.mobile"
+      class="q-px-lg full-width flex column lt-sm"
+      v-if="$q.platform.is.mobile && !$q.platform.is.ipad"
     >
       <q-input
         v-model="email"
@@ -22,7 +22,7 @@
     </div>
     <q-card
       bordered
-      class="my-card absolute-center desktop-only"
+      class="my-card absolute-center gt-xs"
       style="min-width: 30vw"
       v-else
     >

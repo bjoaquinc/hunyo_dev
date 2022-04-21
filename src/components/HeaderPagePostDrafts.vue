@@ -1,5 +1,5 @@
 <template>
-  <q-toolbar class="constrain mobile-only text-black bg-white">
+  <q-toolbar class="constrain lt-sm text-black bg-white">
     <div class="filler" />
     <q-toolbar-title class="text-center">Drafts</q-toolbar-title>
     <q-btn

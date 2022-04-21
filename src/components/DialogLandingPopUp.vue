@@ -1,11 +1,15 @@
 <template>
   <q-dialog
+    v-if="$route.name === 'LandingPost'"
     @hide="onDialogHide"
     ref="dialogRef"
-    :full-width="q.platform.is.mobile"
+    :full-width="q.platform.is.mobile && !q.platform.is.ipad"
     transition-show="slide-up"
     transition-hide="slide-down"
-    :position="q.platform.is.mobile ? 'bottom' : 'standard'"
+    :position="
+      q.platform.is.mobile && !q.platform.is.ipad ? 'bottom' : 'standard'
+    "
+    persistent
   >
     <LandingCardPrompt />
   </q-dialog>

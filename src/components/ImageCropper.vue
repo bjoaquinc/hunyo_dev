@@ -3,7 +3,9 @@
     class="bg-black text-white overflow-hidden-y justify-center items-center"
   >
     <q-card-section
-      :style="{ maxWidth: q.platform.is.desktop ? '30vw' : 'none' }"
+      :style="{
+        maxWidth: q.platform.is.desktop || q.platform.is.ipad ? '30vw' : 'none',
+      }"
       class="flex q-pa-sm q-mx-auto"
     >
       <q-btn @click="cleanAndExitCropper" icon="close" dense flat round />
@@ -25,7 +27,9 @@
       class="flex q-mx-auto"
       ref="cropperContainer"
       style="position: relative"
-      :style="{ maxWidth: q.platform.is.desktop ? '30vw' : 'none' }"
+      :style="{
+        maxWidth: q.platform.is.desktop || q.platform.is.ipad ? '30vw' : 'none',
+      }"
     >
       <q-btn
         v-if="uploadedImagesList.length > 1"
@@ -78,7 +82,10 @@
               @click="order ? removeOrder(id, order) : addOrder(id)"
               :label="order ? `${order}` : ''"
               class="z-top"
-              :style="{ fontSize: q.platform.is.mobile ? '' : '15px' }"
+              :style="{
+                fontSize:
+                  q.platform.is.mobile && !q.platform.is.ipad ? '' : '15px',
+              }"
               color="primary"
               floating
               rounded
@@ -138,7 +145,7 @@ export default {
     const cropperContainer = ref(null);
     const cropperWidth = ref(0);
     const selectorWidthPercentage = computed(() =>
-      q.platform.is.mobile ? 25 : 20
+      q.platform.is.mobile && !q.platform.is.ipad ? 25 : 20
     );
 
     onBeforeUpdate(() => {
@@ -214,9 +221,9 @@ export default {
     }
 
     async function setCroppedImageAndCanvasData() {
+      const croppedImageRefs = [];
       for (let index = 0; index < croppersList.value.length; index++) {
         const { fileType, cropper } = croppersList.value[index];
-        console.log(fileType);
         const croppedImage = await cropper
           .getCroppedCanvas({
             maxWidth: 1080,
@@ -224,7 +231,6 @@ export default {
             imageSmoothingQuality: "high",
           })
           .toDataURL(fileType);
-        console.log(croppedImage);
         const canvasData = await cropper.getCanvasData();
 
         store.commit("newPost/setCroppedImageAndCanvasData", {
@@ -232,6 +238,18 @@ export default {
           canvasData: canvasData,
           index: index,
         });
+        // const data = await cropper.getData();
+        // console.log("Data: ", data);
+        // try {
+        //   const imageRef = await store.dispatch("newPost/cropImage", {
+        //     file: uploadedImagesList.value[index].file,
+        //     id: uploadedImagesList.value[index].id,
+        //     cropData: data,
+        //     contentType: fileType,
+        //   });
+        // } catch (error) {
+        //   console.log(error);
+        // }
       }
     }
 

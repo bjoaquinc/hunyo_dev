@@ -2,21 +2,25 @@
   <q-dialog
     @hide="onDialogHide"
     ref="dialogRef"
-    :full-width="q.platform.is.mobile"
+    :full-width="q.platform.is.mobile && !q.platform.is.ipad"
     transition-show="slide-up"
     transition-hide="slide-down"
-    :position="q.platform.is.mobile ? 'bottom' : 'standard'"
+    :position="
+      q.platform.is.mobile && !q.platform.is.ipad ? 'bottom' : 'standard'
+    "
   >
     <q-card
       class="bg-white"
       style="max-height: 100%"
       :style="
-        q.platform.is.desktop ? { width: '600px', maxWidth: '70vw' } : null
+        q.platform.is.desktop || q.platform.is.ipad
+          ? { width: '600px', maxWidth: '70vw' }
+          : null
       "
     >
       <q-card-section
         class="full-width"
-        :class="q.platform.is.desktop ? 'q-mx-auto' : ''"
+        :class="q.platform.is.desktop || q.platform.is.ipad ? 'q-mx-auto' : ''"
         style="width: fit-content"
       >
         <div class="flex full-width justify-between items-center">
@@ -88,7 +92,7 @@ export default {
           caption: caption.value,
         });
         await store.dispatch("notifications/createNotification", {
-          content: caption.value ? caption.value : null,
+          content: props.postData.title,
           type: "postRecommend",
           userId: props.postData.user.id,
           route: {
@@ -97,7 +101,7 @@ export default {
           },
         });
 
-        await store.dispatch("users/setFollowersList");
+        await store.dispatch("subscriptions/setFollowersList");
         const followersList = computed(
           () => store.getters["users/getFollowersList"]
         );
@@ -108,7 +112,7 @@ export default {
               continue;
             }
             await store.dispatch("notifications/createNotification", {
-              content: caption.value ? caption.value : null,
+              content: props.postData.title,
               type: "followRecommend",
               userId: followingUser.id,
               route: {

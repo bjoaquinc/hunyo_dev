@@ -1,11 +1,11 @@
 <template>
   <q-card
     class="bg-white container items-start"
-    :class="q.platform.is.mobile ? 'q-pa-none' : ''"
+    :class="q.platform.is.mobile && !q.platform.is.ipad ? 'q-pa-none' : ''"
     flat
     bordered
   >
-    <q-card-section class="desktop-only">
+    <q-card-section class="gt-xs">
       <q-btn
         color="primary"
         icon="fas fa-arrow-left"
@@ -16,7 +16,7 @@
       />
     </q-card-section>
     <!-- FoldersList and FolderItem Desktop -->
-    <q-card-section class="flex justify-start q-mb-sm desktop-only">
+    <q-card-section class="flex justify-start q-mb-sm gt-xs">
       <q-item
         :to="{
           name: 'FolderDetail',
@@ -44,7 +44,7 @@
       </q-item>
     </q-card-section>
     <!-- FoldersList and FolderItem Mobile -->
-    <q-list bordered separator class="full-width mobile-only">
+    <q-list bordered separator class="full-width lt-sm">
       <q-item
         :to="{
           name: 'FolderDetail',
@@ -121,7 +121,6 @@ export default {
 
     onMounted(async () => {
       try {
-        await store.dispatch("folder/setFolders");
         await store.dispatch("folder/setUnorganizedPosts");
       } catch (error) {
         console.log(error);
@@ -135,11 +134,9 @@ export default {
     }
 
     onBeforeRouteLeave(() => {
-      if (unsubscribeFolders.value) {
-        unsubscribeFolders.value();
-      }
       if (unsubscribeUnorganizedPosts.value) {
         unsubscribeUnorganizedPosts.value();
+        store.commit("folder/clearStateProfileFolder");
       }
     });
 

@@ -16,9 +16,9 @@ exports.incrementFollowCreate = functions.firestore
         functions.logger.log(error);
       });
       if (followedUserDoc.exists) {
-        const res = await followedUserRef.update({
+        const res = await followedUserRef.set({
           followers: increment,
-        });
+        }, {merge: true});
         // eslint-disable-next-line max-len
         functions.logger.log(`Successfully incremented follower to ${followedUserDoc.data().displayName}: `, res);
       } else {
@@ -32,9 +32,9 @@ exports.incrementFollowCreate = functions.firestore
         functions.logger.log(error);
       });
       if (followingUserDoc.exists) {
-        const res = await followingUserRef.update({
+        const res = await followingUserRef.set({
           following: increment,
-        });
+        }, {merge: true});
         // eslint-disable-next-line max-len
         functions.logger.log(`Successfully incremented following to ${followingUserDoc.data().displayName}: `, res);
       } else {

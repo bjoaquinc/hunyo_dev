@@ -4,7 +4,7 @@
     ref="dialogRef"
     transition-show="slide-up"
     transition-hide="slide-down"
-    :maximized="q.platform.is.mobile"
+    :maximized="q.platform.is.mobile && !q.platform.is.ipad"
     :persistent="hasSignedGuidelines ? false : true"
   >
     <q-card class="bg-white">

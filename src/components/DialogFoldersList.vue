@@ -1,24 +1,28 @@
 <template>
   <q-dialog
     @hide="onDialogHide"
-    :persistent="organize ? true : false"
+    persistent
     ref="dialogRef"
-    :full-width="q.platform.is.mobile"
+    :full-width="q.platform.is.mobile && !q.platform.is.ipad"
     transition-show="slide-up"
     transition-hide="slide-down"
-    :position="q.platform.is.mobile ? 'bottom' : 'standard'"
+    :position="
+      q.platform.is.mobile && !q.platform.is.ipad ? 'bottom' : 'standard'
+    "
   >
     <q-card
       class="bg-white"
       style="max-height: 100%"
       :style="
-        q.platform.is.desktop ? { width: '600px', maxWidth: '70vw' } : null
+        q.platform.is.desktop || q.platform.is.ipad
+          ? { width: '600px', maxWidth: '70vw' }
+          : null
       "
     >
       <q-card-section
         v-if="organize"
         class="full-width"
-        :class="q.platform.is.desktop ? 'q-mx-auto' : ''"
+        :class="q.platform.is.desktop || q.platform.is.ipad ? 'q-mx-auto' : ''"
         style="width: fit-content"
       >
         <div class="flex full-width justify-between items-center">
@@ -36,11 +40,16 @@
       <q-card-section
         v-else
         class="full-width"
-        :class="q.platform.is.desktop ? 'q-mx-auto' : ''"
+        :class="q.platform.is.desktop || q.platform.is.ipad ? 'q-mx-auto' : ''"
         style="width: fit-content"
       >
         <div class="flex full-width justify-between items-center">
-          <q-btn flat icon="fas fa-times" v-close-popup />
+          <q-btn
+            flat
+            icon="fas fa-times"
+            v-close-popup
+            @click="clearStatePostData"
+          />
           <div class="text-h6">Save to a Folder</div>
           <div style="width: 53px; height: 36px" />
         </div>
@@ -123,6 +132,8 @@ export default {
     const selectedPostsList = computed(
       () => store.getters["folder/getSelectedPostsList"]
     );
+    const user = computed(() => store.getters["auth/getUser"]);
+    const userData = computed(() => store.getters["profile/getUserData"]);
 
     async function setFolders() {
       try {
@@ -162,9 +173,21 @@ export default {
           postData: postData.value,
           folder,
         });
+        if (!userData.value.admin) {
+          await store.dispatch("notifications/createNotification", {
+            content: postData.value.title,
+            type: "postSave",
+            userId: postData.value.user.id,
+            route: {
+              name: "ProfileUser",
+              params: { userId: user.value.uid },
+            },
+          });
+        }
         q.notify({
           message: `Saved to ${savedLocation}`,
         });
+        store.commit("folder/clearStatePostData");
       } catch (error) {
         console.log(error);
       }
@@ -179,15 +202,21 @@ export default {
         q.notify({
           message: `Moved to ${folder.name}`,
         });
+        store.commit("folder/clearState");
       } catch (error) {
         console.log(error);
       }
+    }
+
+    function clearStatePostData() {
+      store.commit("folder/clearStatePostData");
     }
 
     return {
       dialogRef,
       onDialogHide,
       q,
+      clearStatePostData,
       openDialogFolderOrganize,
       folders,
       openDialogFolderCreateAndEdit,

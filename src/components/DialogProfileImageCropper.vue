@@ -2,7 +2,7 @@
   <q-card>
     <q-card-section
       class="full-width"
-      :class="q.platform.is.desktop ? 'q-mx-auto' : ''"
+      :class="q.platform.is.desktop || q.platform.is.ipad ? 'q-mx-auto' : ''"
       style="width: fit-content"
     >
       <div class="flex full-width justify-between items-center">

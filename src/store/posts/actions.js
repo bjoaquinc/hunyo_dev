@@ -6,7 +6,7 @@ export async function readPost ( { commit }, postId ) {
   await updateDoc(postRef, {
     userReads: arrayUnion(auth.currentUser.uid),
   }).catch(error => {throw error})
-  console.log('Successfully read document')
+  // console.log('Successfully read document')
 }
 
 export async function setSelectedPost ( { commit }, postId ) {
@@ -18,7 +18,7 @@ export async function setSelectedPost ( { commit }, postId ) {
       postId
     }
     commit('setSelectedPost', selectedPost )
-    console.log('Successfully set post: ', selectedPost)
+    // console.log('Successfully set post: ', selectedPost)
   } else {
     throw new Error('Could not get post.')
   }

@@ -1,22 +1,26 @@
 <template>
   <q-dialog
     @hide="onDialogHide"
-    :persistent="rename ? false : true"
+    persistent
     ref="dialogRef"
-    :full-width="q.platform.is.mobile"
+    :full-width="q.platform.is.mobile && !q.platform.is.ipad"
     transition-show="slide-up"
     transition-hide="slide-down"
-    :position="q.platform.is.mobile ? 'bottom' : 'standard'"
+    :position="
+      q.platform.is.mobile && !q.platform.is.ipad ? 'bottom' : 'standard'
+    "
   >
     <q-card
       class="bg-white"
       :style="
-        q.platform.is.desktop ? { width: '600px', maxWidth: '70vw' } : null
+        q.platform.is.desktop || q.platform.is.ipad
+          ? { width: '600px', maxWidth: '70vw' }
+          : null
       "
     >
       <q-card-section
         class="full-width"
-        :class="q.platform.is.desktop ? 'q-mx-auto' : ''"
+        :class="q.platform.is.desktop || q.platform.is.ipad ? 'q-mx-auto' : ''"
         style="width: fit-content"
       >
         <div class="flex full-width justify-between items-center">
@@ -84,16 +88,19 @@ export default {
     const folderItems = computed(
       () => store.getters["folder/getSelectedPostsList"]
     );
+    const user = computed(() => store.getters["auth/getUser"]);
+    const userData = computed(() => store.getters["profile/getUserData"]);
 
-    console.log("Folder items: ", folderItems.value);
+    // console.log("Folder items: ", folderItems.value);
 
     async function createFolder() {
       try {
         await store.dispatch("folder/createFolder", {
           newFolderName: newFolderName.value,
         });
-        console.log("Folder items: ", folderItems.value);
+        // console.log("Folder items: ", folderItems.value);
         if (folderItems.value && folderItems.value.length > 0) {
+          // console.log("move post: ", folderItems.value);
           await store.dispatch("folder/movePosts", {
             selectedPostsList: folderItems.value,
             folder: newFolder.value,
@@ -101,14 +108,34 @@ export default {
           q.notify({
             message: `Moved to ${newFolder.value.name}`,
           });
+          store.commit("folder/clearState");
+          return;
         } else if (newFolder.value) {
+          // console.log("save post: ", folderItems.value);
           await store.dispatch("folder/savePost", {
             postData: props.postData,
             folder: newFolder.value,
           });
-          q.notify({
+          if (!userData.value.admin) {
+            await store.dispatch("notifications/createNotification", {
+              content: props.postData.title,
+              type: "postSave",
+              userId: props.postData.user.id,
+              route: {
+                name: "ProfileUser",
+                params: { userId: user.value.uid },
+              },
+            });
+          }
+          store.commit("folder/clearStatePostData");
+          const dismiss = q.notify({
             message: `Saved to ${newFolder.value.name}`,
           });
+          setTimeout(() => {
+            dismiss();
+            store.commit("folder/clearState");
+          }, 4000);
+          return;
         }
       } catch (error) {
         console.log(error);
@@ -121,6 +148,7 @@ export default {
           newFolderName: newFolderName.value,
           folderId: props.id,
         });
+        store.commit("folder/clearState");
       } catch (error) {
         console.log(error);
       }

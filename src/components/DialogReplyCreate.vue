@@ -2,15 +2,19 @@
   <q-dialog
     @hide="onDialogHide"
     ref="dialogRef"
-    :full-width="q.platform.is.mobile"
+    :full-width="q.platform.is.mobile && !q.platform.is.ipad"
     transition-show="slide-up"
     transition-hide="slide-down"
-    :position="q.platform.is.mobile ? 'bottom' : 'standard'"
+    :position="
+      q.platform.is.mobile && !q.platform.is.ipad ? 'bottom' : 'standard'
+    "
   >
     <q-card
       class="bg-white"
       :style="
-        q.platform.is.desktop ? { width: '600px', maxWidth: '70vw' } : null
+        q.platform.is.desktop || q.platform.is.ipad
+          ? { width: '600px', maxWidth: '70vw' }
+          : null
       "
     >
       <q-card-actions>
@@ -37,10 +41,10 @@
 <script>
 import { useDialogPluginComponent, useQuasar } from "quasar";
 import { useStore } from "vuex";
-import { ref } from "vue";
+import { ref, computed } from "vue";
 
 export default {
-  props: ["commentId", "postId"],
+  props: ["commentId", "postId", "userId"],
 
   emits: [
     // REQUIRED; need to specify some events that your
@@ -53,6 +57,8 @@ export default {
     const store = useStore();
     const selectedType = ref("");
     const reply = ref("");
+    const user = computed(() => store.getters["auth/getUser"]);
+    const userData = computed(() => store.getters["profile/getUserData"]);
 
     async function createReply() {
       try {
@@ -61,6 +67,19 @@ export default {
           commentId: props.commentId,
           reply: reply.value,
         });
+        if (props.userId !== user.value.uid && !userData.value.admin)
+          await store.dispatch("notifications/createNotification", {
+            content: reply.value,
+            type: "postReply",
+            userId: props.userId,
+            route: {
+              name: "FeedPost",
+              params: {
+                postId: props.postId,
+              },
+              hash: `#comments`,
+            },
+          });
         reply.value = "";
       } catch (error) {
         console.log(error);

@@ -1,5 +1,5 @@
 import { auth, db } from "src/boot/firebase";
-import { addDoc, collection, serverTimestamp, getDocs, query, orderBy, getDoc, doc, updateDoc, arrayUnion } from "firebase/firestore";
+import { addDoc, collection, serverTimestamp, getDocs, query, orderBy, getDoc, doc, where } from "firebase/firestore";
 
 export async function createRecommendation ( { commit }, { postData, caption }) {
 
@@ -18,13 +18,13 @@ export async function createRecommendation ( { commit }, { postData, caption }) 
     }
   }).catch(error => {throw error})
   commit('setRecommendID', docRef.id)
-  console.log('Successfully created recommendation: ', docRef)
+  // console.log('Successfully created recommendation: ', docRef)
 }
 
 export async function setFeedItems ( { commit } ) {
   const feedItemsList = []
   const feedItemsRef = collection(db, 'feedItems')
-  const q = query(feedItemsRef, orderBy("createdAt", "desc"))
+  const q = query(feedItemsRef, where('type', '==', 'post'), orderBy("createdAt", "desc"))
   const querySnapshot = await getDocs(q).catch(error => {throw error})
   querySnapshot.forEach(doc => {
     feedItemsList.push({
@@ -44,7 +44,7 @@ export async function setSelectedPost ( { commit }, postId ) {
       postId
     }
     commit('setSelectedPost', selectedPost )
-    console.log('Successfully set post: ', selectedPost)
+    // console.log('Successfully set post: ', selectedPost)
   } else {
     throw new Error('Could not get post.')
   }
