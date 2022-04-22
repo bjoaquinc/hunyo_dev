@@ -11,7 +11,6 @@ exports.emailNotifications = functions.firestore
     .document("users/{userId}/notifications/{notificationId}")
     .onCreate( async (snap, context) => {
       const docData = snap.data();
-      const content = docData.content ? docData.content : null;
       const {type, user, userId, route} = docData;
       let userEmail = "";
 
@@ -30,7 +29,7 @@ exports.emailNotifications = functions.firestore
 
       if (type === "postComment") {
         subject = `${user.name} commented on your Hunyo post`;
-        message = `${user.name} commented on your Hunyo post: ${content}`;
+        message = `${user.name} commented on your Hunyo post`;
         buttonMessage = "View Now";
         url = `https://hunyo.com/#/posts/${route.params.postId}`;
       } else if (type === "postReply") {

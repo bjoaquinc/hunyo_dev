@@ -44,7 +44,7 @@ import { useStore } from "vuex";
 import { ref, computed } from "vue";
 
 export default {
-  props: ["commentId", "postId", "userId"],
+  props: ["commentId", "postId", "userId", "isReply", "repliedMessage"],
 
   emits: [
     // REQUIRED; need to specify some events that your
@@ -66,8 +66,13 @@ export default {
           postId: props.postId,
           commentId: props.commentId,
           reply: reply.value,
+          repliedMessage: props.repliedMessage,
         });
-        if (props.userId !== user.value.uid && !userData.value.admin)
+        if (
+          props.userId !== user.value.uid &&
+          !userData.value.admin &&
+          !props.isReply
+        ) {
           await store.dispatch("notifications/createNotification", {
             content: reply.value,
             type: "postReply",
@@ -80,6 +85,20 @@ export default {
               hash: `#comments`,
             },
           });
+        } else if (props.userId !== user.value.uid && props.isReply) {
+          await store.dispatch("notifications/createNotification", {
+            content: reply.value,
+            type: "postReply",
+            userId: props.userId,
+            route: {
+              name: "FeedPost",
+              params: {
+                postId: props.postId,
+              },
+              hash: `#comments`,
+            },
+          });
+        }
         reply.value = "";
       } catch (error) {
         console.log(error);

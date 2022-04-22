@@ -40,11 +40,11 @@ export function setCommentsList ( { commit }, postId) {
   })
 }
 
-export async function createReply ( { commit }, { postId, commentId, reply } ) {
+export async function createReply ( { commit }, { postId, commentId, reply, repliedMessage } ) {
 
   const repliesRef = collection(db, 'posts', postId, 'comments', commentId, 'replies')
 
-  const docRef = await addDoc(repliesRef, {
+  const replyObject = {
     reply,
     user: {
       name: auth.currentUser.displayName,
@@ -52,14 +52,19 @@ export async function createReply ( { commit }, { postId, commentId, reply } ) {
       photo: auth.currentUser.photoURL,
     },
     createdAt: serverTimestamp()
-  }).catch(error => {throw error})
+  }
+  if (repliedMessage) {
+    replyObject.repliedMessage = repliedMessage
+  }
+  const docRef = await addDoc(repliesRef, replyObject).catch(error => {throw error})
   commit('setReplyId', docRef.id)
   // console.log('Successfully created reply: ', docRef)
 }
 
 export async function setRepliesList ( { commit }, { postId, commentId }) {
   const repliesRef = collection(db, 'posts', postId, 'comments', commentId, 'replies')
-  const q = query(repliesRef, orderBy('createdAt', 'desc'))
+
+  const q = query(repliesRef, orderBy('createdAt'));
 
   const unsubscribeReplies = onSnapshot(q, (querySnapshot) => {
     const repliesList = []

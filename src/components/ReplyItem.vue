@@ -24,6 +24,15 @@
     </q-card-section>
     <q-card-actions>
       <q-btn
+        @click="openDialogReplyCreate"
+        flat
+        size="sm"
+        dense
+        color="primary"
+        icon="fas fa-reply"
+        label="Reply"
+      />
+      <q-btn
         @click="openDialogFlag"
         flat
         size="sm"
@@ -32,7 +41,7 @@
         icon="fas fa-flag"
         label="Flag"
       />
-      <q-btn
+      <!-- <q-btn
         @click="deleteReply"
         v-if="isYours"
         flat
@@ -41,7 +50,7 @@
         color="primary"
         icon="fas fa-times"
         label="Remove"
-      />
+      /> -->
     </q-card-actions>
   </q-card>
 </template>
@@ -53,6 +62,7 @@ import { computed } from "vue";
 import { useRoute } from "vue-router";
 import { auth } from "src/boot/firebase";
 import DialogFlag from "src/components/DialogFlag.vue";
+import DialogReplyCreate from "src/components/DialogReplyCreate.vue";
 
 export default {
   props: ["reply", "id", "user", "commentId", "postId"],
@@ -73,6 +83,19 @@ export default {
     const isYours = computed(() => {
       return props.user.id === auth.currentUser.uid ? true : false;
     });
+
+    async function openDialogReplyCreate() {
+      q.dialog({
+        component: DialogReplyCreate,
+        componentProps: {
+          commentId: props.commentId,
+          postId: props.postId,
+          userId: props.user.id,
+          isReply: true,
+          repliedMessage: props.reply,
+        },
+      });
+    }
 
     function openDialogFlag() {
       q.dialog({
@@ -97,6 +120,7 @@ export default {
       userRoute,
       isYours,
       deleteReply,
+      openDialogReplyCreate,
     };
   },
 };

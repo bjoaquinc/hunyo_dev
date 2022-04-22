@@ -26,8 +26,8 @@ export async function createNotification( { commit }, { content, type, userId, r
   }
 }
 
-export async function setNotifications( { commit }) {
-  const notificationsRef = collection(db, 'users', auth.currentUser.uid, 'notifications')
+export async function setNotifications( { commit, rootGetters }) {
+  const notificationsRef = collection(db, 'users', rootGetters['auth/getUser'].uid, 'notifications')
   const q = query(notificationsRef, orderBy('createdAt', 'desc'))
 
   onSnapshot(q, (querySnapshot) => {

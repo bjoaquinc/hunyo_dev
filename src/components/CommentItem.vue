@@ -42,7 +42,7 @@
           icon="fas fa-flag"
           label="Flag"
         />
-        <q-btn
+        <!-- <q-btn
           @click="deleteComment"
           v-if="isYours"
           flat
@@ -51,7 +51,7 @@
           color="primary"
           icon="fas fa-times"
           label="Remove"
-        />
+        /> -->
       </q-card-actions>
       <q-card-section class="q-pl-lg">
         <ReplyList :commentId="id" :postId="postId" />

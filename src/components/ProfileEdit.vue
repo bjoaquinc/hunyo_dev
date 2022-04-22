@@ -174,6 +174,7 @@
       <q-dialog
         v-model="cropperDialog"
         persistent
+        style="max-height: 50vh"
         :maximized="q.platform.is.mobile && !q.platform.is.ipad ? true : false"
       >
         <component :is="Component" @closeDialog="closeDialog" />

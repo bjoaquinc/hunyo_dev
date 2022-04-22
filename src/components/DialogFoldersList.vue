@@ -112,9 +112,11 @@
 <script>
 import { useDialogPluginComponent, useQuasar } from "quasar";
 import { useStore } from "vuex";
+import { useRoute } from "vue-router";
 import { computed, onMounted } from "vue";
 import DialogFolderOrganize from "src/components/DialogFolderOrganize.vue";
 import DialogFolderCreateAndEdit from "src/components/DialogFolderCreateAndEdit.vue";
+import DialogPromptSubscribe from "src/components/DialogPromptSubscribe.vue";
 
 export default {
   props: ["postData", "organize"],
@@ -134,6 +136,10 @@ export default {
     );
     const user = computed(() => store.getters["auth/getUser"]);
     const userData = computed(() => store.getters["profile/getUserData"]);
+    const followingList = computed(
+      () => store.getters["subscriptions/getFollowingList"]
+    );
+    const route = useRoute();
 
     async function setFolders() {
       try {
@@ -184,9 +190,27 @@ export default {
             },
           });
         }
-        q.notify({
-          message: `Saved to ${savedLocation}`,
-        });
+        if (
+          followingList.value &&
+          !followingList.value.includes(postData.value.user.id) &&
+          user.value.uid !== postData.value.user.id
+        ) {
+          let isUsersPage = false;
+          if (route.name === "FeedUser" || route.name === "ProfileUser") {
+            isUsersPage = true;
+          }
+          q.dialog({
+            component: DialogPromptSubscribe,
+            componentProps: {
+              user: postData.value.user,
+              isUsersPage,
+            },
+          });
+        } else {
+          q.notify({
+            message: `Saved to ${savedLocation}`,
+          });
+        }
         store.commit("folder/clearStatePostData");
       } catch (error) {
         console.log(error);

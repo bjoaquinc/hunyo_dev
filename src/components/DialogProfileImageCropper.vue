@@ -3,7 +3,7 @@
     <q-card-section
       class="full-width"
       :class="q.platform.is.desktop || q.platform.is.ipad ? 'q-mx-auto' : ''"
-      style="width: fit-content"
+      style="max-height: 50vh"
     >
       <div class="flex full-width justify-between items-center">
         <q-btn flat icon="fas fa-times" v-close-popup />
@@ -16,6 +16,7 @@
         ref="cropperContainer"
         :style="{
           height: cropperWidth + 'px',
+          width: q.platform.is.desktop || q.platform.is.ipad ? '400px' : '',
         }"
       >
         <img ref="imageRef" :src="uploadedImage.value" />
@@ -46,10 +47,9 @@ export default {
 
     onMounted(() => {
       cropperWidth.value = cropperContainer.value.clientWidth;
-
       cropper.value = new Cropper(imageRef.value, {
         aspectRatio: 1,
-        viewMode: 0,
+        viewMode: 3,
         dragMode: "move",
         background: false,
         cropBoxMovable: false,
