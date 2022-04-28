@@ -1,28 +1,18 @@
 <template>
   <q-card flat bordered>
-    <q-card-section>
-      <div class="row">
+    <q-card-section style="padding: 8px 0 !important">
+      <q-item class="row" clickable>
         <q-item-label
-          class="text-weight-bold q-mt-sm q-mb-sm col"
+          class="text-weight-bold flex items-center col"
           :class="
             $q.platform.is.mobile && !$q.platform.is.ipad
               ? 'text-subtitle1'
               : 'text-h6'
           "
           @click="readPost"
-          >{{ title }}</q-item-label
+          >{{ title }} / {{ formattedTopics }}</q-item-label
         >
-        <q-btn
-          v-if="!isPublic"
-          class="col-1 q-mb-auto q-mt-xs"
-          @click="openPostActionsDialog"
-          color="primary"
-          icon="fas fa-ellipsis-h"
-          :size="$q.platform.is.mobile && !$q.platform.is.ipad ? 'sm' : 'md'"
-          dense
-          flat
-        />
-      </div>
+      </q-item>
     </q-card-section>
 
     <BaseCarousel
@@ -74,7 +64,6 @@
 <script>
 import amplitude from "amplitude-js";
 import BaseCarousel from "src/components/BaseCarousel.vue";
-import DialogPostActions from "src/components/DialogPostActions.vue";
 import DialogFoldersList from "src/components/DialogFoldersList.vue";
 
 export default {
@@ -99,6 +88,19 @@ export default {
     },
     user() {
       return this.feedItem.user;
+    },
+    formattedTopics() {
+      let topicString = "";
+      const topics = this.feedItem.topics;
+      for (let index = 0; index < topics.length; index++) {
+        if (index > 1) break;
+        if (index === 0) {
+          topicString += topics[index];
+        } else {
+          topicString += `, ${topics[index]}`;
+        }
+      }
+      return topicString.toLowerCase();
     },
     userRoute() {
       const userLocation = this.$route.meta.location;
@@ -125,23 +127,6 @@ export default {
     },
   },
   methods: {
-    openPostActionsDialog() {
-      const postData = {
-        title: this.title,
-        id: this.postId,
-        user: this.user,
-        image: "",
-      };
-      if (this.imagesList && this.imagesList.length > 0) {
-        postData.image = this.imagesList[0];
-      }
-      this.$q.dialog({
-        component: DialogPostActions,
-        componentProps: {
-          postData,
-        },
-      });
-    },
     openDialogFoldersList() {
       amplitude.getInstance().logEvent("save - start", {
         "post id": this.postId,

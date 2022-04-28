@@ -296,3 +296,43 @@ exports.manageUserPhoto = functions.firestore
         functions.logger.log("Could not find notifications");
       }
     });
+
+exports.denormalizePostTitle = functions.firestore
+    .document("posts/{postId}")
+    .onUpdate(async (change, context) => {
+      const title = change.before.data().title;
+      const newTitle = change.after.data().title;
+      const postId = context.params.postId;
+      functions.logger.log("postId: ", postId);
+      // eslint-disable-next-line max-len
+      if (title === newTitle) return functions.logger.log("Title has not changed");
+      const batch = db.batch();
+      // Update Feed Item
+      const feedItem = await db.collection("feedItems")
+          .where("postId", "==", postId).get();
+      if (feedItem.empty) {
+        functions.logger.log("Could not find Feed Item");
+        return;
+      } else {
+        feedItem.forEach((doc) => {
+          const docRef = doc.ref;
+          batch.update(docRef, {
+            title: newTitle,
+          });
+          functions.logger.log("Successfully updated Feed Item");
+        });
+      }
+      // Update Folder Items
+      const folderItemsSnapshot = await db.collection("folderItems")
+          .where("postData.id", "==", context.params.postId).get();
+      if (folderItemsSnapshot.size) {
+        (folderItemsSnapshot).forEach((doc) => {
+          batch.update(doc.ref, {
+            "postData.title": newTitle,
+          });
+        });
+      } else {
+        functions.logger.log("No folder items found");
+      }
+      await batch.commit();
+    });

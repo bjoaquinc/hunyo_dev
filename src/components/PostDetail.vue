@@ -3,10 +3,10 @@
     <q-item>
       <q-item-label class="text-weight-bold text-h6 q-pt-md gt-xs">{{
         title
-      }}</q-item-label>
+      }} / {{ formattedTopics }}</q-item-label>
       <q-item-label class="text-weight-bold text-subtitle1 q-pt-md lt-sm">{{
         title
-      }}</q-item-label>
+      }} / {{ formattedTopics }}</q-item-label>
     </q-item>
 
     <BaseCarousel
@@ -104,7 +104,7 @@ export default {
   components: {
     BaseCarousel,
   },
-  props: ["content", "title", "imagesList", "postId", "user"],
+  props: ["content", "title", "imagesList", "postId", "user", "topics"],
   computed: {
     currentUserPhoto() {
       return auth.currentUser.photoURL;
@@ -113,6 +113,19 @@ export default {
       return this.content && this.title && this.postId && this.user
         ? true
         : false;
+    },
+    formattedTopics() {
+      let topicString = "";
+      const topics = this.topics;
+      for (let index = 0; index < topics.length; index++) {
+        if (index > 1) break;
+        if (index === 0) {
+          topicString += topics[index];
+        } else {
+          topicString += `, ${topics[index]}`;
+        }
+      }
+      return topicString.toLowerCase();
     },
     userRoute() {
       const userLocation = this.$route.meta.location;

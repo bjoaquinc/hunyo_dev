@@ -3,6 +3,7 @@ import { storage, auth, db, functions } from 'src/boot/firebase'
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage'
 import { serverTimestamp, collection, doc, updateDoc, addDoc } from 'firebase/firestore'
 import { httpsCallable } from 'firebase/functions'
+import amplitude from 'amplitude-js'
 
 // firestore collection data
 export function getPostsCollection ({ commit }, postsCol) {
@@ -117,10 +118,13 @@ export async function createPost ( { commit }, { newPost, imagesList} ) {
   
   const feedItemDocRef = await addDoc(collection(db, 'feedItems'), {...feedItemData})
     .catch(error => {throw error})
-
   // console.log('Successfully added feed item: ', feedItemDocRef)
 
+  var identify = new amplitude.Identify().add('num total posts create', 1)
+  amplitude.getInstance().identify(identify)
+
   commit('setPostId', docRef.id)
+  return;
 
 }
 
@@ -136,6 +140,12 @@ export async function createPost ( { commit }, { newPost, imagesList} ) {
 //     contentType
 //   }).catch(error => { throw error })
 //   // // return croppedImageRef;
+// }
+
+// export async function testImageMagick () {
+//   const test = httpsCallable(functions, 'images-testImageMagick');
+//   const response = await test().catch(error => console.log(error));
+//   console.log(response);
 // }
 
 function dataURItoBlob(dataURI) {

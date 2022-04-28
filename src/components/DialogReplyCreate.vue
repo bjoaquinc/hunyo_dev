@@ -20,18 +20,42 @@
       <q-card-actions>
         <q-btn v-close-popup icon="fas fa-times" dense flat round />
       </q-card-actions>
+      <q-item style="width: fit-content">
+        <q-item-section avatar>
+          <q-avatar size="30px">
+            <img :src="replyUser.photo" />
+          </q-avatar>
+        </q-item-section>
+
+        <q-space />
+
+        <q-item-section>
+          <q-item-label lines="1" class="comment-user text-grey-6"
+            >{{ replyUser.name }}
+          </q-item-label>
+        </q-item-section>
+      </q-item>
+      <q-card-section class="q-py-none">
+        {{ replyMessage }}
+      </q-card-section>
       <q-card-actions class="fullwidth q-mb-sm q-px-md">
-        <q-input v-model="reply" class="q-mx-none full-width" label="Reply" />
+        <q-input
+          autofocus
+          autogrow
+          v-model="reply"
+          class="q-mx-none full-width"
+          label="Reply"
+        />
       </q-card-actions>
       <q-card-actions class="full-width q-mb-md q-px-md">
         <q-btn
-          v-close-popup
           @click="createReply"
           :disable="reply ? false : true"
           class="full-width"
           color="primary"
           label="Post Reply"
           unelevated
+          no-caps
         />
       </q-card-actions>
     </q-card>
@@ -41,10 +65,21 @@
 <script>
 import { useDialogPluginComponent, useQuasar } from "quasar";
 import { useStore } from "vuex";
-import { ref, computed } from "vue";
+import { ref, computed, onBeforeUnmount, onMounted } from "vue";
+import DialogPromptDiscard from "src/components/DialogPromptDiscard.vue";
+import DialogReplyCreate from "src/components/DialogReplyCreate.vue";
 
 export default {
-  props: ["commentId", "postId", "userId", "isReply", "repliedMessage"],
+  props: [
+    "commentId",
+    "postId",
+    "userId",
+    "isReply",
+    "replyId",
+    "replyMessage",
+    "replyUser",
+    "replyDraft",
+  ],
 
   emits: [
     // REQUIRED; need to specify some events that your
@@ -60,13 +95,22 @@ export default {
     const user = computed(() => store.getters["auth/getUser"]);
     const userData = computed(() => store.getters["profile/getUserData"]);
 
+    onMounted(() => {
+      if (props.replyDraft) {
+        reply.value = props.replyDraft;
+      }
+    });
+
     async function createReply() {
+      q.loading.show({
+        message: "Posting comment",
+      });
       try {
         await store.dispatch("comments/createReply", {
           postId: props.postId,
           commentId: props.commentId,
           reply: reply.value,
-          repliedMessage: props.repliedMessage,
+          replyId: props.replyId,
         });
         if (
           props.userId !== user.value.uid &&
@@ -100,10 +144,39 @@ export default {
           });
         }
         reply.value = "";
+        onDialogHide();
+        q.loading.hide();
       } catch (error) {
         console.log(error);
+        q.loading.hide();
       }
     }
+
+    onBeforeUnmount(async () => {
+      if (!reply.value) return;
+      q.dialog({
+        component: DialogPromptDiscard,
+      })
+        .onOk(() => {
+          return;
+        })
+        .onCancel(() => {
+          q.dialog({
+            component: DialogReplyCreate,
+            componentProps: {
+              commentId: props.commentId,
+              postId: props.postId,
+              userId: props.userId,
+              isReply: props.isReply,
+              replyId: props.replyId,
+              replyMessage: props.replyMessage,
+              replyUser: props.replyUser,
+              replyDraft: reply.value,
+            },
+          });
+          return;
+        });
+    });
 
     return {
       q,
@@ -120,4 +193,8 @@ export default {
 <style lang="sass" scoped>
 .button-width
   width: 100px
+
+.q-item__section
+  padding-right: 5px
+  min-width: 37px
 </style>

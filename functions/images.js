@@ -47,3 +47,20 @@
 //   // Once the thumbnail has been uploaded delete the local file to free up disk space.
 //   return fs.unlinkSync(tempFilePath);
 // });
+
+// exports.testImageMagick = functions.https.onCall((data, context) => {
+//   functions.logger.log(data);
+//   functions.logger.log(context);
+//   const promise = spawn("convert", ["-version"]);
+//   const childProcess = promise.childProcess;
+//   functions.logger.log("[spawn] childProcess.pid: ", childProcess.pid);
+//   const message = childProcess.stdout.on("data", function(data) {
+//     functions.logger.log("[spawn] stdout: ", data.toString());
+//     return data.toString();
+//   });
+//   childProcess.stderr.on("data", function(data) {
+//     functions.logger.log("[spawn] stderr: ", data.toString());
+//     return data.toString();
+//   });
+//   return message;
+// });

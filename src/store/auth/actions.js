@@ -14,6 +14,15 @@ export function setUser ( { commit, dispatch, rootGetters } ) {
       LocalStorage.set('user', user)
       amplitude.getInstance().setUserId(user.uid)
       await dispatch('profile/setUserData', user.uid, { root: true })
+      if (LocalStorage.getItem('sessionId') !== amplitude.getInstance().getSessionId()) {
+        console.log("New Session")
+        LocalStorage.set('sessionId', amplitude.getInstance().getSessionId())
+        // increment num total sessions
+        var identify = new amplitude.Identify().add('num total sessions', 1)
+        amplitude.getInstance().identify(identify)
+      } else {
+        console.log("Same Session")
+      }
       await dispatch('folder/setFolders', null, { root: true})
       await dispatch('subscriptions/setFollowersList', null, { root: true })
       await dispatch('subscriptions/setFollowingList', null, { root: true })

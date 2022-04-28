@@ -52,9 +52,8 @@ export default {
 
     function openDialogFoldersList() {
       const { title, postId, user, imagesList } = selectedPost.value;
-
       const postData = {
-        title: title,
+        title,
         id: postId,
         user: user,
         image: "",
@@ -71,8 +70,8 @@ export default {
     }
 
     function openPostActionsDialog() {
-      const { title, postId, user, imagesList } = selectedPost.value;
-      const postData = { title, postId, user, image: "" };
+      const { title, postId, user, imagesList, content } = selectedPost.value;
+      const postData = { title, content, postId, user, image: "" };
       if (imagesList && imagesList.length > 0) {
         postData.image = imagesList[0];
       }

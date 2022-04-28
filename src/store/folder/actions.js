@@ -1,6 +1,6 @@
 import { db, auth } from "src/boot/firebase";
 import { addDoc, collection, serverTimestamp, query, getDocs, where, updateDoc, onSnapshot, doc, orderBy, deleteDoc } from "firebase/firestore";
-import folder from ".";
+import amplitude from 'amplitude-js'
 
 const folderItemsRef = collection(db, 'folderItems')
 
@@ -17,6 +17,8 @@ export async function savePost ( { commit }, { postData, folder}) {
   }
   const folderItemsRef = collection(db, 'folderItems')
   const docRef = await addDoc(folderItemsRef, folderItem ).catch(error => {throw error})
+  var identify = new amplitude.Identify().add('num total posts save', 1)
+  amplitude.getInstance().identify(identify)
   // console.log('Successfully saved post: ', docRef)
 }
 
@@ -26,6 +28,8 @@ export async function createFolder ( { commit }, { newFolderName}) {
     createdAt: serverTimestamp(),
     name: newFolderName,
   }).catch(error => {throw error})
+  var identify = new amplitude.Identify().add('num total folder create', 1)
+  amplitude.getInstance().identify(identify)
   commit('createFolder', {name: newFolderName, id: docRef.id})
   // console.log('Successfully created folder: ', docRef)
 }

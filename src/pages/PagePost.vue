@@ -1,6 +1,9 @@
 <template>
-  <div :class="isPublic ? 'row' : ''" class="q-mt-md">
-    <div :class="isPublic ? 'col-12 col-sm-7 q-mx-auto' : ''">
+  <div :class="isPublic ? 'row' : ''">
+    <div
+      :class="isPublic ? 'col-12 col-sm-7 q-mx-auto' : ''"
+      v-if="selectedPost"
+    >
       <div class="flex items-center q-mb-md gt-xs">
         <q-btn
           color="primary"
@@ -28,11 +31,12 @@
         />
       </div>
       <PostDetail
-        :content="content"
-        :title="title"
-        :imagesList="imagesList"
-        :postId="postId"
-        :user="user"
+        :content="selectedPost.content"
+        :title="selectedPost.title"
+        :imagesList="selectedPost.imagesList"
+        :postId="selectedPost.postId"
+        :user="selectedPost.user"
+        :topics="selectedPost.topics"
       />
       <CommentsList v-if="!isPublic" :postId="postId" id="comments" />
     </div>
@@ -49,19 +53,8 @@ import DialogLandingPopUp from "src/components/DialogLandingPopUp.vue";
 
 export default {
   name: "PagePost",
-  data() {
-    return {
-      content: "",
-      imagesList: [],
-      title: "",
-      user: null,
-    };
-  },
   props: ["postId"],
   computed: {
-    postsList() {
-      return this.$store.getters["newPost/getPostsList"];
-    },
     isPublic() {
       return this.$route.name === "LandingPost" ? true : false;
     },
@@ -71,6 +64,12 @@ export default {
     userData() {
       return this.$store.getters["profile/getUserData"];
     },
+    selectedPost() {
+      return this.$store.getters["posts/getSelectedPost"];
+    },
+    unsubscribeSelectedPost() {
+      return this.$store.getters["posts/getUnsubscribeSelectedPost"];
+    },
   },
   components: {
     PostDetail,
@@ -79,13 +78,16 @@ export default {
   methods: {
     openDialogFoldersList() {
       const postData = {
-        title: this.title,
-        id: this.postId,
-        user: this.user,
+        title: this.selectedPost.title,
+        id: this.selectedPost.postId,
+        user: this.selectedPost.user,
         image: "",
       };
-      if (this.imagesList && this.imagesList.length > 0) {
-        postData.image = this.imagesList[0];
+      if (
+        this.selectedPost.imagesList &&
+        this.selectedPost.imagesList.length > 0
+      ) {
+        postData.image = this.selectedPost.imagesList[0];
       }
       this.$q.dialog({
         component: DialogFoldersList,
@@ -96,17 +98,22 @@ export default {
     },
     openDialogPostActions() {
       let image = "";
-      if (this.imagesList && this.imagesList.length > 0) {
-        image = this.imagesList[0];
+      if (
+        this.selectedPost.imagesList &&
+        this.selectedPost.imagesList.length > 0
+      ) {
+        image = this.selectedPost.imagesList[0];
       }
       this.$q.dialog({
         component: DialogPostActions,
         componentProps: {
           postData: {
             image: image,
-            title: this.title,
-            id: this.postId,
-            user: this.user,
+            title: this.selectedPost.title,
+            id: this.selectedPost.postId,
+            user: this.selectedPost.user,
+            content: this.selectedPost.content,
+            postId: this.selectedPost.postId,
           },
         },
       });
@@ -114,27 +121,24 @@ export default {
   },
   async created() {
     try {
-      await this.$store.dispatch("posts/setSelectedPost", this.postId);
-      const selectedPost = this.$store.getters["posts/getSelectedPost"];
-      const { content, title, imagesList, user, userReads, topics } =
-        selectedPost;
-      this.content = content;
-      this.title = title;
-      this.imagesList = imagesList;
-      this.user = user;
       // amplitude.getInstance().logEvent("save - view post", {
       //   "post id": this.postId,
       //   "post type": topics,
       // });
+      await this.$store.dispatch("posts/setSelectedPost", this.postId);
       if (!this.currentUser) return;
-      if (userReads && userReads.includes(this.currentUser.uid)) return;
-      if (user.id === this.currentUser.uid) return;
+      if (
+        this.selectedPost.userReads &&
+        this.selectedPost.userReads.includes(this.currentUser.uid)
+      )
+        return;
+      if (this.selectedPost.user.id === this.currentUser.uid) return;
       if (this.userData.admin) return;
-      await this.$store.dispatch("posts/readPost", this.postId);
+      await this.$store.dispatch("posts/readPost", this.selectedPost.postId);
       await this.$store.dispatch("notifications/createNotification", {
         type: "postRead",
-        userId: user.id,
-        content: title,
+        userId: this.selectedPost.user.id,
+        content: this.selectedPost.title,
         route: {
           name: "FeedUser",
           params: {
@@ -142,6 +146,8 @@ export default {
           },
         },
       });
+      var identify = new amplitude.Identify().add("num total posts view", 1);
+      amplitude.getInstance().identify(identify);
     } catch (error) {
       console.log(error);
     }
@@ -157,6 +163,9 @@ export default {
     }
   },
   beforeRouteLeave() {
+    if (this.unsubscribeSelectedPost) {
+      this.unsubscribeSelectedPost();
+    }
     this.$store.commit("posts/clearStatePost");
   },
 };

@@ -1,4 +1,4 @@
-import { updateDoc, arrayUnion, doc, getDoc, collection, getDocs, query, orderBy, where } from "firebase/firestore"
+import { updateDoc, arrayUnion, doc, getDoc, collection, getDocs, query, orderBy, where, onSnapshot } from "firebase/firestore"
 import { db, auth } from "src/boot/firebase"
 
 export async function readPost ( { commit }, postId ) {
@@ -11,21 +11,31 @@ export async function readPost ( { commit }, postId ) {
 
 export async function setSelectedPost ( { commit }, postId ) {
   const docRef = doc(db, 'posts', postId)
-  const docSnapshot = await getDoc(docRef).catch(error => {throw error})
-  if (docSnapshot) {
-    const selectedPost = {
-      ...docSnapshot.data(),
-      postId
-    }
-    commit('setSelectedPost', selectedPost )
-    // console.log('Successfully set post: ', selectedPost)
-  } else {
-    throw new Error('Could not get post.')
-  }
+  await new Promise((resolve, reject) => {
+    const unsubscribeSelectedPost = onSnapshot(docRef, (postDoc) => {
+      console.log(postDoc.data())
+      if (postDoc.exists) {
+        const selectedPost = {
+          ...postDoc.data(),
+          postId,
+        }
+        commit('setSelectedPost', { selectedPost, unsubscribeSelectedPost });
+        console.log('Successfully set post: ', selectedPost)
+        resolve()
+      } else {
+        throw new Error ('Could not find selected post.')
+      }
+    })
+  })
 }
 
-export async function removePost ( { commit }, postId ) {
-  const postRef = doc(db, 'posts', postId)
+export async function editPost ( { commit }, { postId, title, content } ) {
+  const docRef = doc(db, 'posts', postId)
+  await updateDoc(docRef, {
+    title,
+    content
+  }).catch(error => {throw error})
+  console.log('Successfully updated post.')
 }
 
 export async function setLandingPosts ( { commit } ) {

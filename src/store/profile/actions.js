@@ -8,7 +8,17 @@ export async function setUserData ( { commit }, userId) {
   return new Promise(( resolve, reject ) => {
     const unsubscribeUser = onSnapshot(doc(db, 'users', userId), (doc) => {
       const userData = {...doc.data(), id: doc.id}
-      amplitude.getInstance().setUserProperties(userData)
+      const userProperties = {
+        'member profile info': {
+          'company size': userData.employerSize,
+          '# of years of experience': userData.experience,
+          verified: false
+        },
+      }
+      if (userData.licenseNumber) {
+        userProperties['member profile info'].verified = true
+      }
+      amplitude.getInstance().setUserProperties(userProperties)
       commit('setUserData', { userData, unsubscribeUser})
       resolve(userData)
       // console.log('Successfully got User Data: ', userData)

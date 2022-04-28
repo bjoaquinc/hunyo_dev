@@ -1,6 +1,7 @@
 import { auth, db } from "src/boot/firebase";
 import { addDoc, collection, serverTimestamp, orderBy, 
-  query, onSnapshot, deleteDoc, doc } from "firebase/firestore";
+  query, onSnapshot, deleteDoc, doc, updateDoc } from "firebase/firestore";
+import amplitude from "amplitude-js"
 
 export async function createComment ( { commit }, { postId, comment, selectedType} ) {
 
@@ -16,8 +17,18 @@ export async function createComment ( { commit }, { postId, comment, selectedTyp
     },
     createdAt: serverTimestamp()
   }).catch(error => {throw error})
+  var identify = new amplitude.Identify().add('num total comment create', 1)
+  amplitude.getInstance().identify(identify)
   commit('setCommentId', docRef.id)
   // console.log('Successfully created comment: ', docRef)
+}
+
+export async function editComment ( { commit }, { postId, commentId, comment }) {
+  const commentRef = doc(db, 'posts', postId, 'comments', commentId)
+  await updateDoc(commentRef, {
+    comment
+  }).catch(error => {throw error})
+  console.log('Successfully edited comment');
 }
 
 export function setCommentsList ( { commit }, postId) {
@@ -40,7 +51,7 @@ export function setCommentsList ( { commit }, postId) {
   })
 }
 
-export async function createReply ( { commit }, { postId, commentId, reply, repliedMessage } ) {
+export async function createReply ( { commit }, { postId, commentId, reply, replyId } ) {
 
   const repliesRef = collection(db, 'posts', postId, 'comments', commentId, 'replies')
 
@@ -53,12 +64,20 @@ export async function createReply ( { commit }, { postId, commentId, reply, repl
     },
     createdAt: serverTimestamp()
   }
-  if (repliedMessage) {
-    replyObject.repliedMessage = repliedMessage
+  if (replyId) {
+    replyObject.replyId = replyId
   }
   const docRef = await addDoc(repliesRef, replyObject).catch(error => {throw error})
   commit('setReplyId', docRef.id)
   // console.log('Successfully created reply: ', docRef)
+}
+
+export async function editReply ( { commit }, { postId, commentId, reply, replyId }) {
+  const replyRef = doc(db, 'posts', postId, 'comments', commentId, 'replies', replyId)
+  await updateDoc(replyRef, {
+    reply
+  }).catch(error => {throw error})
+  console.log('Successfully edited reply');
 }
 
 export async function setRepliesList ( { commit }, { postId, commentId }) {

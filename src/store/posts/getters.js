@@ -5,3 +5,7 @@ export function getSelectedPost ( state ) {
 export function getLandingPosts ( state ) {
   return state.postItems
 }
+
+export function getUnsubscribeSelectedPost ( state ) {
+  return state.unsubscribeSelectedPost
+}

@@ -24,6 +24,7 @@
           stack
         /> -->
         <q-btn
+          v-if="!isYours"
           v-close-popup
           @click="openDialogFlag"
           class="button-width"
@@ -37,6 +38,19 @@
         />
         <q-btn
           v-if="isYours"
+          @click="openDialogPostEdit"
+          v-close-popup
+          class="button-width"
+          padding="16px 5px"
+          text-color="secondary"
+          color="grey-3"
+          icon="fas fa-pencil-ruler"
+          label="Edit"
+          unelevated
+          stack
+        />
+        <!-- <q-btn
+          v-if="isYours"
           v-close-popup
           class="button-width"
           padding="16px 5px"
@@ -46,7 +60,7 @@
           label="Remove"
           unelevated
           stack
-        />
+        /> -->
       </q-card-actions>
       <q-card-actions class="full-width q-mb-md q-px-md">
         <q-btn
@@ -67,6 +81,7 @@ import { computed } from "vue";
 import { useStore } from "vuex";
 import { useDialogPluginComponent, useQuasar } from "quasar";
 import DialogRecommendCreate from "src/components/DialogRecommendCreate.vue";
+import DialogPostEdit from "src/components/DialogPostEdit.vue";
 import DialogFlag from "src/components/DialogFlag.vue";
 
 export default {
@@ -94,6 +109,15 @@ export default {
       });
     }
 
+    function openDialogPostEdit() {
+      q.dialog({
+        component: DialogPostEdit,
+        componentProps: {
+          postData: props.postData,
+        },
+      });
+    }
+
     function openDialogFlag() {
       q.dialog({
         component: DialogFlag,
@@ -105,6 +129,7 @@ export default {
       onDialogHide,
       q,
       openDialogRecommendCreate,
+      openDialogPostEdit,
       openDialogFlag,
       isYours,
     };

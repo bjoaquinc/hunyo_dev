@@ -27,21 +27,53 @@
         <q-btn
           @click="openDialogReplyCreate"
           flat
+          no-caps
           size="sm"
           dense
           color="primary"
           icon="fas fa-reply"
           label="Reply"
         />
-        <q-btn
-          @click="openDialogFlag"
+        <q-btn-dropdown
           flat
           size="sm"
           dense
           color="primary"
-          icon="fas fa-flag"
-          label="Flag"
-        />
+          icon="fas fa-ellipsis-h"
+          :dropdown-icon="'none'"
+          style="max-width: 32px; overflow: hidden; margin-left: 0"
+          align="left"
+        >
+          <q-list>
+            <q-item
+              clickable
+              v-close-popup
+              @click="openDialogCommentEdit"
+              v-if="isYours"
+            >
+              <q-item-section>
+                <q-item-label>Edit</q-item-label>
+              </q-item-section>
+            </q-item>
+
+            <q-item
+              clickable
+              v-close-popup
+              @click="openDialogPromptDelete"
+              v-if="isYours"
+            >
+              <q-item-section>
+                <q-item-label>Delete</q-item-label>
+              </q-item-section>
+            </q-item>
+
+            <q-item clickable v-close-popup @click="openDialogFlag" v-else>
+              <q-item-section>
+                <q-item-label>Flag</q-item-label>
+              </q-item-section>
+            </q-item>
+          </q-list>
+        </q-btn-dropdown>
         <!-- <q-btn
           @click="deleteComment"
           v-if="isYours"
@@ -66,6 +98,8 @@ import { useQuasar } from "quasar";
 import { useStore } from "vuex";
 import { useRoute } from "vue-router";
 import DialogReplyCreate from "src/components/DialogReplyCreate.vue";
+import DialogCommentEdit from "src/components/DialogCommentEdit.vue";
+import DialogPromptDelete from "src/components/DialogPromptDelete.vue";
 import DialogFlag from "src/components/DialogFlag.vue";
 import ReplyList from "src/components/ReplyList.vue";
 
@@ -99,6 +133,19 @@ export default {
           commentId: props.id,
           postId: props.postId,
           userId: props.user.id,
+          replyMessage: props.comment,
+          replyUser: props.user,
+        },
+      });
+    }
+
+    async function openDialogCommentEdit() {
+      q.dialog({
+        component: DialogCommentEdit,
+        componentProps: {
+          commentId: props.id,
+          postId: props.postId,
+          comment: props.comment,
         },
       });
     }
@@ -120,12 +167,22 @@ export default {
       }
     }
 
+    function openDialogPromptDelete() {
+      q.dialog({
+        component: DialogPromptDelete,
+        componentProps: { isComment: true },
+      }).onOk(async () => {
+        await deleteComment();
+      });
+    }
+
     return {
       openDialogReplyCreate,
+      openDialogCommentEdit,
       openDialogFlag,
       userRoute,
       isYours,
-      deleteComment,
+      openDialogPromptDelete,
     };
   },
 };

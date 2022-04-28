@@ -43,12 +43,12 @@
       <q-card-actions class="full-width q-mb-md q-px-md">
         <q-btn
           @click="createComment"
-          v-close-popup
           :disable="comment && selectedType ? false : true"
           class="full-width"
           color="primary"
           label="Post Comment"
           unelevated
+          no-caps
         />
       </q-card-actions>
     </q-card>
@@ -58,10 +58,12 @@
 <script>
 import { useDialogPluginComponent, useQuasar } from "quasar";
 import { useStore } from "vuex";
-import { ref, computed } from "vue";
+import { ref, computed, onBeforeUnmount, onMounted } from "vue";
+import DialogPromptDiscard from "src/components/DialogPromptDiscard.vue";
+import DialogCommentCreate from "src/components/DialogCommentCreate.vue";
 
 export default {
-  props: ["postId", "user"],
+  props: ["postId", "user", "commentDraft", "commentDraftTopic"],
 
   emits: [
     // REQUIRED; need to specify some events that your
@@ -83,7 +85,17 @@ export default {
     const user = computed(() => store.getters["auth/getUser"]);
     const userData = computed(() => store.getters["profile/getUserData"]);
 
+    onMounted(() => {
+      if (props.commentDraft) {
+        comment.value = props.commentDraft;
+        selectedType.value = props.commentDraftTopic;
+      }
+    });
+
     async function createComment() {
+      q.loading.show({
+        message: "Posting comment",
+      });
       try {
         await store.dispatch("comments/createComment", {
           postId: props.postId,
@@ -106,10 +118,34 @@ export default {
         }
         selectedType.value = "";
         comment.value = "";
+        onDialogHide();
+        q.loading.hide();
       } catch (error) {
         console.log(error);
+        q.loading.hide();
       }
     }
+
+    onBeforeUnmount(() => {
+      if (!comment.value) return;
+      q.dialog({
+        component: DialogPromptDiscard,
+      })
+        .onOk(() => {
+          return;
+        })
+        .onCancel(() => {
+          q.dialog({
+            component: DialogCommentCreate,
+            componentProps: {
+              postId: props.postId,
+              user: props.user,
+              commentDraft: comment.value,
+              commentDraftTopic: selectedType.value,
+            },
+          });
+        });
+    });
 
     return {
       q,

@@ -117,6 +117,7 @@ import { computed, onMounted } from "vue";
 import DialogFolderOrganize from "src/components/DialogFolderOrganize.vue";
 import DialogFolderCreateAndEdit from "src/components/DialogFolderCreateAndEdit.vue";
 import DialogPromptSubscribe from "src/components/DialogPromptSubscribe.vue";
+import amplitude from "amplitude-js";
 
 export default {
   props: ["postData", "organize"],
@@ -173,6 +174,9 @@ export default {
       let savedLocation = "Profile";
       if (folder) {
         savedLocation = folder.name;
+      } else {
+        var identify = new amplitude.Identify().add("num total quicksave", 1);
+        amplitude.getInstance().identify(identify);
       }
       try {
         await store.dispatch("folder/savePost", {

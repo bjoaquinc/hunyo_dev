@@ -9,7 +9,7 @@ if (location.hostname === 'localhost' || location.hostname === "127.0.0.1") {
 console.log(message)
 
 // init Amplitude
-var instance1 = amplitude.getInstance().init("337543a6c69e641a5f6a969752e2e7f5");
+var instance1 = amplitude.getInstance().init(project);
 
 export { instance1 }
 

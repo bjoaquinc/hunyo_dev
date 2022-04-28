@@ -26,21 +26,53 @@
       <q-btn
         @click="openDialogReplyCreate"
         flat
+        no-caps
         size="sm"
         dense
         color="primary"
         icon="fas fa-reply"
         label="Reply"
       />
-      <q-btn
-        @click="openDialogFlag"
+      <q-btn-dropdown
         flat
         size="sm"
         dense
         color="primary"
-        icon="fas fa-flag"
-        label="Flag"
-      />
+        icon="fas fa-ellipsis-h"
+        :dropdown-icon="'none'"
+        style="max-width: 32px; overflow: hidden; margin-left: 0"
+        align="left"
+      >
+        <q-list>
+          <q-item
+            clickable
+            v-close-popup
+            @click="openDialogReplyEdit"
+            v-if="isYours"
+          >
+            <q-item-section>
+              <q-item-label>Edit</q-item-label>
+            </q-item-section>
+          </q-item>
+
+          <q-item
+            clickable
+            v-close-popup
+            @click="openDialogPromptDelete"
+            v-if="isYours"
+          >
+            <q-item-section>
+              <q-item-label>Delete</q-item-label>
+            </q-item-section>
+          </q-item>
+
+          <q-item clickable v-close-popup @click="openDialogFlag" v-else>
+            <q-item-section>
+              <q-item-label>Flag</q-item-label>
+            </q-item-section>
+          </q-item>
+        </q-list>
+      </q-btn-dropdown>
       <!-- <q-btn
         @click="deleteReply"
         v-if="isYours"
@@ -60,9 +92,10 @@ import { useQuasar } from "quasar";
 import { useStore } from "vuex";
 import { computed } from "vue";
 import { useRoute } from "vue-router";
-import { auth } from "src/boot/firebase";
 import DialogFlag from "src/components/DialogFlag.vue";
 import DialogReplyCreate from "src/components/DialogReplyCreate.vue";
+import DialogReplyEdit from "src/components/DialogReplyEdit.vue";
+import DialogPromptDelete from "src/components/DialogPromptDelete.vue";
 
 export default {
   props: ["reply", "id", "user", "commentId", "postId"],
@@ -80,8 +113,9 @@ export default {
         return "LandingUser";
       }
     });
+    const user = computed(() => store.getters["auth/getUser"]);
     const isYours = computed(() => {
-      return props.user.id === auth.currentUser.uid ? true : false;
+      return props.user.id === user.value.uid ? true : false;
     });
 
     async function openDialogReplyCreate() {
@@ -92,7 +126,22 @@ export default {
           postId: props.postId,
           userId: props.user.id,
           isReply: true,
-          repliedMessage: props.reply,
+          replyId: props.id,
+          replyMessage: props.reply,
+          replyUser: props.user,
+        },
+      });
+    }
+
+    async function openDialogReplyEdit() {
+      q.dialog({
+        component: DialogReplyEdit,
+        componentProps: {
+          commentId: props.commentId,
+          postId: props.postId,
+          userId: props.user.id,
+          replyId: props.id,
+          reply: props.reply,
         },
       });
     }
@@ -115,12 +164,22 @@ export default {
       }
     }
 
+    function openDialogPromptDelete() {
+      q.dialog({
+        component: DialogPromptDelete,
+        componentProps: { isComment: false },
+      }).onOk(async () => {
+        await deleteReply();
+      });
+    }
+
     return {
       openDialogFlag,
       userRoute,
       isYours,
-      deleteReply,
+      openDialogPromptDelete,
       openDialogReplyCreate,
+      openDialogReplyEdit,
     };
   },
 };
