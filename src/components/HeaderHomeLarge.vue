@@ -2,7 +2,7 @@
   <q-toolbar class="constrain gt-xs">
     <q-img
       @click="$router.push({ name: 'PageHome' })"
-      class="q-mr-sm"
+      class="q-mr-sm logo-hover-pointer"
       height="20px"
       width="130px"
       position="0 0"
@@ -214,4 +214,8 @@ export default {
 .q-drawer__content
   .q-list
     color: $primary
+
+.logo-hover-pointer
+  &:hover
+    cursor: pointer
 </style>

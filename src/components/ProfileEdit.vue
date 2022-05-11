@@ -336,6 +336,9 @@ export default {
 
     async function updateUserData() {
       try {
+        q.loading.show({
+          message: "Updating profile...",
+        });
         if (userData.value.photoURL !== photoURL.value) {
           await store.dispatch(
             "profile/uploadAndUpdatePhotoURL",
@@ -354,8 +357,10 @@ export default {
         //  To stop the save draft dialog from triggering again
         store.commit("profile/setEditedUserData", userData.value);
         router.push({ name: "PageProfile" });
+        q.loading.hide();
       } catch (error) {
         console.log(error);
+        q.loading.hide();
       }
     }
 

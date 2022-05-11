@@ -33,6 +33,7 @@ import { computed } from "vue";
 import { useStore } from "vuex";
 import { useRouter } from "vue-router";
 import { useQuasar } from "quasar";
+import amplitude from "amplitude-js";
 
 export default {
   setup() {
@@ -77,6 +78,18 @@ export default {
             },
           });
         }
+        // Send an amplitude event
+        const createId = store.getters["amplitude/getCreateId"];
+        const firstTimestamp = store.getters["amplitude/getFirstTimestamp"];
+        const lastTimestamp = Date.now();
+        const duration = Math.round((lastTimestamp - firstTimestamp) / 1000);
+        amplitude.getInstance().logEventWithTimestamp("create - create post", {
+          "create id": createId,
+          duration,
+        });
+        // console.log("Successfully sent create post event");
+        // Clear newPost and Amplitude state
+        store.commit("amplitude/clearState");
         store.commit("newPost/clearState");
         q.loading.hide();
         router.push({ name: "PageHome" });

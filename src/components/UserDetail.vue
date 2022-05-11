@@ -61,6 +61,7 @@
           color="secondary"
           icon="fas fa-link"
           :href="website"
+          @click="sendEventClickWebsite"
           target="_blank"
           dense
           flat
@@ -101,7 +102,11 @@
       </q-card-section>
     </q-card>
 
-    <FeedList v-if="!isPublic" :feedItems="feedItems" />
+    <FeedList
+      v-if="!isPublic"
+      :feedItems="feedItems"
+      feedLocation="author profile"
+    />
     <LandingCardPrompt v-else />
   </div>
 </template>
@@ -114,6 +119,7 @@ import { auth } from "src/boot/firebase";
 import FeedList from "src/components/FeedList.vue";
 import LandingCardPrompt from "src/components/LandingCardPrompt.vue";
 import { useQuasar } from "quasar";
+import amplitude from "amplitude-js";
 
 export default {
   props: ["userId", "lastRoute"],
@@ -187,6 +193,24 @@ export default {
           await setActivityFeed(props.userId);
           if (!isPublic.value) {
             await store.dispatch("subscriptions/setFollowItem", props.userId);
+            // Send enter profile event to Amplitude
+            const source = route.params.source;
+            amplitude.getInstance().logEventWithTimestamp(
+              "profile - enter",
+              {
+                "member id": props.userId,
+                source: source ? source : "other", // types: feed, post, comment, notification, other
+                "has bio": userData.value.bio ? true : false,
+                "has photo": !userData.value.photoURL.includes("default")
+                  ? true
+                  : false,
+                "has website": userData.value.website ? true : false,
+                "has location": userData.value.location ? true : false,
+                "is subscribe": followingList.value.includes(props.userId),
+              },
+              Date.now()
+            );
+            // console.log("Successfully sent enter profile event");
           }
         } catch (error) {
           console.log(error);
@@ -196,6 +220,12 @@ export default {
 
     async function subscribe() {
       try {
+        // Send subscribe start event to Amplitude
+        amplitude.getInstance().logEventWithTimestamp("subscribe start", {
+          "member id": props.userId,
+          location: "profile",
+        });
+        // console.log("Successfully sent subscribe start event");
         await store.dispatch("subscriptions/subscribe", {
           name: userData.value.displayName,
           id: props.userId,
@@ -207,21 +237,71 @@ export default {
             userId: userData.value.id,
             route: {
               name: "ProfileUser",
-              params: { userId: auth.currentUser.uid },
+              params: { userId: auth.currentUser.uid, source: "notification" },
             },
           });
         }
+        // Send subscribe successful event to Amplitude
+        amplitude.getInstance().logEventWithTimestamp("subscribe successful", {
+          "member id": props.userId,
+          location: "profile",
+        });
+        // console.log("Successfully sent subscribe successful event");
       } catch (error) {
         console.log(error);
+        // Send subscribe error event to Amplitude
+        amplitude.getInstance().logEventWithTimestamp("subscribe error", {
+          "member id": props.userId,
+          error,
+        });
+        // console.log("Successfully sent subscribe error");
       }
     }
 
     async function toggleIsFollowing() {
+      let toggleType = "";
       try {
+        if (followItem.value.isFollowing) {
+          amplitude.getInstance().logEventWithTimestamp("unsubscribe", {
+            "member id": props.userId,
+            location: userData.value.location,
+          });
+          // console.log("Successfully sent to unsubscribe event");
+          toggleType = "unsubscribe";
+        } else {
+          amplitude.getInstance().logEventWithTimestamp("resubscribe", {
+            "member id": props.userId,
+            location: userData.value.location,
+          });
+          // console.log("Successfully sent to resubscribe event");
+          toggleType = "resubscribe";
+        }
         await store.dispatch("subscriptions/toggleIsFollowing", {
           followItemId: followItem.value.id,
           isFollowing: followItem.value.isFollowing,
         });
+      } catch (error) {
+        console.log(error);
+        amplitude
+          .getInstance()
+          .logEventWithTimestamp("toggle subscribe error", {
+            "member id": props.userId,
+            error,
+            type: toggleType,
+          });
+        // console.log("Successfully sent the toggle subscribe error event");
+      }
+    }
+
+    function sendEventClickWebsite() {
+      try {
+        amplitude
+          .getInstance()
+          .logEventWithTimestamp("profile - click website", {
+            "member id": props.userId,
+            "is subscribe": followingList.value.includes(props.userId),
+          });
+        // console.log("Successfully sent click website event");
       } catch (error) {
         console.log(error);
       }
@@ -247,6 +327,7 @@ export default {
       feedItems,
       subscribe,
       toggleIsFollowing,
+      sendEventClickWebsite,
       isPublic,
       followItem,
       isFollowing,

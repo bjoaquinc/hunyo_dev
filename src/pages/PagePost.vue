@@ -37,8 +37,16 @@
         :postId="selectedPost.postId"
         :user="selectedPost.user"
         :topics="selectedPost.topics"
+        :numUserReads="
+          selectedPost.userReads ? selectedPost.userReads.length : null
+        "
       />
-      <CommentsList v-if="!isPublic" :postId="postId" id="comments" />
+      <CommentsList
+        v-if="!isPublic"
+        :postId="postId"
+        :postUser="selectedPost.user"
+        id="comments"
+      />
     </div>
   </div>
 </template>
@@ -82,6 +90,7 @@ export default {
         id: this.selectedPost.postId,
         user: this.selectedPost.user,
         image: "",
+        topics: this.selectedPost.topics,
       };
       if (
         this.selectedPost.imagesList &&
@@ -93,6 +102,7 @@ export default {
         component: DialogFoldersList,
         componentProps: {
           postData,
+          source: "post top",
         },
       });
     },
@@ -121,20 +131,34 @@ export default {
   },
   async created() {
     try {
-      // amplitude.getInstance().logEvent("save - view post", {
-      //   "post id": this.postId,
-      //   "post type": topics,
-      // });
       await this.$store.dispatch("posts/setSelectedPost", this.postId);
       if (!this.currentUser) return;
+      if (this.selectedPost.user.id === this.currentUser.uid) return;
+      if (this.userData.admin) return;
+      // Send view post event to Amplitude
+      const followingList =
+        this.$store.getters["subscriptions/getFollowingList"];
+      amplitude.getInstance().logEventWithTimestamp("save - view post", {
+        "post id": this.selectedPost.postId,
+        topics: this.selectedPost.topics,
+        location: "post",
+        source: this.$route.params.feedLocation
+          ? this.$route.params.feedLocation
+          : "link",
+        "num total views": this.selectedPost.userReads
+          ? this.selectedPost.userReads.length
+          : 0,
+        "author id": this.selectedPost.user.id,
+        "is subscribe": followingList.includes(this.selectedPost.user.id),
+      });
+      // console.log("Successfully sent view post event");
       if (
         this.selectedPost.userReads &&
         this.selectedPost.userReads.includes(this.currentUser.uid)
       )
         return;
-      if (this.selectedPost.user.id === this.currentUser.uid) return;
-      if (this.userData.admin) return;
       await this.$store.dispatch("posts/readPost", this.selectedPost.postId);
+      // Send notification for post read
       await this.$store.dispatch("notifications/createNotification", {
         type: "postRead",
         userId: this.selectedPost.user.id,
@@ -143,10 +167,12 @@ export default {
           name: "FeedUser",
           params: {
             userId: this.currentUser.uid,
+            source: "notification",
           },
         },
       });
-      var identify = new amplitude.Identify().add("num total posts view", 1);
+      // Increment num total view post user property Amplitude
+      var identify = new amplitude.Identify().add("num total view post", 1);
       amplitude.getInstance().identify(identify);
     } catch (error) {
       console.log(error);

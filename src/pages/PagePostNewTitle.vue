@@ -5,6 +5,7 @@
       v-if="$q.platform.is.mobile && !$q.platform.is.ipad"
     >
       <q-select
+        @blur="sendSelectTopicsEvent"
         v-model="topics"
         :rules="[
           (val) => val.length > 0 || 'At least one topic must be chosen.',
@@ -19,6 +20,8 @@
 
       <q-input
         v-model="title"
+        @blur="sendWriteTitleEvent"
+        @focus="setTitle"
         :rules="[(val) => !!val || 'Title is required']"
         class="q-mx-none q-mt-sm"
         hint="Briefly describe the main idea of your post"
@@ -42,11 +45,7 @@
     >
       <q-card-section class="flex q-pa-sm">
         <q-btn
-          :to="
-            previousRouteName
-              ? { name: previousRouteName }
-              : { name: 'PageHome' }
-          "
+          :to="{ name: 'PageHome' }"
           icon="fas fa-times"
           dense
           flat
@@ -57,6 +56,7 @@
       </q-card-section>
       <q-card-section>
         <q-select
+          @blur="sendSelectTopicsEvent"
           v-model="topics"
           :rules="[
             (val) => val.length > 0 || 'At least one topic must be chosen.',
@@ -73,6 +73,8 @@
       <q-card-section>
         <q-input
           v-model="title"
+          @blur="sendWriteTitleEvent"
+          @focus="setTitle"
           :rules="[(val) => !!val || 'Title is required']"
           class="q-mx-none q-mt-sm"
           hint="Briefly describe the main idea of your post"
@@ -105,6 +107,7 @@
 </template>
 
 <script>
+import amplitude from "amplitude-js";
 import DialogSaveDraft from "src/components/DialogSaveDraft.vue";
 import DialogCommunityGuidelines from "src/components/DialogCommunityGuidelines.vue";
 
@@ -115,6 +118,7 @@ export default {
   data() {
     return {
       options: ["Details", "Materials", "Methods", "Design Approaches"],
+      currentTitle: "",
     };
   },
   computed: {
@@ -134,7 +138,15 @@ export default {
         return this.$store.getters["newPost/getIsQuestion"];
       },
       set(value) {
-        this.$store.commit("newPost/updateIsQuestion", value);
+        try {
+          this.$store.commit("newPost/updateIsQuestion", value);
+          amplitude.getInstance().logEventWithTimestamp("create - question", {
+            "create id": this.createId,
+            "is question": value,
+          });
+        } catch (error) {
+          console.log(error);
+        }
       },
     },
     topics: {
@@ -145,8 +157,13 @@ export default {
         this.$store.commit("newPost/updateTopics", value);
       },
     },
-    previousRouteName() {
-      return this.$store.getters["newPost/getPreviousRouteName"];
+    content() {
+      return this.$store.getters["newPost/getContent"];
+    },
+    images() {
+      return this.$store.getters["newPost/getUploadedImagesList"]
+        ? this.$store.getters["newPost/getUploadedImagesList"].length
+        : 0;
     },
     user() {
       const user = this.$store.getters["auth/getUser"];
@@ -155,8 +172,26 @@ export default {
     userData() {
       return this.$store.getters["profile/getUserData"];
     },
+    createId() {
+      return this.$store.getters["amplitude/getCreateId"];
+    },
   },
   created() {
+    let createId = this.$store.getters["amplitude/getCreateId"];
+    if (!createId) {
+      try {
+        this.$store.commit("amplitude/setCreateId");
+        const newCreateId = this.$store.getters["amplitude/getCreateId"];
+        createId = newCreateId;
+        amplitude.getInstance().logEventWithTimestamp("create - start", {
+          "create id": createId,
+        });
+        this.$store.commit("amplitude/setFirstTimestamp");
+        // console.log("Successfully sent create start event");
+      } catch (error) {
+        console.log(error);
+      }
+    }
     if (!this.userData.hasSignedGuidelines) {
       this.$q
         .dialog({
@@ -177,6 +212,38 @@ export default {
     }
   },
   methods: {
+    sendSelectTopicsEvent() {
+      if (this.topics && this.topics.length > 0) {
+        try {
+          amplitude
+            .getInstance()
+            .logEventWithTimestamp("create - select topics", {
+              type: this.topics,
+              "create id": this.createId,
+            });
+        } catch (error) {
+          console.log(error);
+        }
+      }
+    },
+    setTitle() {
+      this.currentTitle = this.title;
+    },
+    sendWriteTitleEvent() {
+      if (
+        (!this.title && !this.currentTitle) ||
+        this.currentTitle === this.title
+      )
+        return;
+      try {
+        amplitude.getInstance().logEventWithTimestamp("create - write title", {
+          "create id": this.createId,
+        });
+        this.currentTitle = "";
+      } catch (error) {
+        console.log(error);
+      }
+    },
     confirmSaveDraft() {
       return new Promise((resolve) => {
         this.$q
@@ -193,14 +260,46 @@ export default {
     },
   },
   async beforeRouteLeave(to) {
-    if (this.title && to.name !== "PagePostNewContent") {
-      // const result = await this.confirmSaveDraft();
-      // console.log(result);
-      this.$store.commit("newPost/clearState");
-    } else if (to.name !== "PagePostNewContent") {
-      this.$store.commit("newPost/clearState");
-    } else {
-      return;
+    try {
+      const firstTimestamp = this.$store.getters["amplitude/getFirstTimestamp"];
+      const lastTimestamp = Date.now();
+      const duration = Math.round((lastTimestamp - firstTimestamp) / 1000);
+      const createId = this.$store.getters["amplitude/getCreateId"];
+      if (this.title && to.name !== "PagePostNewContent") {
+        // const result = await this.confirmSaveDraft();
+        // console.log(result);
+        // Send create - delete event to Amplitude
+        amplitude.getInstance().logEventWithTimestamp("create - delete", {
+          "create id": createId,
+          duration,
+          "has topics": this.topics.length ? true : false,
+          "has title": true,
+          "has content": this.content ? true : false,
+          "is question": this.isQuestion,
+          "has images": this.images ? true : false,
+        });
+        // console.log("Successfully sent create delete event to Amplitude");
+        this.$store.commit("newPost/clearState");
+        this.$store.commit("amplitude/clearState");
+      } else if (to.name !== "PagePostNewContent") {
+        // Send create - delete event to Amplitude
+        amplitude.getInstance().logEventWithTimestamp("create - delete", {
+          "create id": createId,
+          duration,
+          "has topics": this.topics.length ? true : false,
+          "has title": false,
+          "has content": this.content ? true : false,
+          "is question": this.isQuestion,
+          "has images": this.images ? true : false,
+        });
+        // console.log("Successfully sent create delete event to Amplitude");
+        this.$store.commit("newPost/clearState");
+        this.$store.commit("amplitude/clearState");
+      } else {
+        return;
+      }
+    } catch (error) {
+      console.log(error);
     }
   },
 };

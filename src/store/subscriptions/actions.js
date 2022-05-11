@@ -17,7 +17,7 @@ export async function subscribe ( { commit }, {name, id, photo}) {
     isFollowing: true
   }).catch(error => {throw error})
 
-  console.log('Successfully created the follow item: ', docRef)
+  // console.log('Successfully created the follow item: ', docRef)
 }
 
 export async function toggleIsFollowing ( { commit }, {followItemId, isFollowing}) {
@@ -25,7 +25,7 @@ export async function toggleIsFollowing ( { commit }, {followItemId, isFollowing
   await updateDoc(followItemRef, {
     isFollowing: !isFollowing
   }).catch(error => {throw error})
-  console.log('Successfully toggled is following')
+  // console.log('Successfully toggled is following')
 }
 
 export async function setFollowItem ( { commit, rootGetters }, id) {
@@ -37,7 +37,7 @@ export async function setFollowItem ( { commit, rootGetters }, id) {
       // console.log('doc: ', doc)
       if (doc) {
         commit('setFollowItem', { followItem: {...doc.data(), id: doc.id}, unsubscribeFollowItem})
-        console.log('Successfully set the follow item: ', doc.data())
+        // console.log('Successfully set the follow item: ', doc.data())
       }
       
     })

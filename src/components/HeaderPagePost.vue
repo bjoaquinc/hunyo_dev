@@ -51,12 +51,13 @@ export default {
     );
 
     function openDialogFoldersList() {
-      const { title, postId, user, imagesList } = selectedPost.value;
+      const { title, postId, user, imagesList, topics } = selectedPost.value;
       const postData = {
         title,
         id: postId,
         user: user,
         image: "",
+        topics,
       };
       if (imagesList && imagesList.length > 0) {
         postData.image = imagesList[0];
@@ -65,6 +66,7 @@ export default {
         component: DialogFoldersList,
         componentProps: {
           postData,
+          source: "post top",
         },
       });
     }

@@ -2,7 +2,7 @@
   <q-toolbar class="constrain">
     <q-img
       @click="$router.push('/landing')"
-      class="q-mr-sm"
+      class="q-mr-sm logo-hover-pointer"
       height="20px"
       width="130px"
       position="0 0"
@@ -30,4 +30,8 @@
   </q-toolbar>
 </template>
 
-<style lang="scss" scoped></style>
+<style lang="sass" scoped>
+.logo-hover-pointer
+  &:hover
+    cursor: pointer
+</style>

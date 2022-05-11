@@ -4,7 +4,10 @@ import amplitude from 'amplitude-js'
 
 const folderItemsRef = collection(db, 'folderItems')
 
-export async function savePost ( { commit }, { postData, folder}) {
+export async function savePost ( { commit, rootGetters }, { postData, folder, isNew }) {
+  if (!postData) {
+    throw new Error ("No post data available");
+  }
   const folderItem = {
     createdAt: serverTimestamp(),
     postData,
@@ -14,12 +17,45 @@ export async function savePost ( { commit }, { postData, folder}) {
   if (folder) {
     folderItem.folder = folder
     folderItem.isOrganized = true
+    if (isNew) {
+      // Send save add to profile event for new folder to Amplitude
+      amplitude.getInstance().logEventWithTimestamp("save - add to folder", {
+        "post id": postData.id,
+        type: "new folder",
+      })
+      // console.log("Successfully sent save add to new folder event")
+    } else {
+      // Send save add to profile event for pre-existing folder to Amplitude
+      amplitude.getInstance().logEventWithTimestamp("save - add to folder", {
+        "post id": postData.id,
+        type: "pre-existing folder",
+      })
+      // console.log("Successfully sent save add to pre-existing folder event")
+    }
+  } else {
+    // Send save add to profile event for quicksave to Amplitude
+    amplitude.getInstance().logEventWithTimestamp("save - add to folder", {
+      "post id": postData.id,
+      type: "quicksave",
+    })
+    // console.log("Successfully sent save add to folder quicksave event")
   }
   const folderItemsRef = collection(db, 'folderItems')
   const docRef = await addDoc(folderItemsRef, folderItem ).catch(error => {throw error})
-  var identify = new amplitude.Identify().add('num total posts save', 1)
+  const identify = new amplitude.Identify().add('num total save post', 1)
   amplitude.getInstance().identify(identify)
   // console.log('Successfully saved post: ', docRef)
+
+  // Send save complete event to Amplitude
+  const firstTimestamp = rootGetters["amplitude/getFirstTimestamp"];
+  const lastTimestamp = Date.now();
+  const duration = Math.round((lastTimestamp - firstTimestamp) / 1000);
+  amplitude.getInstance().logEventWithTimestamp("save - complete", {
+    "postId": postData.id,
+    duration
+  })
+  // console.log("Successfully sent save complete event")
+  commit("amplitude/clearState", null, {root: true})
 }
 
 export async function createFolder ( { commit }, { newFolderName}) {
@@ -28,7 +64,7 @@ export async function createFolder ( { commit }, { newFolderName}) {
     createdAt: serverTimestamp(),
     name: newFolderName,
   }).catch(error => {throw error})
-  var identify = new amplitude.Identify().add('num total folder create', 1)
+  const identify = new amplitude.Identify().add('num total create folder', 1)
   amplitude.getInstance().identify(identify)
   commit('createFolder', {name: newFolderName, id: docRef.id})
   // console.log('Successfully created folder: ', docRef)
@@ -116,6 +152,8 @@ export async function removePosts ( { commit }, removeList) {
     for (let index = 0; index < removeList.length; index++) {
       const docRef = doc(db, 'folderItems', removeList[index])
       await deleteDoc(docRef).catch(error => {throw error})
+      const identify = new amplitude.Identify().add('num total save post', -1)
+      amplitude.getInstance().identify(identify)
     }
   }
 }

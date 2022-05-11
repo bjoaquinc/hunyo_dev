@@ -7,6 +7,7 @@
       >
       <q-input
         id="description"
+        @blur="sendEventDescription"
         v-model="content"
         :rules="[(val) => !!val || 'Field is required']"
         class="q-mt-sm"
@@ -15,9 +16,11 @@
           isQuestion ? 'complete question' : 'post'
         } here. Suggested maximum of 250 words.`"
         type="textarea"
+        input-style="min-height: 150px !important"
+        autogrow
         outlined
       />
-      <div class="flex q-mt-md items-center">
+      <div class="flex q-my-md items-center">
         <q-btn
           @click="manageUploader"
           label="Add images"
@@ -80,7 +83,7 @@
       style="max-width: 600px"
       :style="{ minWidth: isQuestion ? '40vw' : '70vw' }"
     >
-      <q-card bordered class="col">
+      <q-card bordered class="col" style="max-height: 90vh; overflow-y: auto">
         <q-card-section>
           <q-card-section class="flex q-pa-sm">
             <q-btn
@@ -100,6 +103,7 @@
 
           <q-card-section>
             <q-input
+              @blur="sendEventDescription"
               v-model="content"
               :rules="[(val) => !!val || 'Field is required']"
               dense
@@ -107,6 +111,8 @@
                 isQuestion ? 'complete question' : 'post'
               } here. Maximum of 250 words.`"
               type="textarea"
+              input-style="min-height: 150px !important"
+              autogrow
               outlined
             />
           </q-card-section>
@@ -261,6 +267,7 @@ import { ref, computed } from "vue";
 import { useStore } from "vuex";
 import { useRouter } from "vue-router";
 import { useQuasar } from "quasar";
+import amplitude from "amplitude-js";
 import BaseCarousel from "src/components/BaseCarousel.vue";
 import DialogImageInformation from "src/components/DialogImageInformation.vue";
 import DropdownBestPractices from "src/components/DropDownBestPractices.vue";
@@ -294,12 +301,33 @@ export default {
     const newPost = computed(() => store.getters["newPost/getNewPost"]);
     const postId = computed(() => store.getters["newPost/getPostId"]);
 
-    function toggleIsMinimized(index) {
-      store.dispatch("newPost/toggleIsMinimized", index);
+    function sendEventDescription() {
+      if (content.value) {
+        try {
+          const createId = store.getters["amplitude/getCreateId"];
+          amplitude
+            .getInstance()
+            .logEventWithTimestamp("create - write description", {
+              "create id": createId,
+            });
+          // console.log("Successfully sent write description event");
+        } catch (error) {
+          console.log(error);
+        }
+      }
     }
 
     function manageUploader() {
-      imageInput.value.click();
+      try {
+        imageInput.value.click();
+        const createId = store.getters["amplitude/getCreateId"];
+        amplitude.getInstance().logEventWithTimestamp("create - add images", {
+          "create id": createId,
+        });
+        // console.log("Successfully sent add images event");
+      } catch (error) {
+        console.log(error);
+      }
     }
 
     async function fileChanged(event) {
@@ -342,11 +370,13 @@ export default {
 
     async function createPost() {
       try {
+        // Upload Post
         q.loading.show({ message: "Uploading..." });
         await store.dispatch("newPost/createPost", {
           newPost: { ...newPost.value },
           imagesList: imagesList.value,
         });
+        // Send notifications to followers
         const followersList = computed(
           () => store.getters["subscriptions/getFollowersList"]
         );
@@ -364,7 +394,19 @@ export default {
             },
           });
         }
+        // Send an amplitude event
+        const createId = store.getters["amplitude/getCreateId"];
+        const firstTimestamp = store.getters["amplitude/getFirstTimestamp"];
+        const lastTimestamp = Date.now();
+        const duration = Math.round((lastTimestamp - firstTimestamp) / 1000);
+        amplitude.getInstance().logEventWithTimestamp("create - create post", {
+          "create id": createId,
+          duration,
+        });
+        // console.log("Successfully sent create post event");
+        // Clear state
         store.commit("newPost/clearState");
+        store.commit("amplitude/clearState");
         q.loading.hide();
         router.push({ name: "PageHome" });
       } catch (error) {
@@ -379,7 +421,7 @@ export default {
       preview,
       content,
       imageInput,
-      toggleIsMinimized,
+      sendEventDescription,
       manageUploader,
       openImageInfoDialog,
       editImages,

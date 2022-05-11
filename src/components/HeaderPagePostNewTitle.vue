@@ -5,9 +5,7 @@
       icon="fas fa-times"
       class="same-width"
       align="left"
-      :to="
-        previousRouteName ? { name: previousRouteName } : { name: 'PageHome' }
-      "
+      :to="{ name: 'PageHome' }"
       size="sm"
       dense
       flat
@@ -32,6 +30,7 @@
 
 <script>
 import DialogCommunityGuidelines from "src/components/DialogCommunityGuidelines.vue";
+import amplitude from "amplitude-js";
 
 export default {
   components: { DialogCommunityGuidelines },
@@ -42,6 +41,9 @@ export default {
     topicsList() {
       return this.$store.getters["newPost/getTopicsList"];
     },
+    isQuestion() {
+      return this.$store.getters["newPost/getIsQuestion"];
+    },
     missingFields() {
       return !this.topicsList.length || !this.title ? true : false;
     },
@@ -49,7 +51,6 @@ export default {
       return this.$store.getters["newPost/getPreviousRouteName"];
     },
   },
-  async created() {},
 };
 </script>
 

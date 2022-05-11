@@ -6,7 +6,11 @@
       :key="index"
       class="q-mb-md"
     >
-      <Component :is="type(index)" :feedItem="feedItem" />
+      <Component
+        :is="type(index)"
+        :feedItem="feedItem"
+        :feedLocation="feedLocation"
+      />
     </q-item>
   </q-list>
 </template>
@@ -16,7 +20,7 @@ import RecommendItem from "src/components/RecommendItem.vue";
 import PostItem from "src/components/PostItem.vue";
 
 export default {
-  props: ["feedItems"],
+  props: ["feedItems", "feedLocation"],
   components: {
     post: PostItem,
     recommendation: RecommendItem,

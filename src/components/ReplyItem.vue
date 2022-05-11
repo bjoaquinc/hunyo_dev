@@ -2,7 +2,7 @@
   <q-card class="full-width" flat>
     <q-item
       clickable
-      :to="{ name: userRoute, params: { userId: user.id } }"
+      :to="{ name: userRoute, params: { userId: user.id, souce: 'comment' } }"
       style="width: fit-content"
     >
       <q-item-section avatar>
@@ -98,7 +98,7 @@ import DialogReplyEdit from "src/components/DialogReplyEdit.vue";
 import DialogPromptDelete from "src/components/DialogPromptDelete.vue";
 
 export default {
-  props: ["reply", "id", "user", "commentId", "postId"],
+  props: ["reply", "id", "user", "commentId", "postId", "postUser"],
   setup(props) {
     const q = useQuasar();
     const route = useRoute();
@@ -124,8 +124,8 @@ export default {
         componentProps: {
           commentId: props.commentId,
           postId: props.postId,
+          postUser: props.postUser,
           userId: props.user.id,
-          isReply: true,
           replyId: props.id,
           replyMessage: props.reply,
           replyUser: props.user,

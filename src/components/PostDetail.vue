@@ -1,17 +1,22 @@
 <template>
   <q-card class="my-card" bordered flat v-if="isReady">
     <q-item>
-      <q-item-label class="text-weight-bold text-h6 q-pt-md gt-xs">{{
-        title
-      }} / {{ formattedTopics }}</q-item-label>
-      <q-item-label class="text-weight-bold text-subtitle1 q-pt-md lt-sm">{{
-        title
-      }} / {{ formattedTopics }}</q-item-label>
+      <q-item-label class="text-weight-bold text-h6 q-pt-md gt-xs"
+        >{{ title }} / {{ formattedTopics }}</q-item-label
+      >
+      <q-item-label class="text-weight-bold text-subtitle1 q-pt-md lt-sm"
+        >{{ title }} / {{ formattedTopics }}</q-item-label
+      >
     </q-item>
 
     <BaseCarousel
       class="q-pt-md"
       :imagesList="imagesList"
+      :postId="postId"
+      :userId="user.id"
+      :topics="topics"
+      :numUserReads="numUserReads"
+      location="post"
       v-if="imagesList && imagesList.length"
     />
 
@@ -50,7 +55,7 @@
         clickable
         :to="{
           name: userRoute,
-          params: { userId: user.id },
+          params: { userId: user.id, source: 'post' },
         }"
       >
         <q-item-section avatar>
@@ -104,7 +109,15 @@ export default {
   components: {
     BaseCarousel,
   },
-  props: ["content", "title", "imagesList", "postId", "user", "topics"],
+  props: [
+    "content",
+    "title",
+    "imagesList",
+    "postId",
+    "user",
+    "topics",
+    "numUserReads",
+  ],
   computed: {
     currentUserPhoto() {
       return auth.currentUser.photoURL;
@@ -148,6 +161,7 @@ export default {
         id: this.postId,
         user: this.user,
         image: "",
+        topics: this.topics,
       };
       if (this.imagesList && this.imagesList.length > 0) {
         postData.image = this.imagesList[0];
@@ -156,6 +170,7 @@ export default {
         component: DialogFoldersList,
         componentProps: {
           postData,
+          source: "post bottom",
         },
       });
     },

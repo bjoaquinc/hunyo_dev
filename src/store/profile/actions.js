@@ -10,13 +10,20 @@ export async function setUserData ( { commit }, userId) {
       const userData = {...doc.data(), id: doc.id}
       const userProperties = {
         'member profile info': {
+          'profession': userData.profession,
+          'is verified': userData.licenseNumber ? true : false,
+          'years of experience': userData.experience,
+          'employer': userData.employerName,
+          'birthdate': userData.birthdate,
           'company size': userData.employerSize,
+          'location': userData.location,
+          'has website': userData.website ? true : false,
+          'has bio': userData.bio ? true : false,
+          'has profile picture': !userData.photoURL.includes('default') ? true : false,
           '# of years of experience': userData.experience,
-          verified: false
         },
-      }
-      if (userData.licenseNumber) {
-        userProperties['member profile info'].verified = true
+        'subscribers': userData.followers,
+        'subscribed to': userData.following
       }
       amplitude.getInstance().setUserProperties(userProperties)
       commit('setUserData', { userData, unsubscribeUser})

@@ -7,6 +7,7 @@
         :user="user"
         :commentId="commentId"
         :postId="postId"
+        :postUser="postUser"
       />
     </q-item>
   </q-list>
@@ -18,7 +19,7 @@ import { useStore } from "vuex";
 import ReplyItem from "src/components/ReplyItem.vue";
 
 export default {
-  props: ["postId", "commentId"],
+  props: ["postId", "postUser", "commentId"],
   components: { ReplyItem },
   setup(props) {
     const store = useStore();

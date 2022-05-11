@@ -61,7 +61,8 @@ export function readUploadedFileAsDataURL (file) {
   })
 }
 
-export async function createPost ( { commit }, { newPost, imagesList} ) {
+// create post
+export async function createPost ( { commit }, { newPost, imagesList } ) {
   let imageURLList = [];
   const docRef = await addDoc(collection(db, 'posts'), {
     ...newPost,
@@ -120,7 +121,7 @@ export async function createPost ( { commit }, { newPost, imagesList} ) {
     .catch(error => {throw error})
   // console.log('Successfully added feed item: ', feedItemDocRef)
 
-  var identify = new amplitude.Identify().add('num total posts create', 1)
+  var identify = new amplitude.Identify().add('num total create post', 1)
   amplitude.getInstance().identify(identify)
 
   commit('setPostId', docRef.id)

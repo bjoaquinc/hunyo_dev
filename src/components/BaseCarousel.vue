@@ -1,7 +1,7 @@
 <template>
   <div>
     <div class="overflow-hidden" ref="container" style="position: relative">
-      <div style="height: inherit" class="gt-xs" v-if="!isFolderItem">
+      <div style="height: inherit" class="gt-xs">
         <q-btn
           v-if="currentIndex > 0"
           @click="setPositionByIndex(currentIndex - 1)"
@@ -63,8 +63,17 @@
 </template>
 
 <script>
+import amplitude from "amplitude-js";
+
 export default {
-  props: ["imagesList", "isFolderItem"],
+  props: [
+    "imagesList",
+    "postId",
+    "location",
+    "userId",
+    "topics",
+    "numUserReads",
+  ],
   data() {
     return {
       imageWidth: 0,
@@ -93,6 +102,11 @@ export default {
         ];
       }
     },
+    currentUserId() {
+      return this.$store.getters["auth/getUser"]
+        ? this.$store.getters["auth/getUser"].uid
+        : null;
+    },
   },
   methods: {
     handlePan({ evt, ...newInfo }) {
@@ -112,9 +126,14 @@ export default {
 
         const movedBy = newInfo.offset.x;
 
-        if (movedBy < -100 && this.currentIndex < this.slides.length - 1)
+        if (movedBy < -100 && this.currentIndex < this.slides.length - 1) {
+          this.sendSwipeEvent("right");
           this.currentIndex += 1;
-        if (movedBy > 100 && this.currentIndex > 0) this.currentIndex -= 1;
+        }
+        if (movedBy > 100 && this.currentIndex > 0) {
+          this.sendSwipeEvent("left");
+          this.currentIndex -= 1;
+        }
 
         this.setPositionByIndex();
       }
@@ -136,10 +155,36 @@ export default {
       this.currentIndex = index;
     },
     setPositionByIndex(index) {
+      if (index > this.currentIndex) {
+        this.sendSwipeEvent("right");
+      } else if (index < this.currentIndex) {
+        this.sendSwipeEvent("left");
+      }
       if (index || index === 0) this.currentIndex = index;
       this.currentTranslate = this.currentIndex * -this.imageWidth;
       this.previousTranslate = this.currentTranslate;
       this.touchMove();
+    },
+    sendSwipeEvent(direction) {
+      try {
+        if (!this.currentUserId) return;
+        if (!this.userId || this.userId === this.currentUserId) return;
+        const followingList =
+          this.$store.getters["subscriptions/getFollowingList"];
+        amplitude.getInstance().logEventWithTimestamp("save - swipe photo", {
+          "post id": this.postId,
+          topics: this.topics,
+          location: this.location,
+          source: null,
+          direction,
+          "num total views": this.numUserReads ? this.numUserReads : null,
+          "author user id": this.userId,
+          "is subscribe": followingList.includes(this.userId),
+        });
+        // console.log("Successfully sent swipe photo event");
+      } catch (error) {
+        console.log(error);
+      }
     },
   },
   mounted() {

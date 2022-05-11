@@ -27,6 +27,7 @@ yarn-debug.log*
 yarn-error.log*
 firestore-debug.log*
 firebase-debug.log*
+pubsub-debug.log*
 /functions/firebase-debug.log*
 /functions/firestore-debug.log*
 

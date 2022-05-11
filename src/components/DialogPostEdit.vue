@@ -86,7 +86,6 @@ export default {
 
     async function editPost() {
       try {
-        console.log(props.postData);
         await store.dispatch("posts/editPost", {
           postId: props.postData.postId,
           title: newTitle.value,

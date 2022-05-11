@@ -127,7 +127,8 @@
 import { ref, computed, onMounted, onBeforeUpdate } from "vue";
 import { useStore } from "vuex";
 import { useRouter } from "vue-router";
-import { useQuasar, Platform } from "quasar";
+import { useQuasar } from "quasar";
+import amplitude from "amplitude-js";
 import Cropper from "cropperjs";
 
 export default {
@@ -253,13 +254,29 @@ export default {
       }
     }
 
-    async function saveImagesAndPreview() {
-      await setCroppedImageAndCanvasData();
-      store.commit("newPost/reorderImages");
-      cleanAndExitCropper();
-      emit("openPreview");
+    function sendEventAddImagesSuccess() {
+      const createId = store.getters["amplitude/getCreateId"];
+      const numOfImages = uploadedImagesList.value.length;
+      amplitude
+        .getInstance()
+        .logEventWithTimestamp("create - add images successful", {
+          "create id": createId,
+          "number of images": numOfImages,
+        });
+      // console.log("Successfully sent add images successful event");
     }
 
+    async function saveImagesAndPreview() {
+      try {
+        await setCroppedImageAndCanvasData();
+        store.commit("newPost/reorderImages");
+        sendEventAddImagesSuccess();
+        cleanAndExitCropper();
+        emit("openPreview");
+      } catch (error) {
+        console.log(error);
+      }
+    }
     function removeUploadedImage(uid) {
       store.commit("newPost/removeUploadedImage", uid);
     }

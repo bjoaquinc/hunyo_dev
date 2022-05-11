@@ -22,7 +22,7 @@ export async function createNotification( { commit }, { content, type, userId, r
   const notificationsRef = collection(db, 'users', userId, 'notifications');
   const docRef = await addDoc(notificationsRef, notificationData).catch(error => {throw error})
   if (docRef) {
-    console.log('Successfully added a notification: ', docRef)
+    // console.log('Successfully added a notification: ', docRef)
   }
 }
 

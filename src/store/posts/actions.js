@@ -13,14 +13,13 @@ export async function setSelectedPost ( { commit }, postId ) {
   const docRef = doc(db, 'posts', postId)
   await new Promise((resolve, reject) => {
     const unsubscribeSelectedPost = onSnapshot(docRef, (postDoc) => {
-      console.log(postDoc.data())
       if (postDoc.exists) {
         const selectedPost = {
           ...postDoc.data(),
           postId,
         }
         commit('setSelectedPost', { selectedPost, unsubscribeSelectedPost });
-        console.log('Successfully set post: ', selectedPost)
+        // console.log('Successfully set post: ', selectedPost)
         resolve()
       } else {
         throw new Error ('Could not find selected post.')
@@ -35,7 +34,7 @@ export async function editPost ( { commit }, { postId, title, content } ) {
     title,
     content
   }).catch(error => {throw error})
-  console.log('Successfully updated post.')
+  // console.log('Successfully updated post.')
 }
 
 export async function setLandingPosts ( { commit } ) {

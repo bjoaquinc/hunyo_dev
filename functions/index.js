@@ -6,6 +6,8 @@ const admin = require("firebase-admin");
 admin.initializeApp();
 const db = admin.firestore();
 exports.db = db;
+const bucket = admin.storage().bucket();
+exports.bucket = bucket;
 
 // // Create and Deploy Your First Cloud Functions
 // // https://firebase.google.com/docs/functions/write-firebase-functions
@@ -46,4 +48,5 @@ exports.removeComment = functions.firestore
 exports.denormalization = require("./denormalization");
 exports.emailtriggers = require("./emailtriggers");
 exports.follow = require("./follow");
+exports.cron = require("./cron");
 // exports.images = require("./images");

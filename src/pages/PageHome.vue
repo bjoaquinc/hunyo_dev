@@ -3,7 +3,11 @@
     <div class="row q-col-gutter-md">
       <div class="col-12 col-sm-7 q-mx-auto feed">
         <router-view v-slot="{ Component }">
-          <component :is="Component" :feedItems="feedItems" />
+          <component
+            :is="Component"
+            :feedItems="feedItems"
+            feedLocation="user feed"
+          />
         </router-view>
       </div>
     </div>
@@ -20,7 +24,9 @@ export default {
   },
   async created() {
     try {
+      this.$q.loading.show();
       await this.$store.dispatch("feed/setFeedItems");
+      this.$q.loading.hide();
     } catch (error) {
       console.log(error);
     }

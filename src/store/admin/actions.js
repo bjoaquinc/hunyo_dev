@@ -6,5 +6,5 @@ export async function editContent ( { commit }, { postId, content }) {
   await setDoc(docRef, {
     content
   }, {merge: true}).catch(error => {throw error})
-  console.log("Successfully edited doc: ")
+  // console.log("Successfully edited doc: ")
 }

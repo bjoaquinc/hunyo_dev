@@ -115,6 +115,7 @@ export default {
           await store.dispatch("folder/savePost", {
             postData: props.postData,
             folder: newFolder.value,
+            isNew: true,
           });
           if (!userData.value.admin) {
             await store.dispatch("notifications/createNotification", {
@@ -123,7 +124,7 @@ export default {
               userId: props.postData.user.id,
               route: {
                 name: "ProfileUser",
-                params: { userId: user.value.uid },
+                params: { userId: user.value.uid, source: "notification" },
               },
             });
           }

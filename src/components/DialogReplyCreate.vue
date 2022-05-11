@@ -72,7 +72,9 @@ import DialogReplyCreate from "src/components/DialogReplyCreate.vue";
 export default {
   props: [
     "commentId",
+    "commentUser",
     "postId",
+    "postUser",
     "userId",
     "isReply",
     "replyId",
@@ -108,9 +110,11 @@ export default {
       try {
         await store.dispatch("comments/createReply", {
           postId: props.postId,
+          postUser: props.postUser,
           commentId: props.commentId,
           reply: reply.value,
           replyId: props.replyId,
+          replyUser: props.replyUser,
         });
         if (
           props.userId !== user.value.uid &&

@@ -101,6 +101,7 @@ export default {
           postId: props.postId,
           comment: comment.value,
           selectedType: selectedType.value,
+          userId: props.user.id,
         });
         if (props.user.id !== user.value.uid && !userData.value.admin) {
           await store.dispatch("notifications/createNotification", {

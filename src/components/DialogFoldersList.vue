@@ -44,12 +44,7 @@
         style="width: fit-content"
       >
         <div class="flex full-width justify-between items-center">
-          <q-btn
-            flat
-            icon="fas fa-times"
-            v-close-popup
-            @click="clearStatePostData"
-          />
+          <q-btn flat icon="fas fa-times" v-close-popup @click="clearState" />
           <div class="text-h6">Save to a Folder</div>
           <div style="width: 53px; height: 36px" />
         </div>
@@ -120,7 +115,7 @@ import DialogPromptSubscribe from "src/components/DialogPromptSubscribe.vue";
 import amplitude from "amplitude-js";
 
 export default {
-  props: ["postData", "organize"],
+  props: ["postData", "organize", "source"],
   emits: [
     // REQUIRED; need to specify some events that your
     // component will emit through useDialogPluginComponent()
@@ -151,8 +146,23 @@ export default {
     }
 
     onMounted(async () => {
-      if (props.postData) {
-        store.commit("folder/setPostData", props.postData);
+      try {
+        if (props.postData && !selectedPostsList.value.length) {
+          store.commit("folder/setPostData", props.postData);
+          // Send save start event to Amplitude
+          const followingList = store.getters["subscriptions/getFollowingList"];
+          amplitude.getInstance().logEventWithTimestamp("save - start", {
+            "post id": props.postData.id,
+            source: props.source,
+            "author id": props.postData.user.id,
+            "is subscribe": followingList.includes(props.postData.user.id),
+            topics: props.postData.topics,
+          });
+          store.commit("amplitude/setFirstTimestamp");
+          // console.log("Successfully sent save start event");
+        }
+      } catch (error) {
+        console.log(error);
       }
       await setFolders();
     });
@@ -175,6 +185,7 @@ export default {
       if (folder) {
         savedLocation = folder.name;
       } else {
+        // Increment num total quicksave on Amplitude
         var identify = new amplitude.Identify().add("num total quicksave", 1);
         amplitude.getInstance().identify(identify);
       }
@@ -190,7 +201,7 @@ export default {
             userId: postData.value.user.id,
             route: {
               name: "ProfileUser",
-              params: { userId: user.value.uid },
+              params: { userId: user.value.uid, souce: "notification" },
             },
           });
         }
@@ -216,6 +227,7 @@ export default {
           });
         }
         store.commit("folder/clearStatePostData");
+        store.commit("amplitude/clearState");
       } catch (error) {
         console.log(error);
       }
@@ -236,15 +248,16 @@ export default {
       }
     }
 
-    function clearStatePostData() {
+    function clearState() {
       store.commit("folder/clearStatePostData");
+      store.commit("amplitude/clearState");
     }
 
     return {
       dialogRef,
       onDialogHide,
       q,
-      clearStatePostData,
+      clearState,
       openDialogFolderOrganize,
       folders,
       openDialogFolderCreateAndEdit,

@@ -3,7 +3,10 @@
     <q-card class="full-width" bordered flat>
       <q-item
         clickable
-        :to="{ name: userRoute, params: { userId: user.id } }"
+        :to="{
+          name: userRoute,
+          params: { userId: user.id, source: 'comment' },
+        }"
         style="width: fit-content"
       >
         <q-item-section avatar>
@@ -86,7 +89,7 @@
         /> -->
       </q-card-actions>
       <q-card-section class="q-pl-lg">
-        <ReplyList :commentId="id" :postId="postId" />
+        <ReplyList :commentId="id" :postId="postId" :postUser="postUser" />
       </q-card-section>
     </q-card>
   </div>
@@ -104,7 +107,7 @@ import DialogFlag from "src/components/DialogFlag.vue";
 import ReplyList from "src/components/ReplyList.vue";
 
 export default {
-  props: ["comment", "id", "user", "postId"],
+  props: ["comment", "id", "user", "postId", "postUser"],
   components: { ReplyList },
 
   setup(props) {
@@ -132,6 +135,7 @@ export default {
         componentProps: {
           commentId: props.id,
           postId: props.postId,
+          postUser: props.postUser,
           userId: props.user.id,
           replyMessage: props.comment,
           replyUser: props.user,

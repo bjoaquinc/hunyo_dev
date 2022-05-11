@@ -14,9 +14,12 @@
   },
   "main": "index.js",
   "dependencies": {
+    "@google-cloud/pubsub": "^2.19.4",
     "child-process-promise": "^2.2.1",
+    "crypto-js": "^4.1.1",
     "firebase-admin": "^10.0.2",
-    "firebase-functions": "^3.20.1"
+    "firebase-functions": "^3.21.0",
+    "mailchimp-api-v3": "^1.15.0"
   },
   "devDependencies": {
     "eslint": "^8.9.0",

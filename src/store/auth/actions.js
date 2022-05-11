@@ -15,21 +15,21 @@ export function setUser ( { commit, dispatch, rootGetters } ) {
       amplitude.getInstance().setUserId(user.uid)
       await dispatch('profile/setUserData', user.uid, { root: true })
       if (LocalStorage.getItem('sessionId') !== amplitude.getInstance().getSessionId()) {
-        console.log("New Session")
+        // console.log("New Session")
         LocalStorage.set('sessionId', amplitude.getInstance().getSessionId())
         // increment num total sessions
         var identify = new amplitude.Identify().add('num total sessions', 1)
         amplitude.getInstance().identify(identify)
       } else {
-        console.log("Same Session")
+        // console.log("Same Session")
       }
-      await dispatch('folder/setFolders', null, { root: true})
-      await dispatch('subscriptions/setFollowersList', null, { root: true })
-      await dispatch('subscriptions/setFollowingList', null, { root: true })
       commit('setUser', {
         user: user,
         isAuth: true
       })
+      await dispatch('folder/setFolders', null, { root: true})
+      await dispatch('subscriptions/setFollowersList', null, { root: true })
+      await dispatch('subscriptions/setFollowingList', null, { root: true })
       // ...
     } else {
       LocalStorage.remove('user')
@@ -93,6 +93,35 @@ export async function createUser ( { commit }, { email, password, name }) {
         emailAddress: email
       })
       // console.log('Successfully created User: ', user, user.uid)
+      // Set Amplitude User Properties
+      const userProperties = {
+        'member profile info': {
+          'profession': null,
+          'is verified': false,
+          'years of experience': null,
+          'employer': null,
+          'birthdate': null,
+          'company size': null,
+          'location': null,
+          'has website': false,
+          'has bio': false,
+          'has profile picture': false,
+          '# of years of experience': null,
+        },
+        'subscribers': 0,
+        'subscribed to': 0,
+        'num total sessions': 0,
+        'num total create comment': 0,
+        'num total create post': 0,
+        'num total view post': 0,
+        'num total create folder': 0,
+        'num total save post': 0,
+        'num total receive comment': 0,
+        'num total receive views': 0,
+        'num total receive save': 0,
+        'num total unorganized posts': 0,
+      }
+      amplitude.getInstance().setUserProperties(userProperties)
     } else {
       throw new Error('Could not complete signup')
     }

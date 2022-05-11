@@ -17,6 +17,10 @@
 
     <BaseCarousel
       :imagesList="imagesList"
+      :postId="postId"
+      :userId="user.id"
+      :topics="feedItem.topics"
+      :location="this.$route.meta.location === 'feed' ? 'feed' : 'profile'"
       v-if="imagesList && imagesList.length > 0"
     />
 
@@ -24,7 +28,7 @@
       clickable
       :to="{
         name: userRoute,
-        params: { userId: user.id, lastRoute: $route.name },
+        params: { userId: user.id, lastRoute: $route.name, source: 'feed' },
       }"
     >
       <q-item-section avatar>
@@ -71,7 +75,7 @@ export default {
   components: {
     BaseCarousel,
   },
-  props: ["feedItem"],
+  props: ["feedItem", "feedLocation"],
   computed: {
     imagesList() {
       if (this.feedItem.imagesList && this.feedItem.imagesList.length > 0) {
@@ -128,16 +132,12 @@ export default {
   },
   methods: {
     openDialogFoldersList() {
-      amplitude.getInstance().logEvent("save - start", {
-        "post id": this.postId,
-        source:
-          this.$route.name === "PageHome" ? "feed - post" : "profile - post",
-      });
       const postData = {
-        title: this.title,
-        id: this.postId,
-        user: this.user,
+        title: this.feedItem.title,
+        id: this.feedItem.postId,
+        user: this.feedItem.user,
         image: "",
+        topics: this.feedItem.topics,
       };
       if (this.imagesList && this.imagesList.length > 0) {
         postData.image = this.imagesList[0];
@@ -146,6 +146,7 @@ export default {
         component: DialogFoldersList,
         componentProps: {
           postData,
+          source: this.feedLocation,
         },
       });
     },
@@ -153,7 +154,10 @@ export default {
       // amplitude.getInstance().logEvent("save - click read post");
       this.$router.push({
         name: this.postRoute,
-        params: { postId: this.postId },
+        params: {
+          postId: this.postId,
+          feedLocation: this.feedLocation,
+        },
       });
     },
   },

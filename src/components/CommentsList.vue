@@ -1,7 +1,13 @@
 <template>
   <q-list bordered class="bg-white" id="comments">
     <q-item v-for="{ comment, id, user } in commentsList" :key="id">
-      <CommentItem :comment="comment" :user="user" :id="id" :postId="postId" />
+      <CommentItem
+        :comment="comment"
+        :user="user"
+        :id="id"
+        :postId="postId"
+        :postUser="postUser"
+      />
     </q-item>
   </q-list>
 </template>
@@ -13,7 +19,7 @@ import { useStore } from "vuex";
 import CommentItem from "src/components/CommentItem.vue";
 
 export default {
-  props: ["postId"],
+  props: ["postId", "postUser"],
   components: { CommentItem },
   setup(props) {
     const store = useStore();

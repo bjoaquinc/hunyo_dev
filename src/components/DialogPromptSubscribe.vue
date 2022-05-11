@@ -31,6 +31,7 @@
         <q-btn
           v-if="!isFollowing"
           @click="hasFollowItem ? toggleIsFollowing() : subscribe()"
+          :disable="disableSubscribeButton"
           color="primary"
           style="padding: 8px 15px; min-width: 300px"
           :label="`Subscribe to ${user.name.split(' ')[0]}`"
@@ -61,7 +62,8 @@
 <script>
 import { useDialogPluginComponent, useQuasar } from "quasar";
 import { useStore } from "vuex";
-import { computed, onMounted, onUnmounted } from "vue";
+import { computed, ref, onMounted, onUnmounted } from "vue";
+import amplitude from "amplitude-js";
 
 export default {
   props: ["user", "isUsersPage"],
@@ -77,6 +79,7 @@ export default {
     const followItem = computed(
       () => store.getters["subscriptions/getFollowItem"]
     );
+    const disableSubscribeButton = ref(false);
     const hasFollowItem = computed(() => (followItem.value ? true : false));
     const unsubscribeFollowItem = computed(
       () => store.getters["subscriptions/getUnsubscribeFollowItem"]
@@ -101,17 +104,52 @@ export default {
 
     async function subscribe() {
       try {
+        // Send subscribe start event to Amplitude
+        amplitude.getInstance().logEventWithTimestamp("subscribe start", {
+          "member id": props.user.id,
+          location: "save popup",
+        });
+        disableSubscribeButton.value = true;
         await store.dispatch("subscriptions/subscribe", { ...props.user });
+        // Send subscribe successful event to Amplitude
+        amplitude.getInstance().logEventWithTimestamp("subscribe successful", {
+          "member id": props.user.id,
+          location: "save popup",
+        });
+        disableSubscribeButton.value = false;
         setTimeout(() => {
           onDialogOK();
         }, 1000);
       } catch (error) {
+        disableSubscribeButton.value = false;
         console.log(error);
+        // Send subscribe error event to Amplitude
+        amplitude.getInstance().logEventWithTimestamp("subscribe error", {
+          "member id": props.user.id,
+          error,
+        });
+        // console.log("Successfully sent subscribe error");
       }
     }
 
     async function toggleIsFollowing() {
+      let toggleType = "";
       try {
+        if (followItem.value.isFollowing) {
+          amplitude.getInstance().logEventWithTimestamp("unsubscribe", {
+            "member id": props.user.id,
+            location: "pop up",
+          });
+          // console.log("Successfully sent to unsubscribe event");
+          toggleType = "unsubscribe";
+        } else {
+          amplitude.getInstance().logEventWithTimestamp("resubscribe", {
+            "member id": props.user.id,
+            location: "pop up",
+          });
+          // console.log("Successfully sent to resubscribe event");
+          toggleType = "resubscribe";
+        }
         await store.dispatch("subscriptions/toggleIsFollowing", {
           followItemId: followItem.value.id,
           isFollowing: followItem.value.isFollowing,
@@ -121,6 +159,14 @@ export default {
         }, 2000);
       } catch (error) {
         console.log(error);
+        amplitude
+          .getInstance()
+          .logEventWithTimestamp("toggle subscribe error", {
+            "member id": props.user.id,
+            error,
+            type: toggleType,
+          });
+        // console.log("Successfully sent the toggle subscribe error event");
       }
     }
 
@@ -139,6 +185,7 @@ export default {
       toggleIsFollowing,
       hasFollowItem,
       isFollowing,
+      disableSubscribeButton,
     };
   },
 };
