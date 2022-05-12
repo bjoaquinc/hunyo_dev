@@ -5,7 +5,7 @@ const functions = require("firebase-functions");
 const index = require("./index");
 const db = index.db;
 
-exports.manageUserName = functions.firestore
+exports.denormalizeUserName = functions.region("asia-southeast2").firestore
     .document("users/{userId}")
     .onUpdate( async (change, context) => {
       const newValue = change.after.data();
@@ -14,47 +14,29 @@ exports.manageUserName = functions.firestore
         return functions.logger.log("No denormalized data");
       }
       const userId = context.params.userId;
-      // Recommendations and Posts author on the feed
+      const batch = db.batch();
+      // Posts author on the feed
       const feedItemsSnapshot = await db.collection("feedItems")
           .where("user.id", "==", userId).get();
       if (!feedItemsSnapshot.empty) {
         feedItemsSnapshot.forEach((doc) => {
-          doc.ref.update({
+          batch.update(doc.ref, {
             "user.name": newValue.displayName,
-          })
-              .then((res) => functions.logger
-                  .log("Successfully updated FeedItem"))
-              .catch((err) => functions.logger.log(err));
+          });
+          functions.logger.log("Successfully updated FeedItem");
         });
       } else {
         functions.logger.log("Could not find Feed Items");
-      }
-      // Person being recommended
-      const recommendedPostsSnapshot = await db.collection("feedItems")
-          .where("postData.user.id", "==", userId).get();
-      if (!recommendedPostsSnapshot.empty) {
-        recommendedPostsSnapshot.forEach((doc) => {
-          doc.ref.update({
-            "postData.user.name": newValue.displayName,
-          })
-              .then((res) => functions.logger
-                  .log("Successfully updated Recommend Object"))
-              .catch((err) => functions.logger.log(err));
-        });
-      } else {
-        functions.logger.log("Could not find Recommend Object");
       }
       // Post cards saved inside folders
       const folderItemsSnapshot = await db.collection("folderItems")
           .where("postData.user.id", "==", userId).get();
       if (!folderItemsSnapshot.empty) {
         folderItemsSnapshot.forEach((doc) => {
-          doc.ref.update({
+          batch.update(doc.ref, {
             "postData.user.name": newValue.displayName,
-          })
-              .then((res) => functions.logger
-                  .log("Successfully updated FolderItem"))
-              .catch((err) => functions.logger.log(err));
+          });
+          functions.logger.log("Successfully updated FolderItem");
         });
       } else {
         functions.logger.log("Could not find Recommend Folder Items");
@@ -64,12 +46,10 @@ exports.manageUserName = functions.firestore
           .where("followedUser.id", "==", userId).get();
       if (!followedUserSnapshot.empty) {
         followedUserSnapshot.forEach((doc) => {
-          doc.ref.update({
+          batch.update(doc.ref, {
             "followedUser.name": newValue.displayName,
-          })
-              .then((res) => functions.logger
-                  .log("Successfully updated Followed User"))
-              .catch((err) => functions.logger.log(err));
+          });
+          functions.logger.log("Successfully updated Followed User");
         });
       } else {
         functions.logger.log("Could not find Followed User");
@@ -79,12 +59,10 @@ exports.manageUserName = functions.firestore
           .where("followingUser.id", "==", userId).get();
       if (!followingUserSnapshot.empty) {
         followingUserSnapshot.forEach((doc) => {
-          doc.ref.update({
+          batch.update(doc.ref, {
             "followingUser.name": newValue.displayName,
-          })
-              .then((res) => functions.logger
-                  .log("Successfully updated Following User"))
-              .catch((err) => functions.logger.log(err));
+          });
+          functions.logger.log("Successfully updated Following User");
         });
       } else {
         functions.logger.log("Could not find Following User");
@@ -94,12 +72,10 @@ exports.manageUserName = functions.firestore
           .where("user.id", "==", userId).get();
       if (!postsSnapshot.empty) {
         postsSnapshot.forEach((doc) => {
-          doc.ref.update({
+          batch.update(doc.ref, {
             "user.name": newValue.displayName,
-          })
-              .then((res) => functions.logger
-                  .log("Successfully updated Post Detail"))
-              .catch((err) => functions.logger.log(err));
+          });
+          functions.logger.log("Successfully updated Post Detail");
         });
       } else {
         functions.logger.log("Could not find Post Detail");
@@ -109,12 +85,10 @@ exports.manageUserName = functions.firestore
           .where("user.id", "==", userId).get();
       if (!commentsSnapshot.empty) {
         commentsSnapshot.forEach((doc) => {
-          doc.ref.update({
+          batch.update(doc.ref, {
             "user.name": newValue.displayName,
-          })
-              .then((res) => functions.logger
-                  .log("Successfully updated Comment"))
-              .catch((err) => functions.logger.log(err));
+          });
+          functions.logger.log("Successfully updated Comment");
         });
       } else {
         functions.logger.log("Could not find comments");
@@ -124,12 +98,10 @@ exports.manageUserName = functions.firestore
           .where("user.id", "==", userId).get();
       if (!repliesSnapshot.empty) {
         repliesSnapshot.forEach((doc) => {
-          doc.ref.update({
+          batch.update(doc.ref, {
             "user.name": newValue.displayName,
-          })
-              .then((res) => functions.logger
-                  .log("Successfully updated Reply"))
-              .catch((err) => functions.logger.log(err));
+          });
+          functions.logger.log("Successfully updated Reply");
         });
       } else {
         functions.logger.log("Could not find replies");
@@ -139,19 +111,19 @@ exports.manageUserName = functions.firestore
           .where("user.id", "==", userId).get();
       if (!notificationsSnapshot.empty) {
         notificationsSnapshot.forEach((doc) => {
-          doc.ref.update({
+          batch.update(doc.ref, {
             "user.name": newValue.displayName,
-          })
-              .then((res) => functions.logger
-                  .log("Successfully updated Notification"))
-              .catch((err) => functions.logger.log(err));
+          });
+          functions.logger.log("Successfully updated Notification");
         });
       } else {
         functions.logger.log("Could not find notifications");
       }
+      await batch.commit();
+      functions.logger.log("Successfully updated all names");
     });
 
-exports.manageUserPhoto = functions.firestore
+exports.denormalizeUserPhoto = functions.region("asia-southeast2").firestore
     .document("users/{userId}")
     .onUpdate( async (change, context) => {
       const newValue = change.after.data();
@@ -160,47 +132,29 @@ exports.manageUserPhoto = functions.firestore
         return functions.logger.log("No denormalized data");
       }
       const userId = context.params.userId;
-      // Recommendations and Posts author on the feed
+      const batch = db.batch();
+      // Posts author on the feed
       const feedItemsSnapshot = await db.collection("feedItems")
           .where("user.id", "==", userId).get();
       if (!feedItemsSnapshot.empty) {
         feedItemsSnapshot.forEach((doc) => {
-          doc.ref.update({
+          batch.update(doc.ref, {
             "user.photo": newValue.photoURL,
-          })
-              .then((res) => functions.logger
-                  .log("Successfully updated FeedItem"))
-              .catch((err) => functions.logger.log(err));
+          });
+          functions.logger.log("Successfully updated FeedItem");
         });
       } else {
         functions.logger.log("Could not find Feed Items");
-      }
-      // Person being recommended
-      const recommendedPostsSnapshot = await db.collection("feedItems")
-          .where("postData.user.id", "==", userId).get();
-      if (!recommendedPostsSnapshot.empty) {
-        recommendedPostsSnapshot.forEach((doc) => {
-          doc.ref.update({
-            "postData.user.photo": newValue.photoURL,
-          })
-              .then((res) => functions.logger
-                  .log("Successfully updated Recommend Object"))
-              .catch((err) => functions.logger.log(err));
-        });
-      } else {
-        functions.logger.log("Could not find Recommend Object");
       }
       // Post cards saved inside folders
       const folderItemsSnapshot = await db.collection("folderItems")
           .where("postData.user.id", "==", userId).get();
       if (!folderItemsSnapshot.empty) {
         folderItemsSnapshot.forEach((doc) => {
-          doc.ref.update({
+          batch.update(doc.ref, {
             "postData.user.photo": newValue.photoURL,
-          })
-              .then((res) => functions.logger
-                  .log("Successfully updated FolderItem"))
-              .catch((err) => functions.logger.log(err));
+          });
+          functions.logger.log("Successfully updated FolderItem");
         });
       } else {
         functions.logger.log("Could not find Recommend Folder Items");
@@ -210,12 +164,10 @@ exports.manageUserPhoto = functions.firestore
           .where("followedUser.id", "==", userId).get();
       if (!followedUserSnapshot.empty) {
         followedUserSnapshot.forEach((doc) => {
-          doc.ref.update({
+          batch.update(doc.ref, {
             "followedUser.photo": newValue.photoURL,
-          })
-              .then((res) => functions.logger
-                  .log("Successfully updated Followed User"))
-              .catch((err) => functions.logger.log(err));
+          });
+          functions.logger.log("Successfully updated Followed User");
         });
       } else {
         functions.logger.log("Could not find Followed User");
@@ -225,12 +177,10 @@ exports.manageUserPhoto = functions.firestore
           .where("followingUser.id", "==", userId).get();
       if (!followingUserSnapshot.empty) {
         followingUserSnapshot.forEach((doc) => {
-          doc.ref.update({
+          batch.update(doc.ref, {
             "followingUser.photo": newValue.photoURL,
-          })
-              .then((res) => functions.logger
-                  .log("Successfully updated Following User"))
-              .catch((err) => functions.logger.log(err));
+          });
+          functions.logger.log("Successfully updated Following User");
         });
       } else {
         functions.logger.log("Could not find Following User");
@@ -240,12 +190,10 @@ exports.manageUserPhoto = functions.firestore
           .where("user.id", "==", userId).get();
       if (!postsSnapshot.empty) {
         postsSnapshot.forEach((doc) => {
-          doc.ref.update({
+          batch.update(doc.ref, {
             "user.photo": newValue.photoURL,
-          })
-              .then((res) => functions.logger
-                  .log("Successfully updated Post Detail"))
-              .catch((err) => functions.logger.log(err));
+          });
+          functions.logger.log("Successfully updated Post Detail");
         });
       } else {
         functions.logger.log("Could not find Post Detail");
@@ -255,12 +203,10 @@ exports.manageUserPhoto = functions.firestore
           .where("user.id", "==", userId).get();
       if (!commentsSnapshot.empty) {
         commentsSnapshot.forEach((doc) => {
-          doc.ref.update({
+          batch.update(doc.ref, {
             "user.photo": newValue.photoURL,
-          })
-              .then((res) => functions.logger
-                  .log("Successfully updated Comment"))
-              .catch((err) => functions.logger.log(err));
+          });
+          functions.logger.log("Successfully updated Comment");
         });
       } else {
         functions.logger.log("Could not find comments");
@@ -270,12 +216,10 @@ exports.manageUserPhoto = functions.firestore
           .where("user.id", "==", userId).get();
       if (!repliesSnapshot.empty) {
         repliesSnapshot.forEach((doc) => {
-          doc.ref.update({
+          batch.update(doc.ref, {
             "user.photo": newValue.photoURL,
-          })
-              .then((res) => functions.logger
-                  .log("Successfully updated Reply"))
-              .catch((err) => functions.logger.log(err));
+          });
+          functions.logger.log("Successfully updated Reply");
         });
       } else {
         functions.logger.log("Could not find replies");
@@ -285,16 +229,16 @@ exports.manageUserPhoto = functions.firestore
           .where("user.id", "==", userId).get();
       if (!notificationsSnapshot.empty) {
         notificationsSnapshot.forEach((doc) => {
-          doc.ref.update({
+          batch.update(doc.ref, {
             "user.photo": newValue.photoURL,
-          })
-              .then((res) => functions.logger
-                  .log("Successfully updated Notification"))
-              .catch((err) => functions.logger.log(err));
+          });
+          functions.logger.log("Successfully updated Notification");
         });
       } else {
         functions.logger.log("Could not find notifications");
       }
+      await batch.commit();
+      functions.logger.log("Successfully updated all Profile photos");
     });
 
 exports.denormalizePostTitle = functions.firestore

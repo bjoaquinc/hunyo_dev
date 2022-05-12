@@ -7,7 +7,7 @@ export async function createNotification( { commit, rootGetters }, { content, ty
     user: {
       name: rootGetters["profile/getUserData"].displayName,
       id: rootGetters["auth/getUser"].uid,
-      photo: rootGetters["auth/getUser"].photoURL,
+      photo: rootGetters["profile/getUserData"].photoURL,
     },
     type,
     content: null,

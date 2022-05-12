@@ -12,7 +12,7 @@ export async function subscribe ( { commit, rootGetters }, {name, id, photo}) {
     followingUser: {
       name: rootGetters["profile/getUserData"].displayName,
       id: rootGetters["auth/getUser"].uid,
-      photo: rootGetters["auth/getUser"].photoURL,
+      photo: rootGetters["profile/getUserData"].photoURL,
     },
     isFollowing: true
   }).catch(error => {throw error})

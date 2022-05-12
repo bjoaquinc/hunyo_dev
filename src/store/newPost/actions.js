@@ -70,7 +70,7 @@ export async function createPost ( { commit, rootGetters }, { newPost, imagesLis
     user: {
       name: rootGetters["profile/getUserData"].displayName,
       id: rootGetters["auth/getUser"].uid,
-      photo: rootGetters["auth/getUser"].photoURL,
+      photo: rootGetters["profile/getUserData"].photoURL,
     },
   }).catch(error => {throw error})
 
@@ -107,7 +107,7 @@ export async function createPost ( { commit, rootGetters }, { newPost, imagesLis
     user: {
       name: rootGetters["profile/getUserData"].displayName,
       id: rootGetters["auth/getUser"].uid,
-      photo: rootGetters["auth/getUser"].photoURL,
+      photo: rootGetters["profile/getUserData"].photoURL,
     },
     type: 'post',
     postId: docRef.id

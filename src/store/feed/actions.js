@@ -14,7 +14,7 @@ export async function createRecommendation ( { commit, rootGetters }, { postData
     user: {
       name: rootGetters["profile/getUserData"].displayName,
       id: rootGetters["auth/getUser"].uid,
-      photo: rootGetters["auth/getUser"].photoURL,
+      photo: rootGetters["profile/getUserData"].photoURL,
     },
   }).catch(error => {throw error})
   commit('setRecommendID', docRef.id)

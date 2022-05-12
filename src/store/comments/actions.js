@@ -12,7 +12,7 @@ export async function createComment ( { commit, rootGetters }, { postId, comment
     user: {
       name: rootGetters["profile/getUserData"].displayName,
       id: rootGetters["auth/getUser"].uid,
-      photo: rootGetters["auth/getUser"].photoURL,
+      photo: rootGetters["profile/getUserData"].photoURL,
     },
     createdAt: serverTimestamp()
   }).catch(error => {throw error})
@@ -64,7 +64,7 @@ export async function createReply ( { commit, rootGetters }, { postId, postUser,
     user: {
       name: rootGetters["profile/getUserData"].displayName,
       id: rootGetters["auth/getUser"].uid,
-      photo: rootGetters["auth/getUser"].photoURL,
+      photo: rootGetters["profile/getUserData"].photoURL,
     },
     createdAt: serverTimestamp()
   }
