@@ -324,7 +324,7 @@ exports.denormalizePostTitle = functions.firestore
       }
       // Update Folder Items
       const folderItemsSnapshot = await db.collection("folderItems")
-          .where("postData.id", "==", context.params.postId).get();
+          .where("postData.id", "==", postId).get();
       if (folderItemsSnapshot.size) {
         (folderItemsSnapshot).forEach((doc) => {
           batch.update(doc.ref, {
@@ -336,3 +336,52 @@ exports.denormalizePostTitle = functions.firestore
       }
       await batch.commit();
     });
+
+exports.denormalizePostImages = functions.firestore
+    .document("posts/{postId}")
+    .onUpdate(async (change, context) => {
+      // eslint-disable-next-line max-len
+      if (!change.before.data().imagesList) return functions.logger.log("No images list available");
+      const imagesList = change.before.data().imagesList;
+      const newImagesList = change.after.data().imagesList;
+      functions.logger.log(imagesList, newImagesList);
+      // eslint-disable-next-line max-len
+      if (arrayEquals(imagesList, newImagesList)) return functions.logger.log("Images havent been changed");
+      const postId = context.params.postId;
+      const batch = db.batch();
+      // Update Feed Item
+      const feedItems = await db.collection("feedItems")
+          .where("postId", "==", postId).get();
+      if (feedItems.size) {
+        feedItems.forEach((feedItem) => {
+          batch.update(feedItem.ref, {
+            "imagesList": newImagesList,
+          });
+        });
+      } else {
+        throw new Error("Cannot find feed item");
+      }
+      // Update Folder Items
+      const folderItems = await db.collection("folderItems")
+          .where("postData.id", "==", postId).get();
+      if (folderItems.size) {
+        folderItems.forEach((folderItem) => {
+          batch.update(folderItem.ref, {
+            "postData.image": newImagesList[0],
+          });
+          functions.logger.log(`Updated image for ${folderItem.id}`);
+        });
+      } else {
+        functions.logger.log("No folder items");
+      }
+      await batch.commit();
+      functions.logger.log(`Successfully updated all images for ${postId}`);
+    });
+
+const arrayEquals = (firstList, secondList) => {
+  if (firstList.length !== secondList.length) return false;
+  for (let index = 0; index < firstList.length; index++) {
+    if (firstList[index] !== secondList[index]) return false;
+  }
+  return true;
+};

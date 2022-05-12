@@ -1,7 +1,7 @@
 import { auth, db } from "src/boot/firebase";
 import { addDoc, collection, serverTimestamp, getDocs, query, orderBy, getDoc, doc, where } from "firebase/firestore";
 
-export async function createRecommendation ( { commit }, { postData, caption }) {
+export async function createRecommendation ( { commit, rootGetters }, { postData, caption }) {
 
   // if (postData.user.id === auth.currentUser.uid) {
   //   throw new Error('You cannot recommend your own post.')
@@ -12,10 +12,10 @@ export async function createRecommendation ( { commit }, { postData, caption }) 
     postData,
     type: 'recommendation',
     user: {
-      id: auth.currentUser.uid,
-      name: auth.currentUser.displayName,
-      photo: auth.currentUser.photoURL
-    }
+      name: rootGetters["profile/getUserData"].displayName,
+      id: rootGetters["auth/getUser"].uid,
+      photo: rootGetters["auth/getUser"].photoURL,
+    },
   }).catch(error => {throw error})
   commit('setRecommendID', docRef.id)
   // console.log('Successfully created recommendation: ', docRef)

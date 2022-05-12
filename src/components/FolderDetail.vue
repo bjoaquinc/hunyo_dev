@@ -53,7 +53,7 @@
     >
       <FolderPostItem
         @click="remove ? updateRemoveList(id) : null"
-        style="max-width: 45%"
+        style="min-width: 45%; max-width: 45%"
         v-for="{ postData, id } in posts"
         :key="id"
         :id="id"

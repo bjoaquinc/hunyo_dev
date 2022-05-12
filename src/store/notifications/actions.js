@@ -1,13 +1,13 @@
 import { auth, db } from "src/boot/firebase";
 import { addDoc, collection, onSnapshot, orderBy, serverTimestamp, query, updateDoc, setDoc, doc } from "firebase/firestore";
 
-export async function createNotification( { commit }, { content, type, userId, route}) {
+export async function createNotification( { commit, rootGetters }, { content, type, userId, route}) {
   const notificationData = {
     createdAt: serverTimestamp(),
     user: {
-      id: auth.currentUser.uid,
-      name: auth.currentUser.displayName,
-      photo: auth.currentUser.photoURL
+      name: rootGetters["profile/getUserData"].displayName,
+      id: rootGetters["auth/getUser"].uid,
+      photo: rootGetters["auth/getUser"].photoURL,
     },
     type,
     content: null,

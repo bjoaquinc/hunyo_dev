@@ -237,7 +237,7 @@ export default {
             userId: userData.value.id,
             route: {
               name: "ProfileUser",
-              params: { userId: auth.currentUser.uid, source: "notification" },
+              params: { userId: currentUser.value.uid, source: "notification" },
             },
           });
         }
@@ -322,6 +322,7 @@ export default {
 
     return {
       q,
+      currentUser,
       userData,
       website,
       feedItems,

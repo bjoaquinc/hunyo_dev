@@ -3,16 +3,16 @@ import { addDoc, collection, serverTimestamp, orderBy,
   query, onSnapshot, deleteDoc, doc, updateDoc } from "firebase/firestore";
 import amplitude from "amplitude-js"
 
-export async function createComment ( { commit }, { postId, comment, selectedType, userId} ) {
+export async function createComment ( { commit, rootGetters }, { postId, comment, selectedType, userId} ) {
 
   const commentsRef = collection(db, 'posts', postId, 'comments')
   const docRef = await addDoc(commentsRef, {
     comment,
     selectedType,
     user: {
-      name: auth.currentUser.displayName,
-      id: auth.currentUser.uid,
-      photo: auth.currentUser.photoURL
+      name: rootGetters["profile/getUserData"].displayName,
+      id: rootGetters["auth/getUser"].uid,
+      photo: rootGetters["auth/getUser"].photoURL,
     },
     createdAt: serverTimestamp()
   }).catch(error => {throw error})
@@ -55,16 +55,16 @@ export function setCommentsList ( { commit }, postId) {
   })
 }
 
-export async function createReply ( { commit }, { postId, postUser, commentId, reply, replyId, replyUser } ) {
+export async function createReply ( { commit, rootGetters }, { postId, postUser, commentId, reply, replyId, replyUser } ) {
 
   const repliesRef = collection(db, 'posts', postId, 'comments', commentId, 'replies')
 
   const replyObject = {
     reply,
     user: {
-      name: auth.currentUser.displayName,
-      id: auth.currentUser.uid,
-      photo: auth.currentUser.photoURL,
+      name: rootGetters["profile/getUserData"].displayName,
+      id: rootGetters["auth/getUser"].uid,
+      photo: rootGetters["auth/getUser"].photoURL,
     },
     createdAt: serverTimestamp()
   }

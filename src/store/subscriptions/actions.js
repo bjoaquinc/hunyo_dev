@@ -1,7 +1,7 @@
 import { collection, doc, addDoc, where, orderBy, updateDoc, query, getDocs, onSnapshot, getDoc } from "firebase/firestore";
 import { db, auth } from "src/boot/firebase";
 
-export async function subscribe ( { commit }, {name, id, photo}) {
+export async function subscribe ( { commit, rootGetters }, {name, id, photo}) {
   const followItemsRef = collection(db, 'followItems')
   const docRef = await addDoc(followItemsRef, {
     followedUser: {
@@ -10,9 +10,9 @@ export async function subscribe ( { commit }, {name, id, photo}) {
       photo
     },
     followingUser: {
-      name: auth.currentUser.displayName,
-      id: auth.currentUser.uid,
-      photo: auth.currentUser.photoURL
+      name: rootGetters["profile/getUserData"].displayName,
+      id: rootGetters["auth/getUser"].uid,
+      photo: rootGetters["auth/getUser"].photoURL,
     },
     isFollowing: true
   }).catch(error => {throw error})

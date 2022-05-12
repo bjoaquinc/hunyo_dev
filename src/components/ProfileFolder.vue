@@ -82,7 +82,7 @@
       v-if="unorganizedPosts.length"
     >
       <FolderPostItem
-        style="max-width: 45%"
+        style="min-width: 45%; max-width: 45%"
         v-for="{ postData, id } in unorganizedPosts"
         :key="id"
         :id="id"

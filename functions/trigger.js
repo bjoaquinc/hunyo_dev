@@ -11,7 +11,7 @@ const pubsub = new PubSub({
   apiEndpoint: "localhost:8085",
 });
 
-const SCHEDULED_FUNCTION_TOPIC = "firebase-schedule-cron-testFunction";
+const SCHEDULED_FUNCTION_TOPIC = "firebase-schedule-cron-migrateImages";
 // eslint-disable-next-line max-len
 functions.logger.log(`Trigger schedules function via PubSub: ${SCHEDULED_FUNCTION_TOPIC}`);
 const msg = pubsub.topic(SCHEDULED_FUNCTION_TOPIC).publishJSON({

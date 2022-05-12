@@ -69,9 +69,10 @@ exports.migrateImages = functions.region("asia-southeast2")
     .onRun(async (context) => {
       const postsRefs = await db.collection("posts").listDocuments();
       for (const postRef of postsRefs) {
-        if (postRef.data().imagesList) {
+        const postDoc = await postRef.get();
+        if (postDoc.data().imagesList) {
           const postId = postRef.id;
-          const {title, imagesList} = postRef.data();
+          const {title, imagesList} = postDoc.data();
           // eslint-disable-next-line max-len
           functions.logger.log(`Migrating images for post ${postId} with title ${title}`);
           const newImagesList = [];

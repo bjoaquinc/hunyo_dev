@@ -48,10 +48,10 @@ export async function setActivityFeed ( { commit }, userId ) {
   // console.log('Successfully set User Activity Feed: ', feedList)
 }
 
-export async function uploadAndUpdatePhotoURL ({ commit }, image) {
+export async function uploadAndUpdatePhotoURL ({ commit, rootGetters }, image) {
   const blob = dataURItoBlob(image);
-  const imageId = auth.currentUser.uid
-  const storageRef = ref(storage, `profile_pics/${imageId}`)
+  const imageId = rootGetters["auth/getUser"].uid;
+  const storageRef = ref(storage, `profile_pics/${imageId}`);
 
   await uploadBytes(storageRef, blob).catch((error) => {
         throw error
@@ -65,8 +65,8 @@ export async function uploadAndUpdatePhotoURL ({ commit }, image) {
   // console.log('Successfully updated auth photoURL')
 }
 
-export async function updateUserData ( { getters }, payload) {
-  await updateDoc(doc(db, 'users', auth.currentUser.uid), {
+export async function updateUserData ( { getters, rootGetters }, payload) {
+  await updateDoc(doc(db, 'users', rootGetters["auth/getUser"].uid), {
     ...payload
   }).catch(error => {
     throw error

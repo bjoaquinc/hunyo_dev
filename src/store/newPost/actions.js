@@ -62,16 +62,16 @@ export function readUploadedFileAsDataURL (file) {
 }
 
 // create post
-export async function createPost ( { commit }, { newPost, imagesList } ) {
+export async function createPost ( { commit, rootGetters }, { newPost, imagesList } ) {
   let imageURLList = [];
   const docRef = await addDoc(collection(db, 'posts'), {
     ...newPost,
     createdAt: serverTimestamp(),
     user: {
-      id: auth.currentUser.uid,
-      name: auth.currentUser.displayName,
-      photo: auth.currentUser.photoURL
-    }
+      name: rootGetters["profile/getUserData"].displayName,
+      id: rootGetters["auth/getUser"].uid,
+      photo: rootGetters["auth/getUser"].photoURL,
+    },
   }).catch(error => {throw error})
 
   // console.log('Successfully added document: ', docRef)
@@ -105,9 +105,9 @@ export async function createPost ( { commit }, { newPost, imagesList } ) {
     isQuestion,
     createdAt: serverTimestamp(),
     user: {
-      id: auth.currentUser.uid,
-      name: auth.currentUser.displayName,
-      photo: auth.currentUser.photoURL
+      name: rootGetters["profile/getUserData"].displayName,
+      id: rootGetters["auth/getUser"].uid,
+      photo: rootGetters["auth/getUser"].photoURL,
     },
     type: 'post',
     postId: docRef.id

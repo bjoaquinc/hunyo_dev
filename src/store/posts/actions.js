@@ -1,10 +1,10 @@
 import { updateDoc, arrayUnion, doc, getDoc, collection, getDocs, query, orderBy, where, onSnapshot } from "firebase/firestore"
 import { db, auth } from "src/boot/firebase"
 
-export async function readPost ( { commit }, postId ) {
+export async function readPost ( { commit, rootGetters }, postId ) {
   const postRef = doc(db, 'posts', postId)
   await updateDoc(postRef, {
-    userReads: arrayUnion(auth.currentUser.uid),
+    userReads: arrayUnion(rootGetters["auth/getUser"].uid),
   }).catch(error => {throw error})
   // console.log('Successfully read document')
 }

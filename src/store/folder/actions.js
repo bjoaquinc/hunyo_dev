@@ -11,7 +11,7 @@ export async function savePost ( { commit, rootGetters }, { postData, folder, is
   const folderItem = {
     createdAt: serverTimestamp(),
     postData,
-    userId: auth.currentUser.uid,
+    userId: rootGetters["auth/getUser"].uid,
     isOrganized: false,
   }
   if (folder) {
@@ -58,8 +58,8 @@ export async function savePost ( { commit, rootGetters }, { postData, folder, is
   commit("amplitude/clearState", null, {root: true})
 }
 
-export async function createFolder ( { commit }, { newFolderName}) {
-  const foldersRef = collection (db, 'users', auth.currentUser.uid, 'folders')
+export async function createFolder ( { commit, rootGetters }, { newFolderName}) {
+  const foldersRef = collection (db, 'users', rootGetters["auth/getUser"].uid, 'folders')
   const docRef = await addDoc(foldersRef, {
     createdAt: serverTimestamp(),
     name: newFolderName,
@@ -70,16 +70,16 @@ export async function createFolder ( { commit }, { newFolderName}) {
   // console.log('Successfully created folder: ', docRef)
 }
 
-export async function renameFolder ( { commit }, { newFolderName, folderId } ) {
-  const folderRef = doc(db, 'users', auth.currentUser.uid, 'folders', folderId)
+export async function renameFolder ( { commit, rootGetters }, { newFolderName, folderId } ) {
+  const folderRef = doc(db, 'users', rootGetters["auth/getUser"].uid, 'folders', folderId)
   await updateDoc(folderRef, {
     name: newFolderName
   }).catch(error => {throw error})
   // console.log('Successfully updated folder name')
 }
 
-export async function setFolders ( { commit } ) {
-  const foldersRef = collection (db, 'users', auth.currentUser.uid, 'folders')
+export async function setFolders ( { commit, rootGetters } ) {
+  const foldersRef = collection (db, 'users', rootGetters["auth/getUser"].uid, 'folders')
   const q = query(foldersRef, orderBy('createdAt', 'desc'))
   const unsubscribeFolders = onSnapshot(q, (querySnapshot) => {
     const folders = []
@@ -109,8 +109,8 @@ export async function setUnorganizedPosts ( { commit, rootGetters } ) {
   })
 }
 
-export async function setPosts ( { commit }, folderId ) {
-  const q = query(folderItemsRef, where('folder.id', '==', folderId), where('userId', '==', auth.currentUser.uid), orderBy('createdAt', 'desc'))
+export async function setPosts ( { commit, rootGetters }, folderId ) {
+  const q = query(folderItemsRef, where('folder.id', '==', folderId), where('userId', '==', rootGetters["auth/getUser"].uid), orderBy('createdAt', 'desc'))
   const unsubscribePosts = onSnapshot(q, (querySnapshot) => {
     const posts = []
     querySnapshot.forEach(doc => {
@@ -135,8 +135,8 @@ export async function movePosts ( { commit }, { selectedPostsList, folder } ) {
   }
 }
 
-export async function setFolder ( { commit }, folderId ) {
-  const folderRef = doc(db, 'users', auth.currentUser.uid, 'folders', folderId);
+export async function setFolder ( { commit, rootGetters }, folderId ) {
+  const folderRef = doc(db, 'users', rootGetters["auth/getUser"].uid, 'folders', folderId);
   const unsubscribeFolder = onSnapshot(folderRef, (doc) => {
     const folder = { name: doc.data().name, id: folderId}
     commit('setFolder', { folder, unsubscribeFolder})
