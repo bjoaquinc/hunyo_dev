@@ -78,7 +78,7 @@
     <q-item v-if="!isPublic">
       <q-item-section avatar>
         <q-avatar>
-          <img :src="currentUserPhoto" />
+          <img :src="currentUserData.photoURL" />
         </q-avatar>
       </q-item-section>
 
@@ -126,8 +126,11 @@ export default {
     };
   },
   computed: {
-    currentUserPhoto() {
-      return auth.currentUser.photoURL;
+    currentUser() {
+      return this.$store.getters["auth/getUser"];
+    },
+    currentUserData() {
+      return this.$store.getters["profile/getUserData"];
     },
     isReady() {
       return this.content && this.title && this.postId && this.user
@@ -212,16 +215,18 @@ export default {
         this.visibleStartTimestamp = new Date();
       } else if (!entry.isIntersecting && this.visibleStartTimestamp) {
         // Send read post bottom event
-        const visibleEndTimestamp = new Date();
-        const duration = Math.floor(
-          (visibleEndTimestamp - this.visibleStartTimestamp) / 1000
-        );
-        const contentList = this.content.split(" ");
-        amplitude.getInstance().logEventWithTimestamp("read post bottom", {
-          duration,
-          "post id": this.postId,
-          "word count": contentList.length,
-        });
+        if (this.currentUser.uid !== this.user.id) {
+          const visibleEndTimestamp = new Date();
+          const duration = Math.floor(
+            (visibleEndTimestamp - this.visibleStartTimestamp) / 1000
+          );
+          const contentList = this.content.split(" ");
+          amplitude.getInstance().logEventWithTimestamp("read post bottom", {
+            duration,
+            "post id": this.postId,
+            "word count": contentList.length,
+          });
+        }
         this.visibleStartTimestamp = "";
       }
     },
@@ -230,7 +235,7 @@ export default {
     this.startTimestamp = new Date();
   },
   beforeUnmount() {
-    if (this.visibleStartTimestamp) {
+    if (this.visibleStartTimestamp && this.currentUser.uid !== this.user.id) {
       const visibleEndTimestamp = new Date();
       const duration = Math.floor(
         (visibleEndTimestamp - this.visibleStartTimestamp) / 1000

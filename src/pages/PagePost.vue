@@ -195,21 +195,28 @@ export default {
   },
   unmounted() {
     try {
-      // Send leave post event to Amplitude
-      const endTimestamp = new Date();
-      const duration = Math.floor((endTimestamp - this.startTimestamp) / 1000);
-      const followingList =
-        this.$store.getters["subscriptions/getFollowingList"];
-      amplitude.getInstance().logEventWithTimestamp("leave post", {
-        "post id": this.selectedPost.postId,
-        topics: this.selectedPost.topics,
-        "num total views": this.selectedPost.userReads
-          ? this.selectedPost.userReads.length
-          : 0,
-        "author id": this.selectedPost.user.id,
-        "is subscribe": followingList.includes(this.selectedPost.user.id),
-        duration,
-      });
+      if (
+        !this.isPublic &&
+        this.currentUser.uid !== this.selectedPost.user.id
+      ) {
+        // Send leave post event to Amplitude
+        const endTimestamp = new Date();
+        const duration = Math.floor(
+          (endTimestamp - this.startTimestamp) / 1000
+        );
+        const followingList =
+          this.$store.getters["subscriptions/getFollowingList"];
+        amplitude.getInstance().logEventWithTimestamp("leave post", {
+          "post id": this.selectedPost.postId,
+          topics: this.selectedPost.topics,
+          "num total views": this.selectedPost.userReads
+            ? this.selectedPost.userReads.length
+            : 0,
+          "author id": this.selectedPost.user.id,
+          "is subscribe": followingList.includes(this.selectedPost.user.id),
+          duration,
+        });
+      }
       // Unsub and clear state
       if (this.unsubscribeSelectedPost) {
         this.unsubscribeSelectedPost();
