@@ -38,6 +38,7 @@
       /> -->
       <q-btn
         @click="openDialogFoldersList"
+        v-intersection="onVisible"
         class="full-width"
         color="primary"
         icon="fas fa-folder"
@@ -98,6 +99,7 @@
 </template>
 
 <script>
+import amplitude from "amplitude-js";
 import BaseCarousel from "src/components/BaseCarousel.vue";
 import DialogCommentCreate from "src/components/DialogCommentCreate.vue";
 import DialogRecommendCreate from "src/components/DialogRecommendCreate.vue";
@@ -118,6 +120,11 @@ export default {
     "topics",
     "numUserReads",
   ],
+  data() {
+    return {
+      visibleStartTimestamp: "",
+    };
+  },
   computed: {
     currentUserPhoto() {
       return auth.currentUser.photoURL;
@@ -199,6 +206,44 @@ export default {
         },
       });
     },
+    onVisible(entry) {
+      if (entry.isIntersecting) {
+        console.log("Its in viewport!");
+        this.visibleStartTimestamp = new Date();
+      } else if (!entry.isIntersecting && this.visibleStartTimestamp) {
+        // Send read post bottom event
+        const visibleEndTimestamp = new Date();
+        const duration = Math.floor(
+          (visibleEndTimestamp - this.visibleStartTimestamp) / 1000
+        );
+        const contentList = this.content.split(" ");
+        amplitude.getInstance().logEventWithTimestamp("read post bottom", {
+          duration,
+          "post id": this.postId,
+          "word count": contentList.length,
+        });
+        this.visibleStartTimestamp = "";
+      }
+    },
+  },
+  mounted() {
+    this.startTimestamp = new Date();
+  },
+  beforeUnmount() {
+    if (this.visibleStartTimestamp) {
+      const visibleEndTimestamp = new Date();
+      const duration = Math.floor(
+        (visibleEndTimestamp - this.visibleStartTimestamp) / 1000
+      );
+      const contentList = this.content.split(" ");
+      amplitude.getInstance().logEventWithTimestamp("read post bottom", {
+        duration,
+        "post id": this.postId,
+        "word count": contentList.length,
+      });
+    } else {
+      return;
+    }
   },
 };
 </script>

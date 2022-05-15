@@ -175,7 +175,6 @@ export default {
           "post id": this.postId,
           topics: this.topics,
           location: this.location,
-          source: null,
           direction,
           "num total views": this.numUserReads ? this.numUserReads : null,
           "author user id": this.userId,

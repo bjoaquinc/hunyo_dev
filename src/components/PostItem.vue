@@ -1,34 +1,36 @@
 <template>
   <q-card flat bordered>
-    <q-card-section style="padding: 8px 0 !important">
-      <q-item class="row" clickable>
+    <q-card-section style="padding: 0 !important">
+      <q-item class="row flex column" clickable @click="readPost">
         <q-item-label
+          style="padding: 16px 0 !important"
           class="text-weight-bold flex items-center col"
           :class="
             $q.platform.is.mobile && !$q.platform.is.ipad
               ? 'text-subtitle1'
               : 'text-h6'
           "
-          @click="readPost"
           >{{ title }} / {{ formattedTopics }}</q-item-label
         >
+        <q-img
+          style="border: 1px solid rgba(0, 0, 0, 0.12)"
+          :src="imagesList[0]"
+          v-if="imagesList && imagesList.length > 0"
+        />
       </q-item>
     </q-card-section>
-
-    <BaseCarousel
-      :imagesList="imagesList"
-      :postId="postId"
-      :userId="user.id"
-      :topics="feedItem.topics"
-      :location="this.$route.meta.location === 'feed' ? 'feed' : 'profile'"
-      v-if="imagesList && imagesList.length > 0"
-    />
 
     <q-item
       clickable
       :to="{
         name: userRoute,
         params: { userId: user.id, lastRoute: $route.name, source: 'feed' },
+      }"
+      :style="{
+        borderTop:
+          imagesList && imagesList.length
+            ? ''
+            : '1px solid rgba(0, 0, 0, 0.12)',
       }"
     >
       <q-item-section avatar>
@@ -43,7 +45,7 @@
         }}</q-item-label>
       </q-item-section>
     </q-item>
-    <q-card-actions class="q-px-md">
+    <!-- <q-card-actions class="q-px-md">
       <q-btn
         v-if="!isPublic"
         @click="openDialogFoldersList"
@@ -61,7 +63,7 @@
         icon-right="fas fa-chevron-right"
         @click="readPost"
       />
-    </q-card-actions>
+    </q-card-actions> -->
   </q-card>
 </template>
 
@@ -72,9 +74,6 @@ import DialogFoldersList from "src/components/DialogFoldersList.vue";
 
 export default {
   name: "PostItem",
-  components: {
-    BaseCarousel,
-  },
   props: ["feedItem", "feedLocation"],
   computed: {
     imagesList() {

@@ -62,6 +62,11 @@ import DialogLandingPopUp from "src/components/DialogLandingPopUp.vue";
 export default {
   name: "PagePost",
   props: ["postId"],
+  data() {
+    return {
+      startTimestamp: "",
+    };
+  },
   computed: {
     isPublic() {
       return this.$route.name === "LandingPost" ? true : false;
@@ -141,7 +146,6 @@ export default {
       amplitude.getInstance().logEventWithTimestamp("save - view post", {
         "post id": this.selectedPost.postId,
         topics: this.selectedPost.topics,
-        location: "post",
         source: this.$route.params.feedLocation
           ? this.$route.params.feedLocation
           : "link",
@@ -187,12 +191,33 @@ export default {
         });
       }, 2000);
     }
+    this.startTimestamp = new Date();
   },
-  beforeRouteLeave() {
-    if (this.unsubscribeSelectedPost) {
-      this.unsubscribeSelectedPost();
+  unmounted() {
+    try {
+      // Send leave post event to Amplitude
+      const endTimestamp = new Date();
+      const duration = Math.floor((endTimestamp - this.startTimestamp) / 1000);
+      const followingList =
+        this.$store.getters["subscriptions/getFollowingList"];
+      amplitude.getInstance().logEventWithTimestamp("leave post", {
+        "post id": this.selectedPost.postId,
+        topics: this.selectedPost.topics,
+        "num total views": this.selectedPost.userReads
+          ? this.selectedPost.userReads.length
+          : 0,
+        "author id": this.selectedPost.user.id,
+        "is subscribe": followingList.includes(this.selectedPost.user.id),
+        duration,
+      });
+      // Unsub and clear state
+      if (this.unsubscribeSelectedPost) {
+        this.unsubscribeSelectedPost();
+      }
+      this.$store.commit("posts/clearStatePost");
+    } catch (error) {
+      console.log(error);
     }
-    this.$store.commit("posts/clearStatePost");
   },
 };
 </script>

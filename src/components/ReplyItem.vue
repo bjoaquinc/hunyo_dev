@@ -2,7 +2,7 @@
   <q-card class="full-width" flat>
     <q-item
       clickable
-      :to="{ name: userRoute, params: { userId: user.id, souce: 'comment' } }"
+      :to="{ name: userRoute, params: { userId: user.id, source: 'comment' } }"
       style="width: fit-content"
     >
       <q-item-section avatar>

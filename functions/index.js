@@ -12,7 +12,7 @@ exports.bucket = bucket;
 // // Create and Deploy Your First Cloud Functions
 // // https://firebase.google.com/docs/functions/write-firebase-functions
 
-exports.incrementCounter = functions.firestore
+exports.incrementCounter = functions.region("asia-southeast2").firestore
     .document("users/{userId}/notifications/{notificationId}")
     .onCreate( async (snap, context) => {
       functions.logger.log(context.params.notificationId);
@@ -26,7 +26,7 @@ exports.incrementCounter = functions.firestore
       functions.logger.log("Successfully incremented counter: ", res);
     });
 
-exports.removeComment = functions.firestore
+exports.removeComment = functions.region("asia-southeast2").firestore
     .document("posts/{postId}/comments/{commentId}")
     .onDelete( async (snapshot, context) => {
       const postId = context.params.postId;

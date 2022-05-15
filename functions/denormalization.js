@@ -241,7 +241,7 @@ exports.denormalizeUserPhoto = functions.region("asia-southeast2").firestore
       functions.logger.log("Successfully updated all Profile photos");
     });
 
-exports.denormalizePostTitle = functions.firestore
+exports.denormalizePostTitle = functions.region("asia-southeast2").firestore
     .document("posts/{postId}")
     .onUpdate(async (change, context) => {
       const title = change.before.data().title;
@@ -281,7 +281,7 @@ exports.denormalizePostTitle = functions.firestore
       await batch.commit();
     });
 
-exports.denormalizePostImages = functions.firestore
+exports.denormalizePostImages = functions.region("asia-southeast2").firestore
     .document("posts/{postId}")
     .onUpdate(async (change, context) => {
       // eslint-disable-next-line max-len
