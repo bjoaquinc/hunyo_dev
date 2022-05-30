@@ -9,7 +9,11 @@
           color="primary"
           icon="fas fa-arrow-left"
           label="Return"
-          @click="$router.go(-1)"
+          :to="
+            $router.options.history.state.back
+              ? $router.options.history.state.back
+              : { name: 'PageHome' }
+          "
           dense
           flat
         />
@@ -47,6 +51,11 @@
         :postUser="selectedPost.user"
         id="comments"
       />
+      <router-view v-slot="{ Component }">
+        <q-dialog v-model="cropperDialog" persistent maximized>
+          <component :is="Component" @closeDialog="closeDialog" />
+        </q-dialog>
+      </router-view>
     </div>
   </div>
 </template>
@@ -65,6 +74,7 @@ export default {
   data() {
     return {
       startTimestamp: "",
+      cropperDialog: false,
     };
   },
   computed: {
@@ -83,10 +93,27 @@ export default {
     unsubscribeSelectedPost() {
       return this.$store.getters["posts/getUnsubscribeSelectedPost"];
     },
+    postItem() {
+      return this.$store.getters["newPost/getPostItem"];
+    },
   },
   components: {
     PostDetail,
     CommentsList,
+  },
+  watch: {
+    $route(newValue, oldValue) {
+      if (
+        newValue.name === "FeedPostCropper" ||
+        newValue.name === "ProfilePostCropper"
+      ) {
+        if (this.postItem) {
+          this.cropperDialog = true;
+        } else {
+          this.editImages();
+        }
+      }
+    },
   },
   methods: {
     openDialogFoldersList() {
@@ -132,6 +159,18 @@ export default {
           },
         },
       });
+    },
+    async editImages() {
+      await this.$store.dispatch(
+        "newPost/setPostItem",
+        this.selectedPost.postId
+      );
+      await this.$store.dispatch("newPost/setUploadedImages");
+      this.$store.commit("newPost/generateImageOrder");
+      this.cropperDialog = true;
+    },
+    closeDialog() {
+      this.cropperDialog = false;
     },
   },
   async created() {

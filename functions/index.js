@@ -49,4 +49,4 @@ exports.denormalization = require("./denormalization");
 exports.emailtriggers = require("./emailtriggers");
 exports.follow = require("./follow");
 exports.cron = require("./cron");
-// exports.images = require("./images");
+exports.images = require("./images");

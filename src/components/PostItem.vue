@@ -1,7 +1,17 @@
 <template>
   <q-card flat bordered>
     <q-card-section style="padding: 0 !important">
-      <q-item class="row flex column" clickable @click="readPost">
+      <q-item
+        class="row flex column"
+        clickable
+        :to="{
+          name: postRoute,
+          params: {
+            postId: postId,
+            feedLocation: feedLocation,
+          },
+        }"
+      >
         <q-item-label
           style="padding: 16px 0 !important"
           class="text-weight-bold flex items-center col"
@@ -45,36 +55,20 @@
         }}</q-item-label>
       </q-item-section>
     </q-item>
-    <!-- <q-card-actions class="q-px-md">
-      <q-btn
-        v-if="!isPublic"
-        @click="openDialogFoldersList"
-        color="primary"
-        unelevated
-        icon="fas fa-folder"
-        label="Save for Later"
-      />
-      <q-space />
-      <q-btn
-        align="right"
-        color="primary"
-        flat
-        label="Read now"
-        icon-right="fas fa-chevron-right"
-        @click="readPost"
-      />
-    </q-card-actions> -->
   </q-card>
 </template>
 
 <script>
-import amplitude from "amplitude-js";
-import BaseCarousel from "src/components/BaseCarousel.vue";
 import DialogFoldersList from "src/components/DialogFoldersList.vue";
 
 export default {
   name: "PostItem",
   props: ["feedItem", "feedLocation"],
+  data() {
+    return {
+      hover: false,
+    };
+  },
   computed: {
     imagesList() {
       if (this.feedItem.imagesList && this.feedItem.imagesList.length > 0) {
@@ -146,16 +140,6 @@ export default {
         componentProps: {
           postData,
           source: this.feedLocation,
-        },
-      });
-    },
-    async readPost() {
-      // amplitude.getInstance().logEvent("save - click read post");
-      this.$router.push({
-        name: this.postRoute,
-        params: {
-          postId: this.postId,
-          feedLocation: this.feedLocation,
         },
       });
     },

@@ -29,8 +29,7 @@
       />
       <q-route-tab
         class="col q-mx-xs"
-        @click="hasDrafts ? openDialogPostCreate() : null"
-        :to="hasDrafts ? null : { name: 'PagePostNewTitle' }"
+        @click="openDialogPostCreate"
         icon="fas fa-plus"
         size="1rem"
         :ripple="false"
@@ -63,7 +62,6 @@
         flat
       />
     </q-tabs>
-    <DialogPostCreate />
   </q-footer>
 </template>
 
@@ -74,7 +72,6 @@ import { useQuasar } from "quasar";
 import DialogPostCreate from "src/components/DialogPostCreate.vue";
 
 export default {
-  components: { DialogPostCreate },
   setup() {
     const q = useQuasar();
     const store = useStore();

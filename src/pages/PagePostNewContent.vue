@@ -48,13 +48,13 @@
           round
         />
       </div>
-      <div class="flex q-mt-sm items-center" v-if="uploadedImagesList">
+      <div class="flex q-mt-sm q-mb-lg items-center" v-if="hasImages">
         <div class="flex items-center" @click="editImages">
           <div class="text-subtitle1 text-primary">
             Added
             <span class="text-weight-bold"
-              >{{ uploadedImagesList.length }}
-              {{ uploadedImagesList.length > 1 ? "images" : "image" }}</span
+              >{{ postItem.imagesList.length }}
+              {{ postItem.imagesList.length > 1 ? "images" : "image" }}</span
             >
           </div>
           <q-btn
@@ -147,16 +147,15 @@
               />
             </div>
           </q-card-section>
-          <q-card-section
-            class="flex items- q-pt-none"
-            v-if="uploadedImagesList"
-          >
+          <q-card-section class="flex items- q-pt-none" v-if="hasImages">
             <div class="flex items-center" @click="editImages">
               <div class="text-subtitle1 text-primary">
                 Added
                 <span class="text-weight-bold"
-                  >{{ uploadedImagesList.length }}
-                  {{ uploadedImagesList.length > 1 ? "images" : "image" }}</span
+                  >{{ postItem.imagesList.length }}
+                  {{
+                    postItem.imagesList.length > 1 ? "images" : "image"
+                  }}</span
                 >
               </div>
               <q-btn
@@ -181,8 +180,8 @@
           <q-card-actions>
             <q-btn
               :disable="content ? false : true"
-              @click="createPost"
-              label="Post"
+              @click="updateAndPreviewPost"
+              label="Preview"
               color="primary"
               unelevated
               class="full-width q-mt-sm"
@@ -263,7 +262,7 @@
 </template>
 
 <script>
-import { ref, computed } from "vue";
+import { ref, computed, onMounted } from "vue";
 import { useStore } from "vuex";
 import { useRouter } from "vue-router";
 import { useQuasar } from "quasar";
@@ -278,10 +277,25 @@ export default {
     DialogImageInformation,
     DropdownBestPractices,
   },
-  setup() {
+  props: ["postId"],
+  setup(props) {
     const store = useStore();
     const q = useQuasar();
     const router = useRouter();
+    const postItem = computed(() => store.getters["newPost/getPostItem"]);
+    const hasImages = computed(() =>
+      postItem.value &&
+      postItem.value.imagesList &&
+      postItem.value.imagesList.length > 0
+        ? true
+        : false
+    );
+    const unsubscribePostItem = computed(
+      () => store.getters["newPost/getUnsubscribePostItem"]
+    );
+    const userData = computed(() => store.getters["profile/getUserData"]);
+    const title = computed(() => store.getters["newPost/getTitle"]);
+    const topics = computed(() => store.getters["newPost/getTopicsList"]);
     const content = computed({
       get: () => store.getters["newPost/getContent"],
       set: (value) => store.commit("newPost/setContent", value),
@@ -290,7 +304,6 @@ export default {
     const preview = ref(false);
     const dialog = ref(false);
     const imageInput = ref(null);
-    const topics = computed(() => store.getters["newPost/getTopicsList"]);
     const uploadedImagesList = computed(
       () => store.getters["newPost/getUploadedImagesList"]
     );
@@ -299,7 +312,31 @@ export default {
     );
     const removeMessage = ref(false);
     const newPost = computed(() => store.getters["newPost/getNewPost"]);
-    const postId = computed(() => store.getters["newPost/getPostId"]);
+
+    onMounted(async () => {
+      if (!postItem.value) {
+        try {
+          await store.dispatch("newPost/setPostItem", props.postId);
+        } catch (error) {
+          if (error.message === "no post item") {
+            const data = {
+              title: title.value,
+              topics: topics.value,
+              isQuestion: isQuestion.value,
+            };
+            await store.dispatch("newPost/createPostItem", {
+              data,
+              postId: props.postId,
+            });
+            if (!userData.value.hasDrafts) {
+              await store.dispatch("profile/updateUserData", {
+                hasDrafts: true,
+              });
+            }
+          }
+        }
+      }
+    });
 
     function sendEventDescription() {
       if (content.value) {
@@ -332,14 +369,13 @@ export default {
 
     async function fileChanged(event) {
       const files = event.target.files;
-
       if (files && files.length > 0) {
         dialog.value = true;
         q.loading.show({ message: "Adding images..." });
-        await store.dispatch("newPost/setUploadedImages", { files: files });
+        await store.dispatch("newPost/setUploadedImages", { files });
         store.commit("newPost/generateImageOrder");
         q.loading.hide();
-        router.push({ name: "ImageCropper" });
+        router.push({ name: "NewPostImageCropper" });
       }
     }
 
@@ -358,21 +394,36 @@ export default {
       preview.value = true;
     }
 
-    function editImages() {
+    async function editImages() {
+      await store.dispatch("newPost/setUploadedImages");
       store.commit("newPost/generateImageOrder");
-      router.push({ name: "ImageCropper" });
+      router.push({ name: "NewPostImageCropper" });
       dialog.value = true;
     }
 
     function removeAllImages() {
-      store.commit("newPost/removeAllImages");
+      store.dispatch("newPost/removeAllImages");
     }
 
-    async function createPost() {
+    async function updateAndPreviewPost() {
+      try {
+        q.loading.show();
+        await store.dispatch("newPost/updatePostItem", {
+          postId: props.postId,
+          data: { ...newPost.value },
+        });
+        router.push({ name: "PagePreview", params: { postId: props.postId } });
+        q.loading.hide();
+      } catch (error) {
+        console.log(error);
+      }
+    }
+
+    async function publishPost() {
       try {
         // Upload Post
         q.loading.show({ message: "Uploading..." });
-        await store.dispatch("newPost/createPost", {
+        await store.dispatch("newPost/publishPost", {
           newPost: { ...newPost.value },
           imagesList: imagesList.value,
         });
@@ -389,7 +440,7 @@ export default {
             route: {
               name: "FeedPost",
               params: {
-                postId: postId.value,
+                postId: props.postId,
               },
             },
           });
@@ -419,6 +470,8 @@ export default {
       q,
       dialog,
       preview,
+      postItem,
+      hasImages,
       content,
       imageInput,
       sendEventDescription,
@@ -434,7 +487,7 @@ export default {
       removeMessage,
       removeAllImages,
       imagesList,
-      createPost,
+      updateAndPreviewPost,
     };
   },
 };

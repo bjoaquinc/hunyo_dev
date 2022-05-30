@@ -23,6 +23,21 @@ export function updateTopics (state, payload) {
   state.chosenBestPracticesList = chosenBestPracticesList
 }
 
+export function setPostItem (state, {postItem, unsubscribePostItem}) {
+  if (!state.postItem) {
+    state.postItem = postItem;
+    state.unsubscribePostItem = unsubscribePostItem;
+    state.post.title = postItem.title;
+    state.post.topics = postItem.topics;
+    state.post.isQuestion = postItem.isQuestion;
+    if (postItem.content) {
+      state.post.content = postItem.content
+    }
+  } else {
+    state.postItem = postItem
+  }
+}
+
 // best practices dropdown
 export function toggleIsMinimized (state, index) {
   state.chosenBestPracticesList[index].isMinimized = !state.chosenBestPracticesList[index].isMinimized
@@ -39,12 +54,13 @@ export function generateImageOrder (state) {
   }
 }
 
-export function addOrder (state, payload) {
+export function addOrder (state, { id }) {
   let highestOrderNumber = findHighestOrderNumber(state.uploadedImagesList)
   
   state.uploadedImagesList.forEach(image => {
-    if (image.id === payload.id) {
+    if (image.id === id) {
       image.order = highestOrderNumber + 1
+      console.log(state.uploadedImagesList)
       return
     }
   } )
@@ -116,19 +132,22 @@ export function removeUploadedImage (state, payload) {
   const imageIndex = state.uploadedImagesList.findIndex(image => {
     return image.id === payload
   })
-
   state.uploadedImagesList.splice(imageIndex, 1)
 }
 
-export function removeAllImages (state) {
+export function setDrafts (state, { drafts, unsubscribeDrafts }) {
+  state.drafts = drafts;
+  state.unsubscribeDrafts = unsubscribeDrafts;
+}
+
+export function clearStateSelectedImages (state) {
   state.uploadedImagesList = []
-  state.croppedImagesList = []
 }
 
-export function setPostId ( state, postId ) {
-  state.postId = postId
+export function clearStateDrafts (state) {
+  state.drafts = [];
+  state.unsubscribeDrafts = null;
 }
-
 
 export function clearState ( state ) {
   state.post = {
@@ -140,4 +159,6 @@ export function clearState ( state ) {
   state.uploadedImagesList = []
   state.croppedImagesList = []
   state.choseBestPracticesList = []
+  state.postItem = null;
+  state.unsubscribePostItem = null;
 }

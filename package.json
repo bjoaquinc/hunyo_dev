@@ -17,6 +17,7 @@
     "cropperjs": "^1.5.12",
     "firebase": "^9.6.7",
     "quasar": "^2.0.0",
+    "swiper": "^8.1.5",
     "vuex": "^4.0.1"
   },
   "devDependencies": {

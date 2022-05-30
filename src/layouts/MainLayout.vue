@@ -23,7 +23,9 @@
       v-if="
         !$route.path.includes('new-post') &&
         !$route.path.includes('signup') &&
-        isAuth
+        isAuth &&
+        $q.platform.is.mobile &&
+        !$q.platform.is.ipad
       "
     />
   </q-layout>
@@ -39,6 +41,7 @@ import HeaderPageUser from "src/components/HeaderPageUser.vue";
 import HeaderPagePostDrafts from "src/components/HeaderPagePostDrafts.vue";
 import HeaderPagePostNewContent from "src/components/HeaderPagePostNewContent.vue";
 import HeaderPagePostNewTitle from "src/components/HeaderPagePostNewTitle.vue";
+import HeaderPagePreview from "src/components/HeaderPagePreview.vue";
 import HeaderPageProfile from "src/components/HeaderPageProfile.vue";
 import HeaderProfileEdit from "src/components/HeaderProfileEdit.vue";
 import HeaderProfileFolder from "src/components/HeaderProfileFolder.vue";
@@ -54,6 +57,7 @@ export default {
     HeaderPageHome,
     HeaderPagePost,
     HeaderPagePostDrafts,
+    HeaderPagePreview,
     HeaderPagePostNewContent,
     HeaderPagePostNewTitle,
     HeaderPageProfile,

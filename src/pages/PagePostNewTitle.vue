@@ -95,7 +95,7 @@
       <q-card-actions>
         <q-btn
           :disable="title && topics.length > 0 ? false : true"
-          :to="{ name: 'PagePostNewContent' }"
+          :to="{ name: 'PagePostNewContent', params: { postId } }"
           label="Next"
           color="primary"
           unelevated
@@ -115,6 +115,7 @@ export default {
   components: {
     DialogSaveDraft,
   },
+  props: ["postId"],
   data() {
     return {
       options: ["Details", "Materials", "Methods", "Design Approaches"],
@@ -122,9 +123,6 @@ export default {
     };
   },
   computed: {
-    topicsList() {
-      return this.$store.getters["newPost/getTopicsList"];
-    },
     title: {
       get() {
         return this.$store.getters["newPost/getTitle"];
@@ -160,10 +158,16 @@ export default {
     content() {
       return this.$store.getters["newPost/getContent"];
     },
-    images() {
-      return this.$store.getters["newPost/getUploadedImagesList"]
-        ? this.$store.getters["newPost/getUploadedImagesList"].length
-        : 0;
+    hasImages() {
+      if (
+        this.postItem &&
+        this.postItem.imagesList &&
+        this.postItem.imagesList.length
+      ) {
+        return true;
+      } else {
+        return false;
+      }
     },
     user() {
       const user = this.$store.getters["auth/getUser"];
@@ -175,8 +179,18 @@ export default {
     createId() {
       return this.$store.getters["amplitude/getCreateId"];
     },
+    newPost() {
+      return this.$store.getters["newPost/getNewPost"];
+    },
+    postItem() {
+      return this.$store.getters["newPost/getPostItem"];
+    },
+    unsubscribePostItem() {
+      return this.$store.getters["newPost/getUnsubscribePostItem"];
+    },
   },
   created() {
+    // Send create start event
     let createId = this.$store.getters["amplitude/getCreateId"];
     if (!createId) {
       try {
@@ -192,6 +206,7 @@ export default {
         console.log(error);
       }
     }
+    // Open community guidlines if unsigned
     if (!this.userData.hasSignedGuidelines) {
       this.$q
         .dialog({
@@ -208,7 +223,13 @@ export default {
         });
     } else {
       // console.log("Has signed agreement");
-      return;
+    }
+    // Set post item if it exists
+    if (this.postItem) return;
+    try {
+      this.$store.dispatch("newPost/setPostItem", this.postId);
+    } catch (error) {
+      console.log(error);
     }
   },
   methods: {
@@ -251,52 +272,79 @@ export default {
             component: DialogSaveDraft,
           })
           .onOk(() => {
-            resolve("ok");
+            resolve("save");
           })
           .onCancel(() => {
-            resolve("not ok");
+            resolve("delete");
           });
       });
     },
-  },
-  async beforeRouteLeave(to) {
-    try {
+    sendLeavePostEvent(event) {
       const firstTimestamp = this.$store.getters["amplitude/getFirstTimestamp"];
       const lastTimestamp = Date.now();
       const duration = Math.round((lastTimestamp - firstTimestamp) / 1000);
       const createId = this.$store.getters["amplitude/getCreateId"];
-      if (this.title && to.name !== "PagePostNewContent") {
-        // const result = await this.confirmSaveDraft();
-        // console.log(result);
-        // Send create - delete event to Amplitude
-        amplitude.getInstance().logEventWithTimestamp("create - delete", {
-          "create id": createId,
-          duration,
-          "has topics": this.topics.length ? true : false,
-          "has title": true,
-          "has content": this.content ? true : false,
-          "is question": this.isQuestion,
-          "has images": this.images ? true : false,
+      const eventProperties = {
+        "create id": createId,
+        duration,
+        "has topics": this.topics.length ? true : false,
+        "has title": this.title ? true : false,
+        "has content": this.content ? true : false,
+        "is question": this.isQuestion,
+        "has images": this.hasImages,
+      };
+      amplitude.getInstance().logEventWithTimestamp(event, eventProperties);
+      return;
+    },
+    async cleanAndExitNewPost() {
+      try {
+        await new Promise((resolve, reject) => {
+          if (this.unsubscribePostItem) {
+            this.unsubscribePostItem();
+          }
+          this.$store.commit("newPost/clearState");
+          this.$store.commit("amplitude/clearState");
+          this.$q.loading.hide();
+          resolve("Successfully cleared state");
         });
-        // console.log("Successfully sent create delete event to Amplitude");
-        this.$store.commit("newPost/clearState");
-        this.$store.commit("amplitude/clearState");
-      } else if (to.name !== "PagePostNewContent") {
-        // Send create - delete event to Amplitude
-        amplitude.getInstance().logEventWithTimestamp("create - delete", {
-          "create id": createId,
-          duration,
-          "has topics": this.topics.length ? true : false,
-          "has title": false,
-          "has content": this.content ? true : false,
-          "is question": this.isQuestion,
-          "has images": this.images ? true : false,
-        });
-        // console.log("Successfully sent create delete event to Amplitude");
-        this.$store.commit("newPost/clearState");
-        this.$store.commit("amplitude/clearState");
-      } else {
+      } catch (error) {
+        console.log(error);
+      }
+    },
+  },
+  async beforeRouteLeave(to) {
+    try {
+      if (to.name === "PagePostNewContent") {
         return;
+      } else {
+        if (this.postItem) {
+          const result = await this.confirmSaveDraft();
+          if (result === "delete") {
+            this.$q.loading.show({
+              message: "Removing draft",
+            });
+            await this.$store.dispatch("newPost/deletePostItem", {
+              postId: this.postId,
+            });
+            await this.$store.dispatch("newPost/toggleHasDrafts");
+            this.sendLeavePostEvent("create - delete");
+            await this.cleanAndExitNewPost();
+          } else {
+            this.$q.loading.show({
+              message: "Saving draft",
+            });
+            await this.$store.dispatch("newPost/updatePostItem", {
+              postId: this.postId,
+              data: { ...this.newPost },
+            });
+            this.sendLeavePostEvent("create - save draft");
+            await this.cleanAndExitNewPost();
+            return;
+          }
+        } else {
+          this.sendLeavePostEvent("create - delete");
+          await this.cleanAndExitNewPost();
+        }
       }
     } catch (error) {
       console.log(error);

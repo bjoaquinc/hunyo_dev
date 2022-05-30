@@ -21,6 +21,9 @@ export default {
     feedItems() {
       return this.$store.getters["feed/getFeedItems"];
     },
+    postItem() {
+      return this.$store.getters["newPost/getPostItem"];
+    },
   },
   async created() {
     try {

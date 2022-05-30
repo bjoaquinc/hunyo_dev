@@ -65,39 +65,49 @@
 // };
 
 // exports.migrateImages = functions.region("asia-southeast2")
-//     .pubsub.schedule("* * * * *")
+//     .pubsub.schedule("30 10 28 * *")
 //     .timeZone("Asia/Manila")
 //     .onRun(async (context) => {
 //       const postsRefs = await db.collection("posts").listDocuments();
 //       for (const postRef of postsRefs) {
 //         const postDoc = await postRef.get();
+//         const postId = postRef.id;
+//         const {title, imagesList} = postDoc.data();
+//         // eslint-disable-next-line max-len
+//         functions.logger.log(`Migrating images for post ${postId} with title ${title}`);
 //         if (postDoc.data().imagesList) {
-//           const postId = postRef.id;
-//           const {title, imagesList} = postDoc.data();
-//           // eslint-disable-next-line max-len
-//           functions.logger.log(`Migrating images for post ${postId} with title ${title}`);
 //           const newImagesList = [];
 //           for (const imageURL of imagesList) {
 //             try {
 //               const imageName = urlToFileName(imageURL);
 //               const imagePath = `images/${imageName}`;
 //               const newImagePath = `images/${postId}/${imageName}`;
-//               await bucket.file(imagePath)
-//                   .move(newImagePath);
+//               const file = bucket.file(imagePath);
+//               const data = await file.exists();
+//               const exists = data[0];
+//               if (!exists) {
+//                 functions.logger.log("File does not exist in storage");
+//                 break;
+//               }
+//               await file.move(newImagePath);
 //               // eslint-disable-next-line max-len
 //               functions.logger.log(`Successfully moved image with name ${imageName}`);
 //               const newFile = bucket.file(newImagePath);
 //               const publicURL = newFile.publicUrl();
 //               newImagesList.push(publicURL);
 //             } catch (error) {
-//               functions.logger.log(error);
+//               return functions.logger.log(error);
 //             }
 //           }
 //           try {
-//             await db.collection("posts").doc(postId).update({
-//               imagesList: newImagesList,
-//             });
-//             functions.logger.log("Successfully updated images list!");
+//             if (newImagesList.length > 0) {
+//               await db.collection("posts").doc(postId).update({
+//                 imagesList: newImagesList,
+//               });
+//               functions.logger.log("Successfully updated images list!");
+//             } else {
+//               functions.logger.log("No images moved");
+//             }
 //           } catch (error) {
 //             functions.logger.log(error);
 //             functions.logger.log("Failed to update images list");

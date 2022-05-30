@@ -7,6 +7,7 @@ import PagePost from 'src/pages/PagePost.vue'
 import PagePostNewTitle from 'src/pages/PagePostNewTitle.vue'
 import PagePostNewContent from 'src/pages/PagePostNewContent.vue'
 import PagePostDrafts from 'src/pages/PagePostDrafts.vue'
+import PagePreview from 'src/pages/PagePreview.vue'
 import PageSignUp from 'src/pages/PageSignUp.vue'
 import PageLanding from 'src/pages/PageLanding.vue'
 import PageSettings from 'src/pages/PageSettings.vue'
@@ -52,14 +53,17 @@ const routes = [
       ] },
       { path: '/', component: PageHome, meta: { location: 'feed' }, children: [
         { path: '', component: FeedList, name: 'PageHome', meta: { header: 'HeaderPageHome' } },
-        { path: 'posts/:postId', component: PagePost, name: 'FeedPost', props: true,  meta: { header: 'HeaderPagePost' } },
+        { path: 'posts/:postId', component: PagePost, name: 'FeedPost', props: true,  meta: { header: 'HeaderPagePost' }, children: [
+          { path: 'cropper', component: ImageCropper, name: 'FeedPostCropper'}
+        ] },
         { path: 'members/:userId', component: UserDetail, name: 'FeedUser', props: true,  meta: { header: 'HeaderPageUser' } }
       ] },
       { path: '/new-post/drafts', component: PagePostDrafts, name: 'PagePostDrafts', meta: { header: 'HeaderPagePostDrafts' } },
-      { path: '/new-post/title', component: PagePostNewTitle, name: 'PagePostNewTitle',  meta: { header: 'HeaderPagePostNewTitle', withoutDesktopHeader: true }  },
-      { path: '/new-post/content', component: PagePostNewContent, name: 'PagePostNewContent', meta: { header: 'HeaderPagePostNewContent', withoutDesktopHeader: true } , children: [
-        { path: 'cropper', component: ImageCropper, name: 'ImageCropper' }
+      { path: '/new-post/title/:postId', component: PagePostNewTitle, name: 'PagePostNewTitle', props: true,  meta: { header: 'HeaderPagePostNewTitle', withoutDesktopHeader: true }  },
+      { path: '/new-post/content/:postId', component: PagePostNewContent, name: 'PagePostNewContent', props: true, meta: { header: 'HeaderPagePostNewContent', withoutDesktopHeader: true } , children: [
+        { path: 'cropper', component: ImageCropper, name: 'NewPostImageCropper' }
       ] },
+      { path: '/new-post/preview/:postId' , component: PagePreview, name: 'PagePreview', props: true, meta: { header: 'HeaderPagePreview', withoutDesktopHeader: true }},
       { path: '/activity', component: PageActivity, name: 'PageActivity',  meta: { header: 'HeaderPageActivity' } },
       { path: '/profile', component: PageProfile, meta: { location: 'profile' }, children: [
         { path: '', component: ProfileDetail, name: 'PageProfile', meta: { header: 'HeaderPageProfile' } },
@@ -68,7 +72,9 @@ const routes = [
         ] },
         { path: 'folder', component: ProfileFolder, name: 'ProfileFolder', meta: { header: 'HeaderProfileFolder' } },
         { path: 'folder/:folderId', component: FolderDetail, name: 'FolderDetail', props: true, meta: { header: 'HeaderFolderDetail' } },
-        { path: 'posts/:postId', component: PagePost, name: 'ProfilePost', props: true, meta: { header: 'HeaderPagePost' } },
+        { path: 'posts/:postId', component: PagePost, name: 'ProfilePost', props: true, meta: { header: 'HeaderPagePost' }, children: [
+          { path: 'cropper', component: ImageCropper, name: 'ProfilePostCropper'}
+        ] },
         { path: 'members/:userId', component: UserDetail, name: 'ProfileUser', props: true, meta: { header: 'HeaderPageUser' }},
         { path: 'recommendations/:recommendId', component: ProfileRecommendDetail, name: 'ProfileRecommendDetail', props: true, meta: { header: 'HeaderProfileRecommendDetail' }}
       ] },

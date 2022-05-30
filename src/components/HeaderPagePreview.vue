@@ -1,23 +1,22 @@
 <template>
-  <q-toolbar class="constrain lt-sm bg-white">
+  <q-toolbar class="constrain lt-sm bg-white" v-if="postItem">
     <q-btn
       color="secondary"
       icon="fas fa-chevron-left"
       class="same-width"
       align="left"
-      :to="{ name: 'PagePostNewTitle' }"
+      :to="{ name: 'PagePostNewContent', params: { postId: postItem.id } }"
       size="sm"
       dense
       flat
     />
 
-    <q-toolbar-title class="text-center">Create Post</q-toolbar-title>
+    <q-toolbar-title class="text-center text-red">Preview</q-toolbar-title>
 
     <q-btn
-      @click="updateAndPreviewPost"
-      :disable="isIncomplete"
+      @click="publishPost"
       color="primary"
-      label="Preview"
+      label="Post"
       class="same-width"
       align="right"
       size="md"
@@ -38,29 +37,21 @@ export default {
     const store = useStore();
     const router = useRouter();
     const q = useQuasar();
-    const newPost = computed(() => store.getters["newPost/getNewPost"]);
     const postItem = computed(() => store.getters["newPost/getPostItem"]);
+    const unsubscribePostItem = computed(
+      () => store.getters["newPost/unsubscribePostItem"]
+    );
 
-    const isIncomplete = computed(() => {
-      return newPost.value.topics.length &&
-        newPost.value.title &&
-        newPost.value.content
-        ? false
-        : true;
-    });
-
-    async function updateAndPreviewPost() {
+    async function publishPost() {
       try {
-        console.log(postItem.value.id, newPost.value);
-        q.loading.show();
-        await store.dispatch("newPost/updatePostItem", {
-          postId: postItem.value.id,
-          data: { ...newPost.value },
+        q.loading.show({
+          message: "Uploading...",
         });
-        router.push({
-          name: "PagePreview",
-          params: { postId: postItem.value.id },
-        });
+        await store.dispatch("newPost/publishPost");
+        if (unsubscribePostItem.value) unsubscribePostItem.value();
+        store.commit("newPost/clearState");
+        store.commit("amplitude/clearState");
+        router.push({ name: "PageHome" });
         q.loading.hide();
       } catch (error) {
         console.log(error);
@@ -68,8 +59,8 @@ export default {
     }
 
     return {
-      isIncomplete,
-      updateAndPreviewPost,
+      publishPost,
+      postItem,
     };
   },
 };

@@ -13,7 +13,7 @@
       <q-toolbar-title class="text-center">Crop</q-toolbar-title>
 
       <q-btn
-        @click="saveImagesAndPreview"
+        @click="saveImages"
         label="Done"
         class="same-width"
         align="right"
@@ -126,7 +126,7 @@
 <script>
 import { ref, computed, onMounted, onBeforeUpdate } from "vue";
 import { useStore } from "vuex";
-import { useRouter } from "vue-router";
+import { useRouter, useRoute } from "vue-router";
 import { useQuasar } from "quasar";
 import amplitude from "amplitude-js";
 import Cropper from "cropperjs";
@@ -135,6 +135,7 @@ export default {
   setup(_1, { emit }) {
     const store = useStore();
     const router = useRouter();
+    const route = useRoute();
     const q = useQuasar();
     const uploadedImagesList = computed(
       () => store.getters["newPost/getUploadedImagesList"]
@@ -148,6 +149,7 @@ export default {
     const selectorWidthPercentage = computed(() =>
       q.platform.is.mobile && !q.platform.is.ipad ? 25 : 20
     );
+    const postItem = computed(() => store.getters["newPost/getPostItem"]);
 
     onBeforeUpdate(() => {
       imgRefList.value = [];
@@ -186,7 +188,8 @@ export default {
       return selectedImage.value === uid ? true : false;
     }
 
-    function removeImage() {
+    async function removeImage() {
+      q.loading.show("Removing image...");
       const image = uploadedImagesList.value.find(
         (imageObject) => imageObject.id === selectedImage.value
       );
@@ -194,14 +197,13 @@ export default {
       const cropperObject = croppersList.value.find(
         (cropperObject) => image.id === cropperObject.id
       );
-
+      removeOrder(image.id, image.order);
+      await store.dispatch("newPost/removeUploadedImage", image.id);
       cropperObject.cropper.destroy();
       croppersList.value.splice(imageIndex, 1);
       imgRefList.value.splice(imageIndex, 1);
-
-      removeOrder(image.id, image.order);
-      removeUploadedImage(image.id);
       selectedImage.value = uploadedImagesList.value[0].id;
+      q.loading.hide();
     }
 
     function removeOrder(uid, order) {
@@ -212,46 +214,56 @@ export default {
       store.commit("newPost/addOrder", { id: uid });
     }
 
-    function cleanAndExitCropper() {
-      croppersList.value.forEach((cropperObject) => {
-        cropperObject.cropper.destroy();
-      });
-      store.commit("newPost/removeUnsavedImages");
-      emit("closeDialog");
-      router.push({ name: "PagePostNewContent" });
+    async function saveImages() {
+      q.loading.show();
+      try {
+        const orderedImagesList = reorderImages();
+        const imagesListWithCropData = await getCropData(orderedImagesList);
+        await store.dispatch(
+          "newPost/uploadAndCropImagesList",
+          imagesListWithCropData
+        );
+        sendEventAddImagesSuccess();
+        cleanAndExitCropper();
+        q.loading.hide();
+      } catch (error) {
+        console.log(error);
+        q.loading.hide();
+      }
     }
 
-    async function setCroppedImageAndCanvasData() {
-      const croppedImageRefs = [];
-      for (let index = 0; index < croppersList.value.length; index++) {
-        const { fileType, cropper } = croppersList.value[index];
-        const croppedImage = await cropper
-          .getCroppedCanvas({
-            maxWidth: 1080,
-            maxHeight: 1080,
-            imageSmoothingQuality: "high",
-          })
-          .toDataURL(fileType);
-        const canvasData = await cropper.getCanvasData();
+    function reorderImages() {
+      const orderedImagesList = [];
+      // Generate image order if null
+      uploadedImagesList.value.forEach((image) => {
+        if (!image.order) {
+          store.commit("newPost/addOrder", { id: image.id });
+        }
+      });
+      // Create new reference list with id and order
+      uploadedImagesList.value.forEach((image) => {
+        orderedImagesList.push({ id: image.id, order: image.order });
+      });
+      // Sort images according to order
+      orderedImagesList.sort((a, b) => {
+        return a.order - b.order;
+      });
+      return orderedImagesList;
+    }
 
-        store.commit("newPost/setCroppedImageAndCanvasData", {
-          croppedImage: croppedImage,
-          canvasData: canvasData,
-          index: index,
-        });
-        // const data = await cropper.getData();
-        // console.log("Data: ", data);
-        // try {
-        //   const imageRef = await store.dispatch("newPost/cropImage", {
-        //     file: uploadedImagesList.value[index].file,
-        //     id: uploadedImagesList.value[index].id,
-        //     cropData: data,
-        //     contentType: fileType,
-        //   });
-        // } catch (error) {
-        //   console.log(error);
-        // }
+    async function getCropData(orderedImagesList) {
+      const imagesListWithCropData = [];
+      for (const image of orderedImagesList) {
+        const { id } = image;
+        const cropper = croppersList.value.find((cropperObject) => {
+          if (cropperObject.id === id) {
+            return true;
+          }
+        }).cropper;
+        const cropData = await cropper.getData();
+        imagesListWithCropData.push({ id, cropData });
       }
+      return imagesListWithCropData;
     }
 
     function sendEventAddImagesSuccess() {
@@ -266,30 +278,31 @@ export default {
       // console.log("Successfully sent add images successful event");
     }
 
-    async function saveImagesAndPreview() {
-      try {
-        await setCroppedImageAndCanvasData();
-        store.commit("newPost/reorderImages");
-        sendEventAddImagesSuccess();
-        cleanAndExitCropper();
-        emit("openPreview");
-      } catch (error) {
-        console.log(error);
+    function cleanAndExitCropper() {
+      emit("closeDialog");
+      router.go(-1);
+      croppersList.value.forEach((cropperObject) => {
+        cropperObject.cropper.destroy();
+      });
+      store.commit("newPost/clearStateSelectedImages");
+      if (route.name !== "NewPostImageCropper") {
+        const unsubscribePostItem =
+          store.getters["newPost/getUnsubscribePostItem"];
+        if (unsubscribePostItem) unsubscribePostItem();
+        store.commit("newPost/clearState");
       }
-    }
-    function removeUploadedImage(uid) {
-      store.commit("newPost/removeUploadedImage", uid);
     }
 
     return {
       uploadedImagesList,
       imgRefList,
+      croppersList,
       selectImage,
       isSelectedImage,
       removeOrder,
       addOrder,
       cleanAndExitCropper,
-      saveImagesAndPreview,
+      saveImages,
       removeMessage,
       removeImage,
       cropperContainer,

@@ -1,3 +1,5 @@
+import state from "./state"
+
 export function getPostsList (state) {
   return state.postsList
 }
@@ -16,6 +18,14 @@ export function getUploadedImagesList (state) {
   if (state.uploadedImagesList && state.uploadedImagesList.length > 0) {
     return state.uploadedImagesList
   }
+}
+
+export function getPostItem (state) {
+  return state.postItem;
+}
+
+export function getUnsubscribePostItem (state) {
+  return state.unsubscribePostItem;
 }
 
 export function getTitle (state) {
@@ -42,6 +52,10 @@ export function getHasDrafts (state) {
   return state.hasDrafts
 }
 
-export function getPostId (state) {
-  return state.postId
+export function getDrafts (state) {
+  return state.drafts;
+}
+
+export function getUnsubscribeDrafts (state) {
+  return state.unsubscribeDrafts;
 }

@@ -36,7 +36,6 @@
       </q-tab>
       <q-route-tab
         @click="openDialogPostCreate()"
-        :to="hasDrafts ? null : { name: 'PagePostNewTitle' }"
         icon="fas fa-plus"
         no-caps
         flat
@@ -130,7 +129,6 @@
         </div>
       </div>
     </q-btn-dropdown>
-    <DialogPostCreate />
   </q-toolbar>
 </template>
 
@@ -144,7 +142,6 @@ import DialogEditContent from "src/components/admin/DialogEditContent.vue";
 export default {
   components: {
     NotificationsList,
-    DialogPostCreate,
   },
   props: ["pageHeader"],
   data() {
@@ -154,9 +151,6 @@ export default {
     };
   },
   computed: {
-    hasDrafts() {
-      return this.$store.getters["getHasDrafts"];
-    },
     user() {
       return this.$store.getters["auth/getUser"];
     },

@@ -8,9 +8,7 @@ export default function () {
       isQuestion: false,
       content: '',
     },
-    postId: '',
     uploadedImagesList: [],
-    croppedImagesList: [],
     bestPracticesList: [
       {topic: 'Details', isMinimized: true, practicesList: [
         'Lorem ipsum dolor sit amet consectetur adipisicing elit. ',
@@ -42,5 +40,9 @@ export default function () {
       ]}
     ],
     chosenBestPracticesList: [],
+    postItem: null,
+    unsubscribePostItem: null,
+    drafts: [],
+    unsubscribeDrafts: null,
   }
 }

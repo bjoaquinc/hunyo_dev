@@ -25,7 +25,7 @@ const analytics = getAnalytics(firebaseApp);
 const storage = getStorage(firebaseApp)
 const auth = getAuth()
 const db = getFirestore()
-const functions = getFunctions(getApp());
+const functions = getFunctions(getApp(), 'asia-southeast2');
 
 // collection ref
 const postsRef = collection(db, 'posts')
