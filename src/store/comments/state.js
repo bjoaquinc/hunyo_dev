@@ -4,7 +4,6 @@ export default function () {
     replies: {},
     unsubscribeComments: null,
     unsubscribeRepliesList: [],
-    commentId: '',
-    replyId: ''
+    images: [],
   }
 }

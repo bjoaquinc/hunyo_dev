@@ -21,21 +21,13 @@
     />
 
     <q-card-section class="q-pt-md">
-      <div style="white-space: pre-wrap">
-        {{ content }}
-      </div>
+      <div
+        style="white-space: pre-wrap"
+        v-html="sanitizeDisplayText(content)"
+      />
     </q-card-section>
 
     <q-card-actions align="around" v-if="!isPublic">
-      <!-- <q-btn
-        @click="openDialogRecommendCreate"
-        color="primary"
-        icon="fas fa-check"
-        label="Recommend"
-        size="md"
-        flat
-        style="width: 45%"
-      /> -->
       <q-btn
         @click="openDialogFoldersList"
         v-intersection="onVisible"
@@ -102,8 +94,8 @@
 import amplitude from "amplitude-js";
 import BaseCarousel from "src/components/BaseCarousel.vue";
 import DialogCommentCreate from "src/components/DialogCommentCreate.vue";
-import DialogRecommendCreate from "src/components/DialogRecommendCreate.vue";
 import DialogFoldersList from "src/components/DialogFoldersList.vue";
+import { sanitizeDisplayText } from "src/logic/Sanitize.js";
 import { auth } from "src/boot/firebase";
 
 export default {
@@ -165,6 +157,10 @@ export default {
     },
   },
   methods: {
+    sanitizeDisplayText(text) {
+      const sanitizedText = sanitizeDisplayText(text);
+      return sanitizedText;
+    },
     openDialogFoldersList() {
       const postData = {
         title: this.title,
@@ -190,22 +186,6 @@ export default {
         componentProps: {
           postId: this.postId,
           user: this.user,
-        },
-      });
-    },
-    openDialogRecommendCreate() {
-      this.$q.dialog({
-        component: DialogRecommendCreate,
-        componentProps: {
-          postData: {
-            image:
-              this.imagesList && this.imagesList.length
-                ? this.imagesList[0]
-                : null,
-            title: this.title,
-            id: this.postId,
-            user: this.user,
-          },
         },
       });
     },
@@ -235,7 +215,7 @@ export default {
     this.startTimestamp = new Date();
   },
   beforeUnmount() {
-    if (this.visibleStartTimestamp && this.currentUser.uid !== this.user.id) {
+    if (this.visibleStartTimestamp && this.currentUser && this.currentUser.uid !== this.user.id) {
       const visibleEndTimestamp = new Date();
       const duration = Math.floor(
         (visibleEndTimestamp - this.visibleStartTimestamp) / 1000

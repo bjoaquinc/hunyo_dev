@@ -1,25 +1,5 @@
-import { auth, db } from "src/boot/firebase";
-import { addDoc, collection, serverTimestamp, getDocs, query, orderBy, getDoc, doc, where } from "firebase/firestore";
-
-export async function createRecommendation ( { commit, rootGetters }, { postData, caption }) {
-
-  // if (postData.user.id === auth.currentUser.uid) {
-  //   throw new Error('You cannot recommend your own post.')
-  // }
-  const docRef = await addDoc(collection(db, 'feedItems'), {
-    createdAt: serverTimestamp(),
-    caption,
-    postData,
-    type: 'recommendation',
-    user: {
-      name: rootGetters["profile/getUserData"].displayName,
-      id: rootGetters["auth/getUser"].uid,
-      photo: rootGetters["profile/getUserData"].photoURL,
-    },
-  }).catch(error => {throw error})
-  commit('setRecommendID', docRef.id)
-  // console.log('Successfully created recommendation: ', docRef)
-}
+import { db } from "src/boot/firebase";
+import { collection, getDocs, query, orderBy, getDoc, doc, where } from "firebase/firestore";
 
 export async function setFeedItems ( { commit } ) {
   const feedItemsList = []

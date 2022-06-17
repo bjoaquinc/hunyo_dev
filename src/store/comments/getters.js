@@ -14,10 +14,6 @@ export function getUnsubscribeComments (state ) {
   return state.unsubscribeComments
 }
 
-export function getCommentId ( state ) {
-  return state.commentId
-}
-
-export function getReplyId ( state ) {
-  return state.replyId
+export function getImages ( state ) {
+  return state.images;
 }

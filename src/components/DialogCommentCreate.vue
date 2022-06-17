@@ -33,17 +33,63 @@
       <q-card-actions class="fullwidth q-mb-sm q-px-md">
         <q-input
           type="textarea"
+          :loading="loadingImages"
           autogrow
           v-model="comment"
           class="q-mx-none full-width"
           hint="Write your comment"
           label="Comment"
+        >
+          <template v-slot:append>
+            <q-icon
+              v-if="!loadingImages"
+              name="fas fa-camera"
+              @click="manageUploader"
+              class="cursor-pointer"
+            />
+          </template>
+        </q-input>
+        <input
+          @change="fileChanged"
+          :style="{ display: 'none' }"
+          accept="image/*"
+          ref="imageInput"
+          type="file"
+          multiple
         />
       </q-card-actions>
+      <q-card-section
+        v-if="images && images.length > 0"
+        horizontal
+        style="display: flex; flex-wrap: wrap !important"
+      >
+        <div
+          style="width: 100px; max-height: 100px"
+          class="flex items-center q-ml-md"
+          v-for="{ id, value } in images"
+          :key="id"
+        >
+          <q-img
+            fit="scale-down"
+            class="rounded-borders"
+            :src="value"
+            :img-style="{ maxHeight: '100px', maxWidth: 'auto' }"
+          />
+        </div>
+        <q-btn
+          label="Remove all"
+          @click="removeImages"
+          color="negative"
+          class="q-ml-md"
+          flat
+          dense
+        />
+      </q-card-section>
       <q-card-actions class="full-width q-mb-md q-px-md">
         <q-btn
           @click="createComment"
           :disable="comment && selectedType ? false : true"
+          d
           class="full-width"
           color="primary"
           label="Post Comment"
@@ -64,7 +110,6 @@ import DialogCommentCreate from "src/components/DialogCommentCreate.vue";
 
 export default {
   props: ["postId", "user", "commentDraft", "commentDraftTopic"],
-
   emits: [
     // REQUIRED; need to specify some events that your
     // component will emit through useDialogPluginComponent()
@@ -79,11 +124,13 @@ export default {
       "Appreciation with Reason",
       "Constructive Feedback",
     ]);
+    const imageInput = ref(null);
     const selectedType = ref("");
     const comment = ref("");
-    const commentId = computed(() => store.getters["comments/getCommentId"]);
     const user = computed(() => store.getters["auth/getUser"]);
     const userData = computed(() => store.getters["profile/getUserData"]);
+    const loadingImages = ref(false);
+    const images = computed(() => store.getters["comments/getImages"]);
 
     onMounted(() => {
       if (props.commentDraft) {
@@ -92,17 +139,41 @@ export default {
       }
     });
 
+    function manageUploader() {
+      imageInput.value.click();
+    }
+
+    async function fileChanged(event) {
+      try {
+        loadingImages.value = true;
+        const files = event.target.files;
+        await store.dispatch("comments/setUploadedImages", files);
+        imageInput.value.value = null;
+        loadingImages.value = false;
+      } catch (error) {}
+    }
+
+    async function removeImages() {
+      store.commit("comments/clearStateImages");
+    }
+
     async function createComment() {
       q.loading.show({
         message: "Posting comment",
       });
       try {
-        await store.dispatch("comments/createComment", {
+        // Upload comment to database
+        const commentId = await store.dispatch("comments/createComment", {
           postId: props.postId,
           comment: comment.value,
           selectedType: selectedType.value,
           userId: props.user.id,
         });
+        // Upload images to storage and update imagesList for comment
+        if (images.value && images.value.length > 0) {
+          await resizeAndUploadImages(commentId);
+        }
+        // Send a notification to the post author
         if (props.user.id !== user.value.uid && !userData.value.admin) {
           await store.dispatch("notifications/createNotification", {
             type: "postComment",
@@ -119,6 +190,7 @@ export default {
         }
         selectedType.value = "";
         comment.value = "";
+        store.commit("comments/clearStateImages");
         onDialogHide();
         q.loading.hide();
       } catch (error) {
@@ -127,13 +199,24 @@ export default {
       }
     }
 
+    async function resizeAndUploadImages(commentId) {
+      try {
+        await store.dispatch("comments/resizeAndUploadImages", {
+          commentId,
+          postId: props.postId,
+        });
+      } catch (error) {
+        console.log(error);
+      }
+    }
+
     onBeforeUnmount(() => {
-      if (!comment.value) return;
+      if (!comment.value) return store.commit("comments/clearStateImages");
       q.dialog({
         component: DialogPromptDiscard,
       })
         .onOk(() => {
-          return;
+          return store.commit("comments/clearStateImages");
         })
         .onCancel(() => {
           q.dialog({
@@ -154,8 +237,14 @@ export default {
       onDialogHide,
       types,
       selectedType,
+      imageInput,
       comment,
       createComment,
+      manageUploader,
+      fileChanged,
+      loadingImages,
+      images,
+      removeImages,
     };
   },
 };

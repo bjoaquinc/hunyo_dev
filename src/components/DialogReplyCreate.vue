@@ -35,22 +35,70 @@
           </q-item-label>
         </q-item-section>
       </q-item>
-      <q-card-section class="q-py-none">
-        {{ replyMessage }}
-      </q-card-section>
+      <q-card-section
+        class="q-py-none"
+        style="white-space: pre-wrap"
+        v-html="sanitizeDisplayText(replyMessage)"
+      />
       <q-card-actions class="fullwidth q-mb-sm q-px-md">
         <q-input
           autofocus
+          type="textarea"
+          :loading="loadingImages"
           autogrow
-          v-model="reply"
+          v-model="newReply"
           class="q-mx-none full-width"
           label="Reply"
+        >
+          <template v-slot:append>
+            <q-icon
+              v-if="!loadingImages"
+              name="fas fa-camera"
+              @click="manageUploader"
+              class="cursor-pointer"
+            />
+          </template>
+        </q-input>
+        <input
+          @change="fileChanged"
+          :style="{ display: 'none' }"
+          accept="image/*"
+          ref="imageInput"
+          type="file"
+          multiple
         />
       </q-card-actions>
+      <q-card-section
+        v-if="images && images.length > 0"
+        horizontal
+        style="display: flex; flex-wrap: wrap !important"
+      >
+        <div
+          style="width: 100px; max-height: 100px"
+          class="flex items-center q-ml-md"
+          v-for="{ id, value } in images"
+          :key="id"
+        >
+          <q-img
+            fit="scale-down"
+            class="rounded-borders"
+            :src="value"
+            :img-style="{ maxHeight: '100px', maxWidth: 'auto' }"
+          />
+        </div>
+        <q-btn
+          label="Remove all"
+          @click="removeImages"
+          color="negative"
+          class="q-ml-md"
+          flat
+          dense
+        />
+      </q-card-section>
       <q-card-actions class="full-width q-mb-md q-px-md">
         <q-btn
           @click="createReply"
-          :disable="reply ? false : true"
+          :disable="newReply ? false : true"
           class="full-width"
           color="primary"
           label="Post Reply"
@@ -66,6 +114,7 @@
 import { useDialogPluginComponent, useQuasar } from "quasar";
 import { useStore } from "vuex";
 import { ref, computed, onBeforeUnmount, onMounted } from "vue";
+import { sanitizeDisplayText } from "src/logic/Sanitize.js";
 import DialogPromptDiscard from "src/components/DialogPromptDiscard.vue";
 import DialogReplyCreate from "src/components/DialogReplyCreate.vue";
 
@@ -76,11 +125,10 @@ export default {
     "postId",
     "postUser",
     "userId",
-    "isReply",
     "replyId",
     "replyMessage",
     "replyUser",
-    "replyDraft",
+    "newReplyDraft",
   ],
 
   emits: [
@@ -92,50 +140,58 @@ export default {
     const { dialogRef, onDialogHide } = useDialogPluginComponent();
     const q = useQuasar();
     const store = useStore();
-    const selectedType = ref("");
-    const reply = ref("");
+    const newReply = ref("");
+    const imageInput = ref(null);
     const user = computed(() => store.getters["auth/getUser"]);
-    const userData = computed(() => store.getters["profile/getUserData"]);
+    const images = computed(() => store.getters["comments/getImages"]);
+    const loadingImages = ref(false);
 
     onMounted(() => {
-      if (props.replyDraft) {
-        reply.value = props.replyDraft;
+      if (props.newReplyDraft) {
+        newReply.value = props.newReplyDraft;
       }
     });
+
+    function manageUploader() {
+      imageInput.value.click();
+    }
+
+    async function fileChanged(event) {
+      try {
+        loadingImages.value = true;
+        const files = event.target.files;
+        await store.dispatch("comments/setUploadedImages", files);
+        imageInput.value.value = null;
+        loadingImages.value = false;
+      } catch (error) {}
+    }
+
+    async function removeImages() {
+      store.commit("comments/clearStateImages");
+    }
 
     async function createReply() {
       q.loading.show({
         message: "Posting comment",
       });
       try {
-        await store.dispatch("comments/createReply", {
+        // Upload comment to database
+        const newReplyId = await store.dispatch("comments/createReply", {
           postId: props.postId,
           postUser: props.postUser,
           commentId: props.commentId,
-          reply: reply.value,
+          newReply: newReply.value,
           replyId: props.replyId,
           replyUser: props.replyUser,
         });
-        if (
-          props.userId !== user.value.uid &&
-          !userData.value.admin &&
-          !props.isReply
-        ) {
+        // Upload images to storage and update imagesList for comment
+        if (images.value && images.value.length > 0) {
+          await resizeAndUploadImages(props.commentId, newReplyId);
+        }
+        // Send notification to comment or reply author
+        if (props.userId !== user.value.uid) {
           await store.dispatch("notifications/createNotification", {
-            content: reply.value,
-            type: "postReply",
-            userId: props.userId,
-            route: {
-              name: "FeedPost",
-              params: {
-                postId: props.postId,
-              },
-              hash: `#comments`,
-            },
-          });
-        } else if (props.userId !== user.value.uid && props.isReply) {
-          await store.dispatch("notifications/createNotification", {
-            content: reply.value,
+            content: newReply.value,
             type: "postReply",
             userId: props.userId,
             route: {
@@ -147,7 +203,9 @@ export default {
             },
           });
         }
-        reply.value = "";
+        // Clear data and state and close dialog
+        store.commit("comments/clearStateImages");
+        newReply.value = "";
         onDialogHide();
         q.loading.hide();
       } catch (error) {
@@ -156,13 +214,25 @@ export default {
       }
     }
 
+    async function resizeAndUploadImages(commentId, newReplyId) {
+      try {
+        await store.dispatch("comments/resizeAndUploadImages", {
+          replyId: newReplyId,
+          commentId,
+          postId: props.postId,
+        });
+      } catch (error) {
+        console.log(error);
+      }
+    }
+
     onBeforeUnmount(async () => {
-      if (!reply.value) return;
+      if (!newReply.value) return store.commit("comments/clearStateImages");
       q.dialog({
         component: DialogPromptDiscard,
       })
         .onOk(() => {
-          return;
+          return store.commit("comments/clearStateImages");
         })
         .onCancel(() => {
           q.dialog({
@@ -170,12 +240,12 @@ export default {
             componentProps: {
               commentId: props.commentId,
               postId: props.postId,
+              postUser: props.postUser,
               userId: props.userId,
-              isReply: props.isReply,
               replyId: props.replyId,
               replyMessage: props.replyMessage,
               replyUser: props.replyUser,
-              replyDraft: reply.value,
+              newReplyDraft: newReply.value,
             },
           });
           return;
@@ -186,8 +256,14 @@ export default {
       q,
       dialogRef,
       onDialogHide,
-      selectedType,
-      reply,
+      sanitizeDisplayText,
+      images,
+      loadingImages,
+      newReply,
+      imageInput,
+      manageUploader,
+      fileChanged,
+      removeImages,
       createReply,
     };
   },

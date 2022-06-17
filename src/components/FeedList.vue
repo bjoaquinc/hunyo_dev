@@ -16,14 +16,12 @@
 </template>
 
 <script>
-import RecommendItem from "src/components/RecommendItem.vue";
 import PostItem from "src/components/PostItem.vue";
 
 export default {
   props: ["feedItems", "feedLocation"],
   components: {
     post: PostItem,
-    recommendation: RecommendItem,
   },
   methods: {
     type(index) {

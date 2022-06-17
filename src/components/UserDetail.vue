@@ -25,7 +25,7 @@
         </div>
         <q-btn
           v-if="!isPublic"
-          @click="followItem ? toggleIsFollowing() : subscribe()"
+          @click="followItem ? toggleSubscribed() : subscribe()"
           color="primary"
           class="q-ml-auto"
           :label="isFollowing ? 'Subscribed' : 'Subscribe'"
@@ -168,22 +168,6 @@ export default {
       route.name === "LandingUser" ? true : false
     );
 
-    async function setUserData(userId) {
-      try {
-        await store.dispatch("users/setUserData", userId);
-      } catch (error) {
-        console.log(error);
-      }
-    }
-
-    async function setActivityFeed(userId) {
-      try {
-        await store.dispatch("users/setActivityFeed", userId);
-      } catch (error) {
-        console.log(error);
-      }
-    }
-
     onMounted(async () => {
       if (currentUser.value && props.userId === currentUser.value.uid) {
         router.push({ name: "PageProfile" });
@@ -217,6 +201,22 @@ export default {
         }
       }
     });
+
+    async function setUserData(userId) {
+      try {
+        await store.dispatch("users/setUserData", userId);
+      } catch (error) {
+        console.log(error);
+      }
+    }
+
+    async function setActivityFeed(userId) {
+      try {
+        await store.dispatch("users/setActivityFeed", userId);
+      } catch (error) {
+        console.log(error);
+      }
+    }
 
     async function subscribe() {
       try {
@@ -258,7 +258,7 @@ export default {
       }
     }
 
-    async function toggleIsFollowing() {
+    async function toggleSubscribed() {
       let toggleType = "";
       try {
         if (followItem.value.isFollowing) {
@@ -276,7 +276,7 @@ export default {
           // console.log("Successfully sent to resubscribe event");
           toggleType = "resubscribe";
         }
-        await store.dispatch("subscriptions/toggleIsFollowing", {
+        await store.dispatch("subscriptions/toggleSubscribed", {
           followItemId: followItem.value.id,
           isFollowing: followItem.value.isFollowing,
         });
@@ -327,7 +327,7 @@ export default {
       website,
       feedItems,
       subscribe,
-      toggleIsFollowing,
+      toggleSubscribed,
       sendEventClickWebsite,
       isPublic,
       followItem,

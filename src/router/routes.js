@@ -33,9 +33,7 @@ import SettingsTerms from 'src/components/SettingsTerms.vue'
 import SettingsPrivacy from 'src/components/SettingsPrivacy.vue'
 import UserDetail from 'src/components/UserDetail.vue'
 import FolderDetail from 'src/components/FolderDetail.vue'
-import ProfileRecommendDetail from 'src/components/ProfileRecommendDetail.vue'
 import DialogProfileImageCropper from 'src/components/DialogProfileImageCropper.vue'
-
 
 
 const routes = [
@@ -76,7 +74,6 @@ const routes = [
           { path: 'cropper', component: ImageCropper, name: 'ProfilePostCropper'}
         ] },
         { path: 'members/:userId', component: UserDetail, name: 'ProfileUser', props: true, meta: { header: 'HeaderPageUser' }},
-        { path: 'recommendations/:recommendId', component: ProfileRecommendDetail, name: 'ProfileRecommendDetail', props: true, meta: { header: 'HeaderProfileRecommendDetail' }}
       ] },
       { path: 'signup', component: PageSignUp, meta: { withoutDesktopHeader: true }, children: [
         { path: '', component: SignUpNameAndEmail },
@@ -92,12 +89,6 @@ const routes = [
       ]}
     ]
   },
-
-  {
-    path: '/user-item',
-    component: () => import('src/components/UserItem.vue')
-  },
-
   // Always leave this as last one,
   // but you can also remove it
   {

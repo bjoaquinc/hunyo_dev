@@ -43,10 +43,6 @@ export function clearStateFeed (state) {
   state.activityFeed = null
 }
 
-export function setRecommendItem ( state, recommendItem ) {
-  state.recommendItem = recommendItem
-}
-
 export function clearStateUserData ( state ) {
   state.userData.createdAt = null
   state.userData.email = ''

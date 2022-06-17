@@ -1,4 +1,4 @@
-<template @scroll="logEvent">
+<template>
   <router-view />
 </template>
 <script>

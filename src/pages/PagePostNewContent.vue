@@ -419,53 +419,6 @@ export default {
       }
     }
 
-    async function publishPost() {
-      try {
-        // Upload Post
-        q.loading.show({ message: "Uploading..." });
-        await store.dispatch("newPost/publishPost", {
-          newPost: { ...newPost.value },
-          imagesList: imagesList.value,
-        });
-        // Send notifications to followers
-        const followersList = computed(
-          () => store.getters["subscriptions/getFollowersList"]
-        );
-        for (let index = 0; index < followersList.value.length; index++) {
-          const followingUser = followersList.value[index].followingUser;
-          await store.dispatch("notifications/createNotification", {
-            type: "followPost",
-            content: newPost.value.title,
-            userId: followingUser.id,
-            route: {
-              name: "FeedPost",
-              params: {
-                postId: props.postId,
-              },
-            },
-          });
-        }
-        // Send an amplitude event
-        const createId = store.getters["amplitude/getCreateId"];
-        const firstTimestamp = store.getters["amplitude/getFirstTimestamp"];
-        const lastTimestamp = Date.now();
-        const duration = Math.round((lastTimestamp - firstTimestamp) / 1000);
-        amplitude.getInstance().logEventWithTimestamp("create - create post", {
-          "create id": createId,
-          duration,
-        });
-        // console.log("Successfully sent create post event");
-        // Clear state
-        store.commit("newPost/clearState");
-        store.commit("amplitude/clearState");
-        q.loading.hide();
-        router.push({ name: "PageHome" });
-      } catch (error) {
-        console.log(error);
-        q.loading.hide();
-      }
-    }
-
     return {
       q,
       dialog,

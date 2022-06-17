@@ -66,13 +66,11 @@ export default {
   setup() {
     const { dialogRef, onDialogHide } = useDialogPluginComponent();
     const q = useQuasar();
-    const recommendMessage = ref("");
 
     return {
       dialogRef,
       onDialogHide,
       q,
-      recommendMessage,
     };
   },
 };

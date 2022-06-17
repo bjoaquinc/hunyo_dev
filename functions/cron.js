@@ -9,6 +9,7 @@
 
 // const CRON_SCHEDULE = "* * * * *";
 
+
 // exports.cronMailChimp = functions.region("asia-southeast2")
 //     .pubsub.schedule(CRON_SCHEDULE)
 //     .timeZone("Asia/Manila")
@@ -124,10 +125,3 @@
 //   const fileNameClean = fileNameRaw.split("%2F")[1].split("?")[0];
 //   return fileNameClean;
 // };
-
-// exports.testFunction = functions.region("asia-southeast2")
-//     .pubsub.schedule("* * * * *")
-//     .timeZone("Asia/Manila")
-//     .onRun((context) => {
-//       functions.logger.log("Hello World");
-//     });

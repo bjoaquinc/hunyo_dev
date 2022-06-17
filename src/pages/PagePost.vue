@@ -236,6 +236,7 @@ export default {
     try {
       if (
         !this.isPublic &&
+        this.currentUser &&
         this.currentUser.uid !== this.selectedPost.user.id
       ) {
         // Send leave post event to Amplitude

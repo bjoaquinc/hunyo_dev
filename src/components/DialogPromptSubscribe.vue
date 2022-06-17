@@ -30,7 +30,7 @@
       <q-card-actions class="q-mb-md flex column items-center justify-center">
         <q-btn
           v-if="!isFollowing"
-          @click="hasFollowItem ? toggleIsFollowing() : subscribe()"
+          @click="hasFollowItem ? toggleSubscribed() : subscribe()"
           :disable="disableSubscribeButton"
           color="primary"
           style="padding: 8px 15px; min-width: 300px"
@@ -132,7 +132,7 @@ export default {
       }
     }
 
-    async function toggleIsFollowing() {
+    async function toggleSubscribed() {
       let toggleType = "";
       try {
         if (followItem.value.isFollowing) {
@@ -150,7 +150,7 @@ export default {
           // console.log("Successfully sent to resubscribe event");
           toggleType = "resubscribe";
         }
-        await store.dispatch("subscriptions/toggleIsFollowing", {
+        await store.dispatch("subscriptions/toggleSubscribed", {
           followItemId: followItem.value.id,
           isFollowing: followItem.value.isFollowing,
         });
@@ -182,7 +182,7 @@ export default {
       onDialogHide,
       q,
       subscribe,
-      toggleIsFollowing,
+      toggleSubscribed,
       hasFollowItem,
       isFollowing,
       disableSubscribeButton,

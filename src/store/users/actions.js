@@ -15,12 +15,19 @@ export async function setActivityFeed ( { commit }, userId ) {
 }
 
 export async function setUserData ( { commit }, userId) {
-  const unsubscribeUser = onSnapshot(doc(db, 'users', userId), (doc) => {
-    const userData = {...doc.data(), id: doc.id}
-    commit('setUserData', { userData, unsubscribeUser})
-    // console.log('Successfully got User Data: ', userData)
-  }, (error) => {
-    // console.log('Could not subscribe to userdata')
-    throw error
+  await new Promise( (resolve, reject) => {
+    const unsubscribeUser = onSnapshot(doc(db, 'users', userId), (doc) => {
+      if (doc.exists()) {
+        const userData = {...doc.data(), id: doc.id}
+        commit('setUserData', { userData, unsubscribeUser})
+        resolve();
+        // console.log('Successfully got User Data: ', userData)
+      } else {
+        reject("Could not find user");
+      }
+    }, (error) => {
+      // console.log('Could not subscribe to userdata')
+      reject(error)
+    })
   })
 }

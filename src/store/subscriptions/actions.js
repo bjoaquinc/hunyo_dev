@@ -20,7 +20,7 @@ export async function subscribe ( { commit, rootGetters }, {name, id, photo}) {
   // console.log('Successfully created the follow item: ', docRef)
 }
 
-export async function toggleIsFollowing ( { commit }, {followItemId, isFollowing}) {
+export async function toggleSubscribed ( { commit }, {followItemId, isFollowing}) {
   const followItemRef = doc(db, 'followItems', followItemId)
   await updateDoc(followItemRef, {
     isFollowing: !isFollowing
@@ -31,18 +31,22 @@ export async function toggleIsFollowing ( { commit }, {followItemId, isFollowing
 export async function setFollowItem ( { commit, rootGetters }, id) {
   const followItemsRef = collection(db, 'followItems')
   const q = query(followItemsRef, where('followedUser.id', '==', id), where('followingUser.id', '==', rootGetters['auth/getUser'].uid))
-
-  const unsubscribeFollowItem = onSnapshot(q, (querySnapshot) => {
-    querySnapshot.forEach(doc => {
-      // console.log('doc: ', doc)
-      if (doc) {
-        commit('setFollowItem', { followItem: {...doc.data(), id: doc.id}, unsubscribeFollowItem})
-        // console.log('Successfully set the follow item: ', doc.data())
-      }
-      
+  await new Promise((resolve, reject) => {
+    const unsubscribeFollowItem = onSnapshot(q, (querySnapshot) => {
+      querySnapshot.forEach(doc => {
+        // console.log('doc: ', doc)
+        if (doc.exists()) {
+          commit('setFollowItem', { followItem: {...doc.data(), id: doc.id}, unsubscribeFollowItem})
+          resolve();
+          // console.log('Successfully set the follow item: ', doc.data())
+        } else {
+          unsubscribeFollowItem();
+          reject("Could not find follow item.");
+        }
+      })
+    }, (error) => {
+      reject(error)
     })
-  }, (error) => {
-    throw error
   })
 }
 

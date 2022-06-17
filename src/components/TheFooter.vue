@@ -77,7 +77,6 @@ export default {
     const store = useStore();
     const hasDrafts = computed(() => store.getters["getHasDrafts"]);
     const userData = computed(() => store.getters["profile/getUserData"]);
-    const user = computed(() => store.getters["auth/getUser"]);
 
     function openDialogPostCreate() {
       q.dialog({

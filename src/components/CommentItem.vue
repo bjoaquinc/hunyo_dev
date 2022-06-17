@@ -23,8 +23,36 @@
           </q-item-label>
         </q-item-section>
       </q-item>
-      <q-card-section>
-        {{ comment }}
+      <q-card-section
+        v-html="sanitizeDisplayText(comment)"
+        style="white-space: pre-wrap"
+      >
+      </q-card-section>
+      <q-card-section
+        v-if="thumbnailList && thumbnailList.length > 0"
+        horizontal
+        class="q-mt-sm"
+        style="display: flex; flex-wrap: wrap !important; padding: 0 !important"
+      >
+        <div
+          style="
+            width: 100px;
+            max-height: 100px;
+            border: 1px solid rgba(0, 0, 0, 0.12);
+            cursor: pointer;
+          "
+          @click="openDialogCommentImage(imagesList[index])"
+          class="flex items-center q-ml-md"
+          v-for="(thumbnail, index) in thumbnailList"
+          :key="index"
+        >
+          <q-img
+            fit="scale-down"
+            class="rounded-borders"
+            :src="thumbnail"
+            :img-style="{ maxHeight: '100px', maxWidth: 'auto' }"
+          />
+        </div>
       </q-card-section>
       <q-card-actions>
         <q-btn
@@ -77,16 +105,6 @@
             </q-item>
           </q-list>
         </q-btn-dropdown>
-        <!-- <q-btn
-          @click="deleteComment"
-          v-if="isYours"
-          flat
-          size="sm"
-          dense
-          color="primary"
-          icon="fas fa-times"
-          label="Remove"
-        /> -->
       </q-card-actions>
       <q-card-section class="q-pl-lg">
         <ReplyList :commentId="id" :postId="postId" :postUser="postUser" />
@@ -103,11 +121,21 @@ import { useRoute } from "vue-router";
 import DialogReplyCreate from "src/components/DialogReplyCreate.vue";
 import DialogCommentEdit from "src/components/DialogCommentEdit.vue";
 import DialogPromptDelete from "src/components/DialogPromptDelete.vue";
+import DialogCommentImage from "src/components/DialogCommentImage.vue";
 import DialogFlag from "src/components/DialogFlag.vue";
 import ReplyList from "src/components/ReplyList.vue";
+import { sanitizeDisplayText } from "src/logic/Sanitize";
 
 export default {
-  props: ["comment", "id", "user", "postId", "postUser"],
+  props: [
+    "comment",
+    "id",
+    "user",
+    "postId",
+    "thumbnailList",
+    "imagesList",
+    "postUser",
+  ],
   components: { ReplyList },
 
   setup(props) {
@@ -128,6 +156,13 @@ export default {
     const isYours = computed(() => {
       return props.user.id === user.value.uid ? true : false;
     });
+
+    function openDialogCommentImage(image) {
+      q.dialog({
+        component: DialogCommentImage,
+        componentProps: { image },
+      });
+    }
 
     function openDialogReplyCreate() {
       q.dialog({
@@ -165,6 +200,7 @@ export default {
         await store.dispatch("comments/deleteComment", {
           commentId: props.id,
           postId: props.postId,
+          imagesList: props.imagesList,
         });
       } catch (error) {
         console.log(error);
@@ -183,10 +219,12 @@ export default {
     return {
       openDialogReplyCreate,
       openDialogCommentEdit,
+      openDialogCommentImage,
       openDialogFlag,
       userRoute,
       isYours,
       openDialogPromptDelete,
+      sanitizeDisplayText,
     };
   },
 };

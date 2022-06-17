@@ -28,19 +28,6 @@ exports.denormalizeUserName = functions.region("asia-southeast2").firestore
       } else {
         functions.logger.log("Could not find Feed Items");
       }
-      // Post cards saved inside folders
-      const folderItemsSnapshot = await db.collection("folderItems")
-          .where("postData.user.id", "==", userId).get();
-      if (!folderItemsSnapshot.empty) {
-        folderItemsSnapshot.forEach((doc) => {
-          batch.update(doc.ref, {
-            "postData.user.name": newValue.displayName,
-          });
-          functions.logger.log("Successfully updated FolderItem");
-        });
-      } else {
-        functions.logger.log("Could not find Recommend Folder Items");
-      }
       // Followed User in Follow Items
       const followedUserSnapshot = await db.collection("followItems")
           .where("followedUser.id", "==", userId).get();
@@ -145,19 +132,6 @@ exports.denormalizeUserPhoto = functions.region("asia-southeast2").firestore
         });
       } else {
         functions.logger.log("Could not find Feed Items");
-      }
-      // Post cards saved inside folders
-      const folderItemsSnapshot = await db.collection("folderItems")
-          .where("postData.user.id", "==", userId).get();
-      if (!folderItemsSnapshot.empty) {
-        folderItemsSnapshot.forEach((doc) => {
-          batch.update(doc.ref, {
-            "postData.user.photo": newValue.photoURL,
-          });
-          functions.logger.log("Successfully updated FolderItem");
-        });
-      } else {
-        functions.logger.log("Could not find Recommend Folder Items");
       }
       // Followed User in Follow Items
       const followedUserSnapshot = await db.collection("followItems")

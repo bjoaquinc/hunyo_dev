@@ -58,6 +58,7 @@
 import { useDialogPluginComponent, useQuasar } from "quasar";
 import { useStore } from "vuex";
 import { ref, computed, onMounted } from "vue";
+import sanitizeHtml from "sanitize-html";
 
 export default {
   props: ["commentId", "postId", "replyId", "reply"],
@@ -74,8 +75,17 @@ export default {
     const replyNew = ref("");
 
     onMounted(() => {
-      replyNew.value = props.reply;
+      const processedReply = sanitize(props.reply);
+      replyNew.value = processedReply;
     });
+
+    function sanitize(dirty) {
+      const clean = sanitizeHtml(dirty, {
+        allowedTags: [],
+        allowedAttributes: {},
+      });
+      return clean;
+    }
 
     async function editReply() {
       try {

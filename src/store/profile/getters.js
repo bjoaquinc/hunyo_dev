@@ -25,7 +25,3 @@ export function newProfilePicture ( state ) {
 export function getUnsubscribeUser ( state ) {
   return state.unsubscribeUser
 }
-
-export function getRecommendItem ( state ) {
-  return state.recommendItem
-}

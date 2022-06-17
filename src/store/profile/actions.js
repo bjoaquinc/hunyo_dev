@@ -128,16 +128,3 @@ function dataURItoBlob(dataURI) {
   var blob = new Blob([ab], { type: mimeString });
   return blob;
 }
-
-
-export async function setRecommendItem ( { commit }, recommendId) {
-  const feedItemRef = doc(db, 'feedItems', recommendId)
-
-  const docSnapshot = await getDoc(feedItemRef).catch(error => {throw error})
-  if (docSnapshot.exists()) {
-    commit('setRecommendItem', {...docSnapshot.data(), id: docSnapshot.id})
-    // console.log('Successfully set Recommend Item: ', docSnapshot)
-  } else {
-    throw new Error('Could not find Recommendation')
-  }
-}

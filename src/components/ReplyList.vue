@@ -1,10 +1,15 @@
 <template>
   <q-list class="bg-white q-pl-md">
-    <q-item v-for="{ reply, id, user } in repliesList" :key="id">
+    <q-item
+      v-for="{ reply, id, user, thumbnailList, imagesList } in repliesList"
+      :key="id"
+    >
       <ReplyItem
         :reply="reply"
         :id="id"
         :user="user"
+        :thumbnailList="thumbnailList"
+        :imagesList="imagesList"
         :commentId="commentId"
         :postId="postId"
         :postUser="postUser"

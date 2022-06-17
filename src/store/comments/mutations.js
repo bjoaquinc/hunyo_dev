@@ -1,10 +1,3 @@
-export function setCommentId ( state, commentId) {
-  state.commentId = commentId
-}
-
-export function setReplyId ( state, replyId) {
-  state.replyId = replyId
-}
 
 export function setCommentsList ( state, { commentsList, unsubscribeComments } ) {
   state.commentsList = commentsList
@@ -17,6 +10,14 @@ export function setRepliesList ( state, { commentId, repliesList, unsubscribeRep
   if (state.unsubscribeRepliesList.length < repliesLength) {
     state.unsubscribeRepliesList.push(unsubscribeReplies)
   }
+}
+
+export function setUploadedImages ( state, images) {
+  state.images = images;
+}
+
+export function clearStateImages ( state) {
+  state.images = [];
 }
 
 export function clearState ( state ) {

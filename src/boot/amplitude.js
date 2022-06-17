@@ -2,17 +2,20 @@ import amplitude from 'amplitude-js'
 
 let project = process.env.AMP_API_KEY_PROD
 let message = "Running on Production"
+let analyticsProxy = "hunyo.com/amplitude"
 if (location.hostname === 'localhost' || location.hostname === "127.0.0.1") {
   project = process.env.AMP_API_KEY_DEV
+  analyticsProxy = `${location.hostname}:5000/amplitude`
   message = "Running on Development"
 }
 console.log(message)
 
 // init Amplitude
-var instance1 = amplitude.getInstance().init(project);
-
-export { instance1 }
-
-// Sample code
-// amplitude.getInstance().setUserId("user-id");
-// amplitude.getInstance().logEvent("event-name");
+if (location.port && location.port === "8080") {
+  amplitude.getInstance().init(project);
+} else {
+  amplitude.getInstance().init(project, null, {
+    apiEndpoint: analyticsProxy,
+    forceHttps: false,
+  });
+}

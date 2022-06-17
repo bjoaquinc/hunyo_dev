@@ -11,18 +11,6 @@
   >
     <q-card class="bg-white">
       <q-card-actions class="full-width q-mt-md q-mb-sm q-px-md" align="around">
-        <!-- <q-btn
-          v-close-popup
-          @click="openDialogRecommendCreate"
-          class="button-width"
-          padding="16px 5px"
-          text-color="secondary"
-          color="grey-3"
-          icon="fas fa-check"
-          label="Recommend"
-          unelevated
-          stack
-        /> -->
         <q-btn
           v-if="!isYours"
           v-close-popup
@@ -80,7 +68,6 @@
 import { computed } from "vue";
 import { useStore } from "vuex";
 import { useDialogPluginComponent, useQuasar } from "quasar";
-import DialogRecommendCreate from "src/components/DialogRecommendCreate.vue";
 import DialogPostEdit from "src/components/DialogPostEdit.vue";
 import DialogFlag from "src/components/DialogFlag.vue";
 
@@ -99,15 +86,6 @@ export default {
     const isYours = computed(() => {
       return user.value.uid === props.postData.user.id ? true : false;
     });
-
-    function openDialogRecommendCreate() {
-      q.dialog({
-        component: DialogRecommendCreate,
-        componentProps: {
-          postData: props.postData,
-        },
-      });
-    }
 
     function openDialogPostEdit() {
       q.dialog({
@@ -128,7 +106,6 @@ export default {
       dialogRef,
       onDialogHide,
       q,
-      openDialogRecommendCreate,
       openDialogPostEdit,
       openDialogFlag,
       isYours,

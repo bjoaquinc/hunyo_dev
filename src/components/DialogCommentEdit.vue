@@ -58,6 +58,8 @@
 import { useDialogPluginComponent, useQuasar } from "quasar";
 import { useStore } from "vuex";
 import { ref, onMounted } from "vue";
+import AutoLinker from "autolinker";
+import sanitizeHtml from "sanitize-html";
 
 export default {
   props: ["commentId", "postId", "comment"],
@@ -74,8 +76,17 @@ export default {
     const commentNew = ref("");
 
     onMounted(() => {
-      commentNew.value = props.comment;
+      const processedComment = sanitize(props.comment);
+      commentNew.value = processedComment;
     });
+
+    function sanitize(dirty) {
+      const clean = sanitizeHtml(dirty, {
+        allowedTags: [],
+        allowedAttributes: {},
+      });
+      return clean;
+    }
 
     async function editComment() {
       try {

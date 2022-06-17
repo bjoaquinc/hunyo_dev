@@ -1,3 +1,5 @@
+import sanitizeHtml from "sanitize-html";
+
 // firestore posts collection
 export function getPostsCollection (state, posts) {
   state.postsList = posts;
@@ -31,7 +33,10 @@ export function setPostItem (state, {postItem, unsubscribePostItem}) {
     state.post.topics = postItem.topics;
     state.post.isQuestion = postItem.isQuestion;
     if (postItem.content) {
-      state.post.content = postItem.content
+      state.post.content = sanitizeHtml(postItem.content, {
+        allowedTags: [],
+        allowedAttributes: {},
+      })
     }
   } else {
     state.postItem = postItem
@@ -63,7 +68,7 @@ export function addOrder (state, { id }) {
       console.log(state.uploadedImagesList)
       return
     }
-  } )
+  })
 }
 
 export function removeOrder (state, payload) {

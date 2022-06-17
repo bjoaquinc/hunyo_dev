@@ -22,7 +22,6 @@ export default function () {
     editedUserData: null,
     unsubscribeUser: null,
     uploadedImage: null,
-    recommendItem: null,
     activityFeed: null,
   }
 }

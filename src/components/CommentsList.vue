@@ -1,12 +1,17 @@
 <template>
   <q-list bordered class="bg-white" id="comments">
-    <q-item v-for="{ comment, id, user } in commentsList" :key="id">
+    <q-item
+      v-for="{ comment, id, user, thumbnailList, imagesList } in commentsList"
+      :key="id"
+    >
       <CommentItem
         :comment="comment"
         :user="user"
         :id="id"
         :postId="postId"
         :postUser="postUser"
+        :thumbnailList="thumbnailList"
+        :imagesList="imagesList"
       />
     </q-item>
   </q-list>

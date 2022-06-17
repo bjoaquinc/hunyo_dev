@@ -21,9 +21,10 @@
     />
 
     <q-card-section class="q-pt-md">
-      <div style="white-space: pre-wrap">
-        {{ content }}
-      </div>
+      <div
+        style="white-space: pre-wrap"
+        v-html="sanitizeDisplayText(content)"
+      />
     </q-card-section>
 
     <q-card-actions align="around">
@@ -83,6 +84,7 @@
 import { computed } from "vue";
 import { useStore } from "vuex";
 import BaseCarousel from "src/components/BaseCarousel.vue";
+import { sanitizeDisplayText } from "src/logic/Sanitize.js";
 
 export default {
   components: {
@@ -118,6 +120,7 @@ export default {
     return {
       formattedTopics,
       userData,
+      sanitizeDisplayText,
     };
   },
 };

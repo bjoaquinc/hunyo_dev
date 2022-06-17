@@ -3,6 +3,7 @@ import { storage, auth, db, functions } from 'src/boot/firebase'
 import { ref, uploadBytes, getDownloadURL, deleteObject, listAll } from 'firebase/storage'
 import { serverTimestamp, collection, doc, updateDoc, addDoc, onSnapshot, setDoc, arrayRemove, deleteDoc, query, getDocs, where, orderBy } from 'firebase/firestore'
 import { httpsCallable } from 'firebase/functions'
+import Autolinker from 'autolinker'
 import amplitude from 'amplitude-js'
 
 export async function createPostItem ({ dispatch, commit, rootGetters }, { postId, data }) {
@@ -50,8 +51,13 @@ export async function setPostItem ({ commit }, postId) {
 }
 
 export async function updatePostItem ({ commit }, {postId, data}) {
+  const postData = data
+  if (data.content) {
+    const linkedContent = Autolinker.link(data.content);
+    postData.content = linkedContent;
+  }
   const postRef = doc(db, "posts", postId);
-  await updateDoc(postRef, {...data, editedAt: serverTimestamp()}).catch(error => {throw error});
+  await updateDoc(postRef, {...postData, editedAt: serverTimestamp()}).catch(error => {throw error});
 }
 
 export async function deletePostItem ({ commit, state, dispatch }, {postId}) {
@@ -161,6 +167,10 @@ export function readUploadedFileAsDataURL (file) {
     }
 
     reader.onload = () => {
+      var image = new Image();
+      image.src = reader.result;
+      image.onload = function() {
+      }
       resolve(reader.result)
     }
 
@@ -257,16 +267,15 @@ export async function publishPost ( { commit, state, dispatch, rootGetters } ) {
     "create id": createId,
     duration
   })
-  console.log("Successfully sent create post event");
+  // console.log("Successfully sent create post event");
 }
 
 export async function setDrafts( { commit, rootGetters } ) {
   const currentUserId = rootGetters["auth/getUser"].uid
   const postsRef = collection(db, "posts");
-  const q = query(postsRef, where("user.id", "==", currentUserId), where("isPublished", "==", false))
+  const q = query(postsRef, where("user.id", "==", currentUserId), where("isPublished", "==", false), orderBy("editedAt", "desc"))
   const message = await new Promise((resolve, reject) => {
     const unsubscribeDrafts = onSnapshot(q, (draftsSnapshot) => {
-      console.log(draftsSnapshot)
       if (draftsSnapshot.empty) reject("No drafts for this current user");
       const drafts = [];
       draftsSnapshot.forEach(doc => {

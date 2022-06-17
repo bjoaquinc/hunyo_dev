@@ -19,8 +19,35 @@
         </q-item-label>
       </q-item-section>
     </q-item>
-    <q-card-section>
-      {{ reply }}
+    <q-card-section
+      style="white-space: pre-wrap"
+      v-html="sanitizeDisplayText(reply)"
+    />
+    <q-card-section
+      v-if="thumbnailList && thumbnailList.length > 0"
+      horizontal
+      class="q-mt-sm"
+      style="display: flex; flex-wrap: wrap !important; padding: 0 !important"
+    >
+      <div
+        style="
+          width: 100px;
+          max-height: 100px;
+          border: 1px solid rgba(0, 0, 0, 0.12);
+          cursor: pointer;
+        "
+        @click="openDialogCommentImage(imagesList[index])"
+        class="flex items-center q-ml-md"
+        v-for="(thumbnail, index) in thumbnailList"
+        :key="index"
+      >
+        <q-img
+          fit="scale-down"
+          class="rounded-borders"
+          :src="thumbnail"
+          :img-style="{ maxHeight: '100px', maxWidth: 'auto' }"
+        />
+      </div>
     </q-card-section>
     <q-card-actions>
       <q-btn
@@ -73,16 +100,6 @@
           </q-item>
         </q-list>
       </q-btn-dropdown>
-      <!-- <q-btn
-        @click="deleteReply"
-        v-if="isYours"
-        flat
-        size="sm"
-        dense
-        color="primary"
-        icon="fas fa-times"
-        label="Remove"
-      /> -->
     </q-card-actions>
   </q-card>
 </template>
@@ -92,13 +109,24 @@ import { useQuasar } from "quasar";
 import { useStore } from "vuex";
 import { computed } from "vue";
 import { useRoute } from "vue-router";
+import { sanitizeDisplayText } from "src/logic/Sanitize.js";
 import DialogFlag from "src/components/DialogFlag.vue";
+import DialogCommentImage from "src/components/DialogCommentImage.vue";
 import DialogReplyCreate from "src/components/DialogReplyCreate.vue";
 import DialogReplyEdit from "src/components/DialogReplyEdit.vue";
 import DialogPromptDelete from "src/components/DialogPromptDelete.vue";
 
 export default {
-  props: ["reply", "id", "user", "commentId", "postId", "postUser"],
+  props: [
+    "reply",
+    "id",
+    "user",
+    "thumbnailList",
+    "imagesList",
+    "commentId",
+    "postId",
+    "postUser",
+  ],
   setup(props) {
     const q = useQuasar();
     const route = useRoute();
@@ -117,6 +145,13 @@ export default {
     const isYours = computed(() => {
       return props.user.id === user.value.uid ? true : false;
     });
+
+    function openDialogCommentImage(image) {
+      q.dialog({
+        component: DialogCommentImage,
+        componentProps: { image },
+      });
+    }
 
     async function openDialogReplyCreate() {
       q.dialog({
@@ -152,18 +187,6 @@ export default {
       });
     }
 
-    async function deleteReply() {
-      try {
-        await store.dispatch("comments/deleteReply", {
-          replyId: props.id,
-          commentId: props.commentId,
-          postId: props.postId,
-        });
-      } catch (error) {
-        console.log(error);
-      }
-    }
-
     function openDialogPromptDelete() {
       q.dialog({
         component: DialogPromptDelete,
@@ -173,10 +196,25 @@ export default {
       });
     }
 
+    async function deleteReply() {
+      try {
+        await store.dispatch("comments/deleteReply", {
+          replyId: props.id,
+          commentId: props.commentId,
+          postId: props.postId,
+          imagesList: props.imagesList,
+        });
+      } catch (error) {
+        console.log(error);
+      }
+    }
+
     return {
+      sanitizeDisplayText,
       openDialogFlag,
       userRoute,
       isYours,
+      openDialogCommentImage,
       openDialogPromptDelete,
       openDialogReplyCreate,
       openDialogReplyEdit,

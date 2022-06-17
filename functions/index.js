@@ -50,3 +50,4 @@ exports.emailtriggers = require("./emailtriggers");
 exports.follow = require("./follow");
 exports.cron = require("./cron");
 exports.images = require("./images");
+exports.amplitude = require("./amplitude");
