@@ -231,6 +231,7 @@ export default {
           id: props.userId,
           photo: userData.value.photoURL,
         });
+        // Send notification to subscribed user
         if (!userData.value.admin) {
           await store.dispatch("notifications/createNotification", {
             type: "followerNew",

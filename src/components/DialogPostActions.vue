@@ -25,7 +25,7 @@
           stack
         />
         <q-btn
-          v-if="isYours"
+          v-if="isYours || (userData && userData.admin)"
           @click="openDialogPostEdit"
           v-close-popup
           class="button-width"
@@ -83,6 +83,7 @@ export default {
     const store = useStore();
     const q = useQuasar();
     const user = computed(() => store.getters["auth/getUser"]);
+    const userData = computed(() => store.getters["profile/getUserData"]);
     const isYours = computed(() => {
       return user.value.uid === props.postData.user.id ? true : false;
     });
@@ -109,6 +110,7 @@ export default {
       openDialogPostEdit,
       openDialogFlag,
       isYours,
+      userData,
     };
   },
 };

@@ -76,6 +76,7 @@ export default {
     const { dialogRef, onDialogHide, onDialogOK } = useDialogPluginComponent();
     const q = useQuasar();
     const store = useStore();
+    const currentUser = computed(() => store.getters["auth/getUser"]);
     const followItem = computed(
       () => store.getters["subscriptions/getFollowItem"]
     );
@@ -109,8 +110,20 @@ export default {
           "member id": props.user.id,
           location: "save popup",
         });
+        // Subscribe to user
         disableSubscribeButton.value = true;
         await store.dispatch("subscriptions/subscribe", { ...props.user });
+        // Send notification to subscribed user
+        if (!userData.value.admin) {
+          await store.dispatch("notifications/createNotification", {
+            type: "followerNew",
+            userId: props.user.id,
+            route: {
+              name: "ProfileUser",
+              params: { userId: currentUser.value.uid, source: "notification" },
+            },
+          });
+        }
         // Send subscribe successful event to Amplitude
         amplitude.getInstance().logEventWithTimestamp("subscribe successful", {
           "member id": props.user.id,

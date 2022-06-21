@@ -1,39 +1,24 @@
 <template>
-  <div :class="isPublic ? 'row' : ''">
+  <div
+    class="row q-mx-auto"
+    :class="$q.platform.is.desktop ? 'q-col-gutter-md' : ''"
+    :style="
+      $q.platform.is.desktop
+        ? { maxWidth: $q.platform.is.ipad ? '90vw' : '80vw' }
+        : null
+    "
+  >
     <div
-      :class="isPublic ? 'col-12 col-sm-7 q-mx-auto' : ''"
+      class="col"
+      v-if="imagesList && imagesList.length && $q.platform.is.desktop"
+    >
+      <BaseCarousel :imagesList="imagesList" />
+    </div>
+    <div
+      class="col-12 q-mx-auto"
+      :class="$q.platform.is.ipad || !imagesList ? 'col-sm-8' : 'col-sm-6'"
       v-if="selectedPost"
     >
-      <div class="flex items-center q-mb-md gt-xs">
-        <q-btn
-          color="primary"
-          icon="fas fa-arrow-left"
-          label="Return"
-          :to="
-            $router.options.history.state.back
-              ? $router.options.history.state.back
-              : { name: 'PageHome' }
-          "
-          dense
-          flat
-        />
-        <q-btn
-          v-if="!isPublic"
-          class="q-ml-auto q-mr-sm"
-          color="primary"
-          icon="fas fa-ellipsis-h"
-          @click="openDialogPostActions"
-          flat
-        />
-        <q-btn
-          v-if="!isPublic"
-          @click="openDialogFoldersList"
-          color="primary"
-          icon="fas fa-folder"
-          label="Save"
-          unelevated
-        />
-      </div>
       <PostDetail
         :content="selectedPost.content"
         :title="selectedPost.title"
@@ -44,12 +29,6 @@
         :numUserReads="
           selectedPost.userReads ? selectedPost.userReads.length : null
         "
-      />
-      <CommentsList
-        v-if="!isPublic"
-        :postId="postId"
-        :postUser="selectedPost.user"
-        id="comments"
       />
       <router-view v-slot="{ Component }">
         <q-dialog v-model="cropperDialog" persistent maximized>
@@ -64,9 +43,8 @@
 import amplitude from "amplitude-js";
 import PostDetail from "src/components/PostDetail.vue";
 import CommentsList from "src/components/CommentsList.vue";
-import DialogPostActions from "src/components/DialogPostActions.vue";
-import DialogFoldersList from "src/components/DialogFoldersList.vue";
 import DialogLandingPopUp from "src/components/DialogLandingPopUp.vue";
+import BaseCarousel from "src/components/BaseCarousel.vue";
 
 export default {
   name: "PagePost",
@@ -96,10 +74,19 @@ export default {
     postItem() {
       return this.$store.getters["newPost/getPostItem"];
     },
+    imagesList() {
+      const postItem = this.$store.getters["posts/getSelectedPost"];
+      if (postItem && postItem.imagesList && postItem.imagesList.length) {
+        return postItem.imagesList;
+      } else {
+        return null;
+      }
+    },
   },
   components: {
     PostDetail,
     CommentsList,
+    BaseCarousel,
   },
   watch: {
     $route(newValue, oldValue) {
@@ -116,50 +103,6 @@ export default {
     },
   },
   methods: {
-    openDialogFoldersList() {
-      const postData = {
-        title: this.selectedPost.title,
-        id: this.selectedPost.postId,
-        user: this.selectedPost.user,
-        image: "",
-        topics: this.selectedPost.topics,
-      };
-      if (
-        this.selectedPost.imagesList &&
-        this.selectedPost.imagesList.length > 0
-      ) {
-        postData.image = this.selectedPost.imagesList[0];
-      }
-      this.$q.dialog({
-        component: DialogFoldersList,
-        componentProps: {
-          postData,
-          source: "post top",
-        },
-      });
-    },
-    openDialogPostActions() {
-      let image = "";
-      if (
-        this.selectedPost.imagesList &&
-        this.selectedPost.imagesList.length > 0
-      ) {
-        image = this.selectedPost.imagesList[0];
-      }
-      this.$q.dialog({
-        component: DialogPostActions,
-        componentProps: {
-          postData: {
-            image: image,
-            title: this.selectedPost.title,
-            id: this.selectedPost.postId,
-            user: this.selectedPost.user,
-            content: this.selectedPost.content,
-            postId: this.selectedPost.postId,
-          },
-        },
-      });
-    },
     async editImages() {
       await this.$store.dispatch(
         "newPost/setPostItem",
@@ -273,5 +216,5 @@ export default {
 
 .q-page
   @media (min-width: 690px)
-    margin-top: 21px
+    padding-top: 21px
 </style>

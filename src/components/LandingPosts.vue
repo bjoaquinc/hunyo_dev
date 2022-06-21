@@ -1,18 +1,16 @@
 <template>
-  <div class="row q-col-gutter-md">
-    <div class="col-12 col-sm-7 q-mx-auto feed">
-      <q-btn
-        color="primary"
-        :class="q.platform.is.mobile && !q.platform.is.ipad ? 'q-mx-sm' : ''"
-        class="q-my-md"
-        icon="fas fa-arrow-left"
-        label="Back to Home Page"
-        :to="{ name: 'PageLanding' }"
-        dense
-        flat
-      />
-      <FeedList :feedItems="postItems" />
-    </div>
+  <div>
+    <q-btn
+      color="primary"
+      :class="q.platform.is.mobile && !q.platform.is.ipad ? 'q-mx-sm' : ''"
+      class="q-my-md"
+      icon="fas fa-arrow-left"
+      label="Back to Home Page"
+      :to="{ name: 'PageLanding' }"
+      dense
+      flat
+    />
+    <FeedList :feedItems="postItems" />
   </div>
 </template>
 

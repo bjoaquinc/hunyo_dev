@@ -16,7 +16,6 @@ export async function subscribe ( { commit, rootGetters }, {name, id, photo}) {
     },
     isFollowing: true
   }).catch(error => {throw error})
-
   // console.log('Successfully created the follow item: ', docRef)
 }
 

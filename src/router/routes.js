@@ -1,5 +1,6 @@
 import MainLayout from 'src/layouts/MainLayout.vue'
 import PageHome from 'src/pages/PageHome.vue'
+import PageHomeFeed from 'src/pages/PageHomeFeed'
 import PageActivity from 'src/pages/PageActivity.vue'
 import PageProfile from 'src/pages/PageProfile.vue'
 import PageError404 from 'src/pages/PageError404.vue'
@@ -50,7 +51,7 @@ const routes = [
         { path: 'members/:userId', component: LandingUser, name: 'LandingUser', props: true, meta: { header: 'HeaderPageUser' }},
       ] },
       { path: '/', component: PageHome, meta: { location: 'feed' }, children: [
-        { path: '', component: FeedList, name: 'PageHome', meta: { header: 'HeaderPageHome' } },
+        { path: '', component: PageHomeFeed, name: 'PageHome', meta: { header: 'HeaderPageHome' } },
         { path: 'posts/:postId', component: PagePost, name: 'FeedPost', props: true,  meta: { header: 'HeaderPagePost' }, children: [
           { path: 'cropper', component: ImageCropper, name: 'FeedPostCropper'}
         ] },

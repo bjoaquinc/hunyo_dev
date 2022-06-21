@@ -48,6 +48,7 @@ export default {
           message: "Uploading...",
         });
         await store.dispatch("newPost/publishPost");
+        await store.dispatch("newPost/toggleHasDrafts");
         if (unsubscribePostItem.value) unsubscribePostItem.value();
         store.commit("newPost/clearState");
         store.commit("amplitude/clearState");

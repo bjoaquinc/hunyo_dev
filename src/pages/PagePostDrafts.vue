@@ -1,5 +1,5 @@
 <template>
-  <div class="row">
+  <div class="row constrain">
     <div class="col-12 col-sm-7 q-mx-auto">
       <div
         v-if="this.$q.platform.is.desktop || this.$q.platform.is.ipad"

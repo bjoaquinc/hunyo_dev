@@ -1,48 +1,23 @@
 <template>
-  <q-page class="constrain">
-    <div class="row q-col-gutter-md">
-      <div class="col-12 col-sm-7 q-mx-auto feed">
+  <q-page :class="$route.name !== 'FeedPost' ? 'constrain' : ''">
+    <div :class="$route.name !== 'FeedPost' ? 'row q-col-gutter-md' : ''">
+      <div
+        class="q-ml-sm-sm feed"
+        :class="
+          $route.name !== 'ProfilePost' ? 'col-12 col-sm-7 q-mx-auto' : ''
+        "
+      >
         <router-view v-slot="{ Component }">
-          <component
-            :is="Component"
-            :feedItems="feedItems"
-            feedLocation="user feed"
-          />
+          <component :is="Component" />
         </router-view>
       </div>
     </div>
   </q-page>
 </template>
 
-<script>
-export default {
-  name: "PageHome",
-  computed: {
-    feedItems() {
-      return this.$store.getters["feed/getFeedItems"];
-    },
-    postItem() {
-      return this.$store.getters["newPost/getPostItem"];
-    },
-  },
-  async created() {
-    try {
-      this.$q.loading.show();
-      await this.$store.dispatch("feed/setFeedItems");
-      this.$q.loading.hide();
-    } catch (error) {
-      console.log(error);
-    }
-  },
-  beforeRouteLeave() {
-    this.$store.commit("feed/clearStateFeedItems");
-  },
-};
-</script>
-
 <style lang="sass" scoped>
 
 .q-page
   @media (min-width: 690px)
-    margin-top: 21px
+    padding-top: 21px
 </style>
