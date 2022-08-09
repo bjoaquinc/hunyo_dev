@@ -1,16 +1,9 @@
 <template>
   <div>
-    <q-btn
-      color="primary"
-      :class="q.platform.is.mobile && !q.platform.is.ipad ? 'q-mx-sm' : ''"
-      class="q-my-md"
-      icon="fas fa-arrow-left"
-      label="Back to Home Page"
-      :to="{ name: 'PageLanding' }"
-      dense
-      flat
+    <component
+      :is="$q.platform.is.desktop ? 'FeedListDesktop' : 'FeedList'"
+      :feedItems="postItems"
     />
-    <FeedList :feedItems="postItems" />
   </div>
 </template>
 
@@ -18,10 +11,11 @@
 import { computed, onMounted, onUnmounted } from "vue";
 import { useStore } from "vuex";
 import { useQuasar } from "quasar";
+import FeedListDesktop from "src/components/FeedListDesktop.vue";
 import FeedList from "src/components/FeedList.vue";
 
 export default {
-  components: { FeedList },
+  components: { FeedListDesktop, FeedList },
   setup() {
     const store = useStore();
     const q = useQuasar();
@@ -29,7 +23,9 @@ export default {
 
     onMounted(async () => {
       try {
+        q.loading.show();
         await store.dispatch("posts/setLandingPosts");
+        q.loading.hide();
       } catch (error) {
         console.log(error);
       }

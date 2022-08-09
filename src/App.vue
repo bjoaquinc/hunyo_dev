@@ -14,7 +14,6 @@ export default defineComponent({
 body
   width: 100%
   overflow-x: hidden
-  background: $grey-1
 
 .q-tab__content
   min-width: 10px !important

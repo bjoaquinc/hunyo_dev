@@ -11,7 +11,7 @@ export async function readPost ( { commit, rootGetters }, postId ) {
 
 export async function setSelectedPost ( { commit }, postId ) {
   const docRef = doc(db, 'posts', postId)
-  await new Promise((resolve, reject) => {
+  return await new Promise((resolve, reject) => {
     const unsubscribeSelectedPost = onSnapshot(docRef, (postDoc) => {
       if (postDoc.exists) {
         const selectedPost = {
@@ -20,7 +20,7 @@ export async function setSelectedPost ( { commit }, postId ) {
         }
         commit('setSelectedPost', { selectedPost, unsubscribeSelectedPost });
         // console.log('Successfully set post: ', selectedPost)
-        resolve()
+        resolve(selectedPost)
       } else {
         throw new Error ('Could not find selected post.')
       }

@@ -1,52 +1,57 @@
 <template>
   <div>
-    <div class="overflow-hidden" ref="container" style="position: relative">
-      <div style="height: inherit" class="gt-xs">
-        <q-btn
-          v-if="currentIndex > 0"
-          @click="setPositionByIndex(currentIndex - 1)"
-          class="absolute-center"
-          color="white"
-          text-color="black"
-          icon="fas fa-chevron-left"
-          style="left: 5%; opacity: 0.5; z-index: 100"
-          fab-mini
-        />
-        <q-btn
-          v-if="currentIndex !== slides.length - 1"
-          @click="setPositionByIndex(currentIndex + 1)"
-          class="absolute-center"
-          color="white"
-          text-color="black"
-          icon="fas fa-chevron-right"
-          style="left: 95%; opacity: 0.5; z-index: 100"
-          fab-mini
-        />
-      </div>
+    <q-responsive :ratio="1">
       <div
-        :style="{
-          width: `${100 * slides.length}%`,
-          transform: `translateX(${currentTranslate}px)`,
-          transition: `transform ${easeOut}s ease-out`,
-        }"
-        class="slide-container"
-        style="border: 1px solid rgba(0, 0, 0, 0.12)"
+        class="overflow-hidden"
+        ref="container"
+        style="position: relative; border: 1px solid rgba(0, 0, 0, 0.12)"
       >
+        <div class="gt-xs">
+          <q-btn
+            v-if="currentIndex > 0"
+            @click="setPositionByIndex(currentIndex - 1)"
+            class="absolute-center"
+            color="white"
+            text-color="black"
+            icon="fas fa-chevron-left"
+            style="left: 5%; opacity: 0.5; z-index: 100"
+            fab-mini
+          />
+          <q-btn
+            v-if="currentIndex !== slides.length - 1"
+            @click="setPositionByIndex(currentIndex + 1)"
+            class="absolute-center"
+            color="white"
+            text-color="black"
+            icon="fas fa-chevron-right"
+            style="left: 95%; opacity: 0.5; z-index: 100"
+            fab-mini
+          />
+        </div>
         <div
-          v-for="(image, index) in slides"
-          :key="index"
-          v-touch-pan.horizontal.prevent.mouse="handlePan"
-          @touchstart="findIndex(index)"
-          @mousedown="findIndex(index)"
-          class="slide"
-          :prevent="true"
-          :style="{ minWidth: `${100 / slides.length}%` }"
+          :style="{
+            width: `${100 * slides.length}%`,
+            height: 'inherit',
+            transform: `translateX(${currentTranslate}px)`,
+            transition: `transform ${easeOut}s ease-out`,
+          }"
+          class="slide-container"
         >
-          <q-img :src="image" :ratio="1" img-class="slide-img" />
+          <div
+            v-for="(image, index) in slides"
+            :key="index"
+            v-touch-pan.horizontal.prevent.mouse="handlePan"
+            @touchstart="findIndex(index)"
+            @mousedown="findIndex(index)"
+            class="slide"
+            :prevent="true"
+            :style="{ minWidth: `${100 / slides.length}%` }"
+          >
+            <q-img :src="image" :ratio="1" img-class="slide-img" />
+          </div>
         </div>
       </div>
-    </div>
-
+    </q-responsive>
     <div class="flex justify-center" v-if="imagesList.length > 1">
       <q-btn
         v-for="(slide, index) in slides"

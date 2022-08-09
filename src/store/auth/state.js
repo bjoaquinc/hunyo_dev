@@ -5,9 +5,10 @@ export default function () {
     newUser: {
       name: '',
       email: '',
-      password: ''
+      password: '',
+      profession: null,
     },
+    otherProfession: '',
     user: null,
-    isAuth: false
   }
 }

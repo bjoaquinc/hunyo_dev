@@ -20,6 +20,7 @@
       v-if="selectedPost"
     >
       <PostDetail
+        v-if="selectedPost"
         :content="selectedPost.content"
         :title="selectedPost.title"
         :imagesList="selectedPost.imagesList"
@@ -42,8 +43,8 @@
 <script>
 import amplitude from "amplitude-js";
 import PostDetail from "src/components/PostDetail.vue";
+import ProductDetail from "src/components/ProductDetail.vue";
 import CommentsList from "src/components/CommentsList.vue";
-import DialogLandingPopUp from "src/components/DialogLandingPopUp.vue";
 import BaseCarousel from "src/components/BaseCarousel.vue";
 
 export default {
@@ -85,6 +86,7 @@ export default {
   },
   components: {
     PostDetail,
+    ProductDetail,
     CommentsList,
     BaseCarousel,
   },
@@ -118,37 +120,44 @@ export default {
   },
   async created() {
     try {
-      await this.$store.dispatch("posts/setSelectedPost", this.postId);
+      const selectedPost = await this.$store.dispatch(
+        "posts/setSelectedPost",
+        this.postId
+      );
       if (!this.currentUser) return;
-      if (this.selectedPost.user.id === this.currentUser.uid) return;
-      if (this.userData.admin) return;
+      const userData = await this.$store.dispatch(
+        "profile/setUserData",
+        this.currentUser.uid
+      );
+      if (userData && userData.admin) return;
       // Send view post event to Amplitude
       const followingList =
         this.$store.getters["subscriptions/getFollowingList"];
       amplitude.getInstance().logEventWithTimestamp("save - view post", {
-        "post id": this.selectedPost.postId,
-        topics: this.selectedPost.topics,
+        "post id": selectedPost.postId,
+        topics: selectedPost.topics,
         source: this.$route.params.feedLocation
           ? this.$route.params.feedLocation
           : "link",
-        "num total views": this.selectedPost.userReads
-          ? this.selectedPost.userReads.length
+        "num total views": selectedPost.userReads
+          ? selectedPost.userReads.length
           : 0,
-        "author id": this.selectedPost.user.id,
-        "is subscribe": followingList.includes(this.selectedPost.user.id),
+        "author id": selectedPost.user.id,
+        "is subscribe": followingList.includes(selectedPost.user.id),
       });
-      // console.log("Successfully sent view post event");
+      console.log("Successfully sent view post event");
       if (
-        this.selectedPost.userReads &&
-        this.selectedPost.userReads.includes(this.currentUser.uid)
+        selectedPost.userReads &&
+        selectedPost.userReads.includes(this.currentUser.uid)
       )
         return;
-      await this.$store.dispatch("posts/readPost", this.selectedPost.postId);
+      await this.$store.dispatch("posts/readPost", selectedPost.postId);
       // Send notification for post read
+      if (selectedPost.user.id === this.currentUser.uid) return;
       await this.$store.dispatch("notifications/createNotification", {
         type: "postRead",
-        userId: this.selectedPost.user.id,
-        content: this.selectedPost.title,
+        userId: selectedPost.user.id,
+        content: selectedPost.title,
         route: {
           name: "FeedUser",
           params: {
@@ -165,14 +174,14 @@ export default {
     }
   },
   mounted() {
-    if (this.$route.name === "LandingPost") {
-      setTimeout(() => {
-        if (this.$route.name !== "LandingPost") return;
-        this.$q.dialog({
-          component: DialogLandingPopUp,
-        });
-      }, 2000);
-    }
+    // if (this.$route.name === "LandingPost") {
+    //   setTimeout(() => {
+    //     if (this.$route.name !== "LandingPost") return;
+    //     this.$q.dialog({
+    //       component: DialogLandingPopUp,
+    //     });
+    //   }, 2000);
+    // }
     this.startTimestamp = new Date();
   },
   unmounted() {

@@ -1,10 +1,18 @@
 <template>
   <q-page :class="$route.name !== 'ProfilePost' ? 'constrain' : ''">
-    <div :class="$route.name !== 'ProfilePost' ? 'row q-col-gutter-md' : ''">
+    <div
+      :class="
+        $route.name !== 'ProfilePost' && $route.name !== 'ProfileSupplier'
+          ? 'row q-col-gutter-md'
+          : ''
+      "
+    >
       <div
         class="main q-ml-sm-sm"
         :class="
-          $route.name !== 'ProfilePost' ? 'col-12 col-sm-7 q-mx-auto' : ''
+          $route.name !== 'ProfilePost' && $route.name !== 'ProfileSupplier'
+            ? 'col-12 col-sm-7 q-mx-auto'
+            : ''
         "
       >
         <router-view />

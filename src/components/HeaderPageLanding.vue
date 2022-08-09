@@ -12,13 +12,13 @@
 
     <q-space />
 
-    <q-btn
+    <!-- <q-btn
       label="Join"
       :to="{ name: 'LandingJoin' }"
       no-caps
       color="primary"
       outline
-    />
+    /> -->
     <q-btn
       label="Sign In"
       :to="{ name: 'PageLanding' }"

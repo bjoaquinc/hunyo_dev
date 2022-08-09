@@ -6,6 +6,14 @@ export function setEmail ( state, email ) {
   state.newUser.email = email
 }
 
+export function setProfession (state, profession) {
+  state.newUser.profession = profession;
+}
+
+export function setOtherProfession (state, otherProfession) {
+  state.otherProfession = otherProfession
+}
+
 export function setPassword ( state, password ) {
   state.newUser.password = password
 }
@@ -26,4 +34,15 @@ export function logOut ( state ) {
 
 export function setErrorMessage ( state, payload ) {
   state.error = payload.message
+}
+
+export function clearState (state) {
+  state.newUser = {
+    name: '',
+    email: '',
+    password: '',
+    profession: null
+  }
+  state.otherProfession = ''
+  state.user = null
 }

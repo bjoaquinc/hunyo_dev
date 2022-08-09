@@ -12,14 +12,16 @@ import PagePreview from 'src/pages/PagePreview.vue'
 import PageSignUp from 'src/pages/PageSignUp.vue'
 import PageLanding from 'src/pages/PageLanding.vue'
 import PageSettings from 'src/pages/PageSettings.vue'
+import PageSuppliers from 'src/pages/PageSuppliers.vue'
+import PageProduct from 'src/pages/PageProduct.vue'
 
 
 import ImageCropper from 'src/components/ImageCropper.vue'
-import FeedList from 'src/components/FeedList.vue'
 import SignUpNameAndEmail from 'src/components/SignUpNameAndEmail.vue'
 import SignUpPassword from 'src/components/SignUpPassword.vue'
 import SignUpEmailVerification from 'src/components/SignUpEmailVerification.vue'
 import ProfileDetail from 'src/components/ProfileDetail.vue'
+import ProductCatalogue from 'src/components/ProductCatalogue.vue'
 import ProfileEdit from 'src/components/ProfileEdit.vue'
 import ProfileFolder from 'src/components/ProfileFolder.vue'
 import LandingJoin from 'src/components/LandingJoin.vue'
@@ -57,6 +59,10 @@ const routes = [
         ] },
         { path: 'members/:userId', component: UserDetail, name: 'FeedUser', props: true,  meta: { header: 'HeaderPageUser' } }
       ] },
+      { path: 'products', component: PageSuppliers, children: [
+        { path: ':productId', component: PageProduct, name: 'Product', props: true },
+        { path: 'catalogues', component: ProductCatalogue, name: 'ProductCatalogue'},
+      ] },
       { path: '/new-post/drafts', component: PagePostDrafts, name: 'PagePostDrafts', meta: { header: 'HeaderPagePostDrafts' } },
       { path: '/new-post/title/:postId', component: PagePostNewTitle, name: 'PagePostNewTitle', props: true,  meta: { header: 'HeaderPagePostNewTitle', withoutDesktopHeader: true }  },
       { path: '/new-post/content/:postId', component: PagePostNewContent, name: 'PagePostNewContent', props: true, meta: { header: 'HeaderPagePostNewContent', withoutDesktopHeader: true } , children: [
@@ -79,7 +85,7 @@ const routes = [
       { path: 'signup', component: PageSignUp, meta: { withoutDesktopHeader: true }, children: [
         { path: '', component: SignUpNameAndEmail },
         { path: 'new-password', component: SignUpPassword },
-        { path: 'email-verification', component: SignUpEmailVerification }
+        { path: 'email-verification', name: 'SignUpEmailVerification', component: SignUpEmailVerification }
       ] },
       { path: 'settings', component: PageSettings, meta: { withoutDesktopHeader: true }, children: [
         { path: '', component: SettingsList, },

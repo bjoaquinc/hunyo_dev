@@ -10,6 +10,7 @@ import feed from 'src/store/feed/index.js'
 import notifications from 'src/store/notifications/index.js'
 import users from 'src/store/users/index.js'
 import posts from 'src/store/posts/index.js'
+import products from 'src/store/products/index.js'
 import subscriptions from 'src/store/subscriptions/index.js'
 import admin from 'src/store/admin/index.js'
 import amplitude from 'src/store/amplitude/index.js'
@@ -38,6 +39,7 @@ export default store(function (/* { ssrContext } */) {
       notifications,
       users,
       posts,
+      products,
       subscriptions,
       admin,
       amplitude

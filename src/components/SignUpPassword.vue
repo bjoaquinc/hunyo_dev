@@ -48,6 +48,7 @@ import { computed, ref } from "vue";
 import { useStore } from "vuex";
 import { useRouter } from "vue-router";
 import { useQuasar } from "quasar";
+import amplitude from "amplitude-js";
 
 export default {
   setup() {
@@ -59,7 +60,7 @@ export default {
       set: (value) => store.commit("auth/setPassword", value),
     });
     const newUser = computed(() => store.getters["auth/getNewUser"]);
-    const { email, name } = newUser.value;
+    const { email, name, profession } = newUser.value;
     const isPassword = ref(true);
 
     async function signUp() {
@@ -68,9 +69,16 @@ export default {
           email,
           password: password.value,
           name,
+          profession,
+        });
+        logEvent("signup - create user success", {
+          name,
+          email,
+          profession: profession.value,
         });
         router.push("/signup/email-verification");
       } catch (error) {
+        logEvent("signup - create user error", { error: error.code });
         if (error.code === "auth/email-already-in-use") {
           q.dialog({
             message:
@@ -88,6 +96,18 @@ export default {
             message: error.message,
           });
         }
+        console.log(error);
+      }
+    }
+
+    function logEvent(event, eventProperties) {
+      try {
+        amplitude
+          .getInstance()
+          .logEventWithTimestamp(event, eventProperties, null, () => {
+            console.log(`Successfully logged ${event} event`);
+          });
+      } catch (error) {
         console.log(error);
       }
     }

@@ -9,7 +9,7 @@
           <li>6 images maximum per post</li>
           <li>Image aspect ratio is 1 : 1</li>
           <li>JPEG, JPG, and PNG accepted</li>
-          <li>No maximum file size</li>
+          <li>Maximum total size of 25MB</li>
         </ul>
       </q-card-section>
       <q-card-actions>
@@ -23,10 +23,6 @@
 import { useDialogPluginComponent, useQuasar } from "quasar";
 
 export default {
-  props: {
-    // ...your custom props
-  },
-
   emits: [
     // REQUIRED; need to specify some events that your
     // component will emit through useDialogPluginComponent()

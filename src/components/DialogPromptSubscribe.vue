@@ -77,6 +77,7 @@ export default {
     const q = useQuasar();
     const store = useStore();
     const currentUser = computed(() => store.getters["auth/getUser"]);
+    const userData = computed(() => store.getters["profile/getUserData"]);
     const followItem = computed(
       () => store.getters["subscriptions/getFollowItem"]
     );

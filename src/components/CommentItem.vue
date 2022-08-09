@@ -7,7 +7,7 @@
           name: userRoute,
           params: { userId: user.id, source: 'comment' },
         }"
-        style="width: fit-content"
+        class="full-width"
       >
         <q-item-section avatar>
           <q-avatar size="30px">
@@ -18,13 +18,14 @@
         <q-space />
 
         <q-item-section>
-          <q-item-label lines="1" class="comment-user text-grey-6"
+          <q-item-label class="text-grey-7 text-body1"
             >{{ user.name }}
           </q-item-label>
         </q-item-section>
       </q-item>
       <q-card-section
         v-html="sanitizeDisplayText(comment)"
+        class="text-body1"
         style="white-space: pre-wrap"
       >
       </q-card-section>

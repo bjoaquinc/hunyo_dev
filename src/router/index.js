@@ -19,15 +19,11 @@ export default route(function  ({ store, ssrContext }) {
 
   const Router = createRouter({
     scrollBehavior: (to, from, savedPosition) => {
-      if (to.hash) {
-        return {
-          el: to.hash,
-        }
-      } else if (savedPosition) {
+      if (savedPosition) {
+        console.log(savedPosition)
         return savedPosition
-      } else {
-        return {left: 0, top: 0}
       }
+      return {left: 0, top: 0}
     },
     routes,
 

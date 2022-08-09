@@ -1,9 +1,9 @@
 <template>
-  <q-page :class="$route.name !== 'FeedPost' ? 'constrain' : ''">
-    <div :class="$route.name !== 'FeedPost' ? 'row q-col-gutter-md' : ''">
+  <q-page :class="$route.name !== 'Product' ? 'constrain' : ''">
+    <div :class="$route.name !== 'Product' ? 'row q-col-gutter-md' : ''">
       <div
         class="q-ml-sm-sm feed"
-        :class="$route.name !== 'ProfilePost' ? 'col-12 q-mx-auto' : ''"
+        :class="$route.name !== 'ProductCatalogue' ? 'col-12 q-mx-auto' : ''"
       >
         <router-view v-slot="{ Component }">
           <component :is="Component" />

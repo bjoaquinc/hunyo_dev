@@ -10,7 +10,13 @@
       v-else
       bordered
       class="my-card absolute-center gt-xs q-pa-md"
-      style="max-width: 500px; min-width: 400px; min-height: 400px"
+      style="
+        max-width: 500px;
+        min-width: 400px;
+        min-height: 400px;
+        max-height: 90vh;
+        overflow: auto;
+      "
     >
       <router-view />
     </q-card>

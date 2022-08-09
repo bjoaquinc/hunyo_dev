@@ -3,6 +3,9 @@
 .env
 node_modules
 
+# Emulators export data
+/firebase-export-1659969229375UWJ1CP
+
 # Quasar core related directories
 .quasar
 /dist

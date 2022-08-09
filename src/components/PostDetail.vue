@@ -9,13 +9,13 @@
   >
     <q-card class="my-card overflow-auto" bordered flat v-if="isReady">
       <q-item>
-        <q-item-label class="text-weight-bold text-h5 q-pt-sm gt-lg"
+        <q-item-label class="text-weight-bold text-h4 q-pt-sm gt-lg"
           >{{ title }} / {{ formattedTopics }}</q-item-label
         >
-        <q-item-label class="text-weight-bold text-h6 q-pt-sm gt-xs lt-xl"
+        <q-item-label class="text-weight-bold text-h4 q-pt-sm gt-xs lt-xl"
           >{{ title }} / {{ formattedTopics }}</q-item-label
         >
-        <q-item-label class="text-weight-bold text-subtitle1 q-pt-md lt-sm"
+        <q-item-label class="text-weight-bold text-h5 q-pt-sm lt-sm"
           >{{ title }} / {{ formattedTopics }}</q-item-label
         >
       </q-item>
@@ -30,19 +30,10 @@
           flat
           dense
         />
-        <!-- <q-btn
-          v-if="!isPublic"
-          size="sm"
-          @click="openDialogFoldersList"
-          color="primary"
-          icon="fas fa-folder"
-          label="Save"
-          unelevated
-        /> -->
       </div>
 
       <BaseCarousel
-        class="q-pt-md"
+        class="q-pt-sm"
         :imagesList="imagesList"
         :postId="postId"
         :userId="user.id"
@@ -60,9 +51,9 @@
         />
       </q-card-section>
 
-      <q-card-section class="q-pt-md lt-xl">
+      <q-card-section class="q-pt-md q-mt-md lt-xl">
         <div
-          class="text-body2"
+          class="text-body1"
           style="white-space: pre-wrap"
           v-html="sanitizeDisplayText(content)"
         />
@@ -104,7 +95,7 @@
           </q-item-section>
 
           <q-item-section>
-            <q-item-label class="text-weight-bold" caption>{{
+            <q-item-label class="text-grey-7 text-body1">{{
               user.name
             }}</q-item-label>
           </q-item-section>

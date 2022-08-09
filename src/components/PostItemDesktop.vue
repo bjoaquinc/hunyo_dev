@@ -1,5 +1,5 @@
 <template>
-  <q-card flat bordered>
+  <q-card flat class="full-width" v-if="feedItem">
     <q-card-section style="padding: 0 !important">
       <q-item
         class="row flex column"
@@ -11,23 +11,21 @@
             feedLocation: feedLocation,
           },
         }"
+        style="margin: 0; padding: 0"
       >
-        <q-item-label
-          style="padding: 16px 0 !important"
-          class="text-weight-bold flex items-center col"
-          :class="
-            $q.platform.is.mobile && !$q.platform.is.ipad
-              ? 'text-h6'
-              : 'text-h6'
-          "
-          >{{ title }} / {{ formattedTopics }}</q-item-label
-        >
         <q-img
           ratio="1"
+          class="rounded-borders"
           style="border: 1px solid rgba(0, 0, 0, 0.12)"
           :src="imagesList[0]"
           v-if="imagesList && imagesList.length > 0"
         />
+        <div
+          class="q-mt-sm ellipsis"
+          :class="type === 'main' ? 'text-h5' : 'text-subtitle1'"
+        >
+          {{ title }}
+        </div>
       </q-item>
     </q-card-section>
 
@@ -37,6 +35,8 @@
         name: userRoute,
         params: { userId: user.id, lastRoute: $route.name, source: 'feed' },
       }"
+      class="text-caption text-weight-bold text-grey-7"
+      style="padding: 0 !important"
       :style="{
         borderTop:
           imagesList && imagesList.length
@@ -51,7 +51,7 @@
       </q-item-section>
 
       <q-item-section>
-        <q-item-label class="text-weight-bold" caption>{{
+        <q-item-label class="text-weight-bold q-ml-sm" caption>{{
           user.name
         }}</q-item-label>
       </q-item-section>
@@ -64,7 +64,7 @@ import DialogFoldersList from "src/components/DialogFoldersList.vue";
 
 export default {
   name: "PostItem",
-  props: ["feedItem", "feedLocation"],
+  props: ["feedItem", "feedLocation", "type"],
   data() {
     return {
       hover: false,
@@ -159,4 +159,5 @@ export default {
 
 .q-item__section
   padding-right: 0 !important
+  min-width: 0 !important
 </style>

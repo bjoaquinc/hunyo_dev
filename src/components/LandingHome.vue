@@ -82,18 +82,15 @@
       </q-avatar>
       <div class="text-h4">About Hunyo</div>
       <div
-        class="q-mt-sm text-center"
+        class="q-mt-sm text-center text-subtitle1"
         :style="{
           maxWidth:
             q.platform.is.mobile && !q.platform.is.ipad ? '100%' : '50%',
         }"
       >
-        Hunyo is a free, closed community of Southeast Asian designers in the
-        built environment dedicated to knowledge sharing. Community members post
-        about their professional experiences related to details, materials,
-        design approaches, and methods. We reject the status quo and instead
-        choose to help each other because together, we can create a better
-        tomorrow.
+        Hunyo is a free, members-only Filipino database of locally available
+        materials, details, methods, and design approaches. By designers, for
+        designers. Supplier database coming soon.
       </div>
       <div class="flex justify-around q-mt-md" style="min-width: 340px">
         <q-btn
@@ -127,11 +124,11 @@
       flat
       bordered
     >
-      <q-btn icon="fab fa-facebook" flat size="lg" dense />
-      <q-btn icon="fab fa-instagram" flat size="lg" dense />
-      <q-btn icon="fab fa-twitter" flat size="lg" dense />
+      <q-btn icon="fab fa-facebook" flat size="lg" disable dense />
+      <q-btn icon="fab fa-instagram" flat size="lg" disable dense />
+      <q-btn icon="fab fa-twitter" flat size="lg" disable dense />
     </q-card>
-    <q-card class="col-12 flex column items-center bg-grey-1" flat>
+    <q-card class="col-12 flex column items-center" flat>
       <q-card-section class="items-start" horizontal>
         <q-card-section class="flex column">
           <q-btn label="Community Guidelines" flat dense />

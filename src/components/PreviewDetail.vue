@@ -1,105 +1,114 @@
 <template>
-  <q-card class="my-card" bordered flat>
-    <q-item>
-      <q-item-label class="text-weight-bold text-h5 q-pt-sm gt-lg"
-        >{{ title }} / {{ formattedTopics }}</q-item-label
-      >
-      <q-item-label class="text-weight-bold text-h6 q-pt-sm gt-xs lt-xl"
-        >{{ title }} / {{ formattedTopics }}</q-item-label
-      >
-      <q-item-label class="text-weight-bold text-subtitle1 q-pt-md lt-sm"
-        >{{ title }} / {{ formattedTopics }}</q-item-label
-      >
-    </q-item>
+  <component
+    :is="
+      $q.platform.is.desktop && imagesList && imagesList.length
+        ? 'q-responsive'
+        : 'div'
+    "
+    ratio="1"
+  >
+    <q-card class="my-card overflow-auto" bordered flat>
+      <q-item>
+        <q-item-label class="text-weight-bold text-h4 q-pt-sm gt-lg"
+          >{{ title }} / {{ formattedTopics }}</q-item-label
+        >
+        <q-item-label class="text-weight-bold text-h4 q-pt-sm gt-xs lt-xl"
+          >{{ title }} / {{ formattedTopics }}</q-item-label
+        >
+        <q-item-label class="text-weight-bold text-h5 q-pt-sm lt-sm"
+          >{{ title }} / {{ formattedTopics }}</q-item-label
+        >
+      </q-item>
 
-    <div class="flex items-center q-mx-sm gt-xs">
-      <q-btn
-        color="primary"
-        class="q-ml-xs"
-        icon="fas fa-ellipsis-h"
-        flat
-        dense
+      <div class="flex items-center q-mx-sm gt-xs">
+        <q-btn
+          color="primary"
+          class="q-ml-xs"
+          icon="fas fa-ellipsis-h"
+          flat
+          dense
+        />
+      </div>
+
+      <BaseCarousel
+        class="q-pt-sm"
+        :imagesList="imagesList"
+        :postId="postId"
+        :userId="user.id"
+        :topics="topics"
+        :numUserReads="numUserReads"
+        location="post"
+        v-if="imagesList && imagesList.length && $q.platform.is.mobile"
       />
-    </div>
 
-    <BaseCarousel
-      class="q-pt-md"
-      :imagesList="imagesList"
-      :postId="postId"
-      :userId="user.id"
-      :topics="topics"
-      :numUserReads="numUserReads"
-      location="post"
-      v-if="imagesList && imagesList.length && $q.platform.is.mobile"
-    />
+      <q-card-section class="q-pt-md gt-lg">
+        <div
+          class="text-body1"
+          style="white-space: pre-wrap"
+          v-html="sanitizeDisplayText(content)"
+        />
+      </q-card-section>
 
-    <q-card-section class="q-pt-md gt-lg">
-      <div
-        class="text-body1"
-        style="white-space: pre-wrap"
-        v-html="sanitizeDisplayText(content)"
-      />
-    </q-card-section>
+      <q-card-section class="q-pt-md lt-xl">
+        <div
+          class="text-body1"
+          style="white-space: pre-wrap"
+          v-html="sanitizeDisplayText(content)"
+        />
+      </q-card-section>
 
-    <q-card-section class="q-pt-md lt-xl">
-      <div
-        class="text-body2"
-        style="white-space: pre-wrap"
-        v-html="sanitizeDisplayText(content)"
-      />
-    </q-card-section>
+      <q-card-actions align="around">
+        <q-btn
+          class="full-width"
+          color="primary"
+          icon="fas fa-folder"
+          label="Save"
+          size="md"
+          unelevated
+        />
+      </q-card-actions>
 
-    <q-card-actions align="around">
-      <q-btn
-        class="full-width"
-        color="primary"
-        icon="fas fa-folder"
-        label="Save"
-        size="md"
-        unelevated
-      />
-    </q-card-actions>
+      <q-separator />
 
-    <q-separator />
+      <q-card-actions align="between">
+        <q-item class="q-py-sm q-px-sm" clickable>
+          <q-item-section avatar>
+            <q-avatar>
+              <img :src="user.photo" />
+            </q-avatar>
+          </q-item-section>
 
-    <q-card-actions align="between">
-      <q-item class="q-py-sm q-px-sm" clickable>
+          <q-item-section>
+            <q-item-label class="text-body1 text-grey-7">{{
+              user.name
+            }}</q-item-label>
+          </q-item-section>
+        </q-item>
+      </q-card-actions>
+
+      <q-separator />
+
+      <q-item>
         <q-item-section avatar>
           <q-avatar>
-            <img :src="user.photo" />
+            <img :src="userData.photoURL" />
           </q-avatar>
         </q-item-section>
 
         <q-item-section>
-          <q-item-label class="text-weight-bold" caption>{{
-            user.name
-          }}</q-item-label>
+          <q-btn
+            align="left"
+            color="grey-3"
+            label="Add a comment..."
+            text-color="grey-7"
+            no-caps
+            rounded
+            unelevated
+          />
         </q-item-section>
       </q-item>
-    </q-card-actions>
-
-    <q-separator />
-
-    <q-item>
-      <q-item-section avatar>
-        <q-avatar>
-          <img :src="userData.photoURL" />
-        </q-avatar>
-      </q-item-section>
-
-      <q-item-section>
-        <q-btn
-          align="left"
-          color="grey-3"
-          label="Add a comment..."
-          text-color="grey-7"
-          no-caps
-          rounded
-          unelevated
-        />
-      </q-item-section>
-    </q-item>
-  </q-card>
+    </q-card>
+  </component>
 </template>
 
 <script>

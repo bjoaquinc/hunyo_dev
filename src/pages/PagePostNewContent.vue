@@ -369,6 +369,17 @@ export default {
 
     async function fileChanged(event) {
       const files = event.target.files;
+      let totalSize = 0;
+      for (const file of files) {
+        totalSize += file.size;
+      }
+      if (totalSize > 25000000) {
+        return q.dialog({
+          message:
+            "Your total file size exceeds the maximum allowed (25MB). Please upload images individually or upload smaller images.",
+        });
+      }
+      console.log(totalSize);
       if (files && files.length > 0) {
         dialog.value = true;
         q.loading.show({ message: "Adding images..." });

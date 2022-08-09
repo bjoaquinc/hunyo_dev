@@ -149,7 +149,6 @@ export default {
     const selectorWidthPercentage = computed(() =>
       q.platform.is.mobile && !q.platform.is.ipad ? 25 : 20
     );
-    const postItem = computed(() => store.getters["newPost/getPostItem"]);
 
     onBeforeUpdate(() => {
       imgRefList.value = [];

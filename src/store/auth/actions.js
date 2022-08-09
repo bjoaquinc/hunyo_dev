@@ -1,6 +1,7 @@
 import { auth, db } from "src/boot/firebase";
 import { createUserWithEmailAndPassword, updateProfile, signOut, sendEmailVerification,
-signInWithEmailAndPassword, onAuthStateChanged, sendPasswordResetEmail, updatePassword, reauthenticateWithCredential } from "firebase/auth";
+signInWithEmailAndPassword, onAuthStateChanged, sendPasswordResetEmail, updatePassword, 
+updateEmail, getAuth, reauthenticateWithCredential } from "firebase/auth";
 import { setDoc, doc, serverTimestamp} from 'firebase/firestore'
 import { LocalStorage } from "quasar";
 import amplitude from "amplitude-js";
@@ -8,8 +9,6 @@ import amplitude from "amplitude-js";
 export function setUser ( { commit, dispatch, rootGetters } ) {
   onAuthStateChanged(auth, async (user) => {
     if (user) {
-      // User is signed in, see docs for a list of available properties
-      // https://firebase.google.com/docs/reference/js/firebase.User
       // console.log('Auth state triggered')
       LocalStorage.set('user', user)
       amplitude.getInstance().setUserId(user.uid)
@@ -38,6 +37,20 @@ export function setUser ( { commit, dispatch, rootGetters } ) {
   });
 }
 
+export function updateUser ( { commit }) {
+  const auth = getAuth();
+  const user = auth.currentUser;
+  if (user) {
+    LocalStorage.set('user', user)
+    commit('setUser', {
+      user: user,
+      isAuth: true
+    })
+  } else {
+    return console.log("No user")
+  }
+}
+
 export async function checkUser ( { commit } ) {
   const localUserData = LocalStorage.getItem('user')
   if (localUserData === null) {
@@ -54,7 +67,7 @@ export async function checkUser ( { commit } ) {
   
 }
 
-export async function createUser ( { commit }, { email, password, name }) {
+export async function createUser ( { commit }, { email, password, name, profession }) {
   if ( email && password && name ) {
     const nameList = name.split(" ")
     const firstName = nameList[0]
@@ -74,7 +87,7 @@ export async function createUser ( { commit }, { email, password, name }) {
         displayName: name,
         photoURL:
           "https://firebasestorage.googleapis.com/v0/b/hunyo-109e6.appspot.com/o/profile_pics%2Fdefault.png?alt=media&token=6311df79-fcb6-4245-8e84-c1afb9ed459f",
-        profession: '',
+        profession: profession.value,
         licenseNumber: '',
         birthdate: null,
         experience: null,
@@ -134,9 +147,9 @@ export async function updateUserName ( { commit }, name ) {
     }).catch(error => {throw error})
 }
 
-export async function verifyEmail ( { commit }) {
+export async function verifyEmail ( { commit } ) {
+  const auth = getAuth();
   const user = auth.currentUser
-
   if (user && !user.emailVerified) {
     await sendEmailVerification(user, {
       url: 'https://hunyo.com/#/',
@@ -146,6 +159,15 @@ export async function verifyEmail ( { commit }) {
   } else {
     throw new Error('Could not send verification email.')
   }
+}
+
+export async function changeEmail ( { commit, state, dispatch }, email) {
+  const auth = getAuth();
+  await updateEmail(auth.currentUser, email).catch(error => {throw error});
+  await setDoc(doc(db, 'registrations', state.user.uid), {
+    emailAddress: email
+  }, {merge: true});
+  await dispatch('profile/updateUserData', {email}, {root: true}).catch(error => {throw error});
 }
 
 export async function signIn ( { commit }, { email, password}) {

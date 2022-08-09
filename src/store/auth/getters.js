@@ -6,6 +6,10 @@ export function getIsAuth ( state ) {
   return state.isAuth
 }
 
-export function getUser (state ) {
+export function getUser (state) {
   return state.user
+}
+
+export function getOtherProfession (state) {
+  return state.getOtherProfession
 }

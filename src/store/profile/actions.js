@@ -5,7 +5,7 @@ import { ref, getDownloadURL, uploadBytes } from 'firebase/storage'
 import amplitude from 'amplitude-js'
 
 export async function setUserData ( { commit }, userId) {
-  return new Promise(( resolve, reject ) => {
+  return await new Promise(( resolve, reject ) => {
     const unsubscribeUser = onSnapshot(doc(db, 'users', userId), (doc) => {
       const userData = {...doc.data(), id: doc.id}
       const userProperties = {

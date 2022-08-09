@@ -1,7 +1,9 @@
 <template>
-  <div class="constrain">
-    <div>
-      <div>
+  <div :class="$route.name === 'FeedPost' ? '' : 'constrain'">
+    <div :class="$route.name !== 'FeedPost' ? 'row q-col-gutter-md' : ''">
+      <div
+        :class="$route.name !== 'FeedPost' ? 'col-12 col-sm-7 q-mx-auto' : ''"
+      >
         <FeedList :feedItems="feedItems" feedLocation="user feed" />
       </div>
     </div>
@@ -30,8 +32,10 @@ export default {
       console.log(error);
     }
   },
-  beforeRouteLeave() {
-    this.$store.commit("feed/clearStateFeedItems");
+  beforeRouteLeave(to, from) {
+    if (to.name !== "FeedPost" && to.name !== "FeedUser") {
+      this.$store.commit("feed/clearStateFeedItems");
+    }
   },
 };
 </script>
