@@ -52,7 +52,7 @@ import { useStore } from "vuex";
 import { useRouter } from "vue-router";
 import { useQuasar } from "quasar";
 import { getAuth, reauthenticateWithCredential } from "firebase/auth";
-import DialogReauthenticatePrompt from "src/components/DialogReauthenticatePrompt.vue";
+import DialogReauthenticatePrompt from "src/components/dialogs/DialogReauthenticatePrompt.vue";
 
 export default {
   setup() {

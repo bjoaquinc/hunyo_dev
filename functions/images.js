@@ -9,6 +9,14 @@ const index = require("./index");
 // const db = index.db;
 const bucket = index.bucket;
 
+exports.cropProfileImage = functions.region("asia-southeast2").https.onCall(async (file, context) => {
+  const {tempFilePath, tempNewFilePath} = await cropImage(file, true);
+  functions.logger.log(`Cropped image to ${file.filePath} successfully.`);
+  fs.unlinkSync(tempFilePath);
+  fs.unlinkSync(tempNewFilePath);
+  return;
+});
+
 
 exports.cropImages = functions.region("asia-southeast2").https.onCall(async ({imagesListWithFilePath}, context) => {
   // Crop images simultaneously
@@ -18,7 +26,6 @@ exports.cropImages = functions.region("asia-southeast2").https.onCall(async ({im
     promises.push(promise);
   }
   const tempFilePaths = await Promise.all(promises);
-  functions.logger.log(tempFilePaths);
   // Remove files from temporary storage
   for (const pathObject of tempFilePaths) {
     functions.logger.log(pathObject);
@@ -28,17 +35,28 @@ exports.cropImages = functions.region("asia-southeast2").https.onCall(async ({im
   return;
 });
 
-const cropImage = async (image) => {
+const cropImage = async (image, isProfilePhoto) => {
   try {
-    functions.logger.log("Managing image named: ", image.id);
+    functions.logger.log("Managing image named: ", image.id, image);
     // Download image from storage and store in temp directory
     const tempFilePath = path.join(os.tmpdir(), image.id);
     const tempNewFilePath = `${tempFilePath}.jpg`;
     await bucket.file(image.filePath).download({destination: tempFilePath});
+    functions.logger.log("Downloaded image successfully");
     // Crop and resize image
-    const {x, y, width, height} = image.cropData;
-    functions.logger.log("x: ", x, "y: ", y, "width: ", width, "height: ", height);
-    await spawn("convert", [tempFilePath, "-virtual-pixel", "white", "-define", `distort:viewport=${width}x${height}+${x}+${y}`, "-distort", "SRT", "0", "+repage", "-resize", "1080", tempNewFilePath]);
+    const {x, y, width, height, rotate} = image.cropData;
+    functions.logger.log("x: ", x, "y: ", y, "width: ", width, "height: ", height, "image data: ", image);
+    let adjustedX = x;
+    let adjustedY = y;
+    if (rotate === 90) {
+      adjustedX = y;
+      adjustedY = x;
+    }
+    if (isProfilePhoto) {
+      await spawn("convert", [tempFilePath, "-flatten", "-virtual-pixel", "white", "-define", `distort:viewport=${width}x${height}+${adjustedX}+${adjustedY}`, "-distort", "SRT", "0", "+repage", "-resize", "500", tempNewFilePath]);
+    } else {
+      await spawn("convert", [tempFilePath, "-flatten", "-virtual-pixel", "white", "-define", `distort:viewport=${width}x${height}+${adjustedX}+${adjustedY}`, "-distort", "SRT", 0, "+repage", "-resize", "1080", tempNewFilePath]);
+    }
     functions.logger.log("Successfully cropped and resized image!");
     // Upload cropped image
     await bucket.upload(tempNewFilePath, {

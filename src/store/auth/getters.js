@@ -1,3 +1,4 @@
+
 export function getNewUser ( state ) {
   return state.newUser
 }
@@ -12,4 +13,8 @@ export function getUser (state) {
 
 export function getOtherProfession (state) {
   return state.getOtherProfession
+}
+
+export function getSupplier (state) {
+  return state.supplier
 }

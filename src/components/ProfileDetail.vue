@@ -98,6 +98,15 @@
         no-caps
         outline
       />
+      <q-btn
+        v-if="userData && userData.admin"
+        class="full-width q-mt-sm"
+        color="primary"
+        label="View Suppliers"
+        :to="{ name: 'ProfileSuppliers' }"
+        no-caps
+        outline
+      />
       <!-- <q-btn class="full-width q-mt-sm" color="primary" no-caps unelevated>
         <p class="text-weight-light q-ma-none">
           You have <span class="text-weight-bold">3 invites</span> remaining.

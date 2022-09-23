@@ -21,7 +21,6 @@ export default function () {
     },
     editedUserData: null,
     unsubscribeUser: null,
-    uploadedImage: null,
     activityFeed: null,
   }
 }

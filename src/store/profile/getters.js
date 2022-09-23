@@ -18,10 +18,6 @@ export function getUploadedImage ( state ) {
   return state.uploadedImage
 }
 
-export function newProfilePicture ( state ) {
-  return state.newProfilePicture
-}
-
 export function getUnsubscribeUser ( state ) {
   return state.unsubscribeUser
 }

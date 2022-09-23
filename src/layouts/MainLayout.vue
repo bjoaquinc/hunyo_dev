@@ -32,30 +32,36 @@
 </template>
 
 <script>
-import HeaderHomeLarge from "src/components/HeaderHomeLarge.vue";
+import HeaderHomeLarge from "src/components/headers/HeaderHomeLarge.vue";
 import TheFooter from "src/components/TheFooter.vue";
-import HeaderPageHome from "src/components/HeaderPageHome.vue";
-import HeaderPageActivity from "src/components/HeaderPageActivity.vue";
-import HeaderPagePost from "src/components/HeaderPagePost.vue";
-import HeaderPageUser from "src/components/HeaderPageUser.vue";
-import HeaderPagePostDrafts from "src/components/HeaderPagePostDrafts.vue";
-import HeaderPagePostNewContent from "src/components/HeaderPagePostNewContent.vue";
-import HeaderPagePostNewTitle from "src/components/HeaderPagePostNewTitle.vue";
-import HeaderPagePreview from "src/components/HeaderPagePreview.vue";
-import HeaderPageProfile from "src/components/HeaderPageProfile.vue";
-import HeaderProfileEdit from "src/components/HeaderProfileEdit.vue";
-import HeaderProfileFolder from "src/components/HeaderProfileFolder.vue";
-import HeaderPageSearch from "src/components/HeaderPageSearch.vue";
-import HeaderPageLanding from "src/components/HeaderPageLanding.vue";
-import HeaderFolderDetail from "src/components/HeaderFolderDetail.vue";
+import HeaderPageHome from "src/components/headers/HeaderPageHome.vue";
+import HeaderPageActivity from "src/components/headers/HeaderPageActivity.vue";
+import HeaderPageProducts from "src/components/headers/HeaderPageProducts.vue";
+import HeaderPagePost from "src/components/headers/HeaderPagePost.vue";
+import HeaderPageProduct from "src/components/headers/HeaderPageProduct.vue";
+import HeaderPageUser from "src/components/headers/HeaderPageUser.vue";
+import HeaderPagePostDrafts from "src/components/headers/HeaderPagePostDrafts.vue";
+import HeaderPagePostNewContent from "src/components/headers/HeaderPagePostNewContent.vue";
+import HeaderPagePostNewTitle from "src/components/headers/HeaderPagePostNewTitle.vue";
+import HeaderPagePreview from "src/components/headers/HeaderPagePreview.vue";
+import HeaderPageProfile from "src/components/headers/HeaderPageProfile.vue";
+import HeaderProfileEdit from "src/components/headers/HeaderProfileEdit.vue";
+import HeaderProfileFolder from "src/components/headers/HeaderProfileFolder.vue";
+import HeaderPageSearch from "src/components/headers/HeaderPageSearch.vue";
+import HeaderPageLanding from "src/components/headers/HeaderPageLanding.vue";
+import HeaderFolderDetail from "src/components/headers/HeaderFolderDetail.vue";
+import HeaderSupplierProductCatalogue from "src/components/headers/HeaderSupplierProductCatalogue.vue";
 
 export default {
   components: {
     HeaderHomeLarge,
     TheFooter,
+    HeaderSupplierProductCatalogue,
     HeaderPageActivity,
+    HeaderPageProducts,
     HeaderPageHome,
     HeaderPagePost,
+    HeaderPageProduct,
     HeaderPagePostDrafts,
     HeaderPagePreview,
     HeaderPagePostNewContent,

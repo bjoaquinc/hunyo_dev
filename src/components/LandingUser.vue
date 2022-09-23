@@ -18,8 +18,4 @@ export default {
 };
 </script>
 
-<style lang="sass" scoped>
-.q-page
-  @media (min-width: 690px)
-    margin-top: 21px
-</style>
+<style lang="sass" scoped></style>

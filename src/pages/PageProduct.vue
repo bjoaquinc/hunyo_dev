@@ -1,10 +1,16 @@
 <template>
   <div
-    class="row q-mx-auto"
+    class="row q-mx-auto full-height justify-center"
     :class="$q.platform.is.desktop ? 'q-col-gutter-md' : ''"
     :style="
       $q.platform.is.desktop
-        ? { maxWidth: $q.platform.is.ipad ? '90vw' : '80vw' }
+        ? {
+            maxWidth: $q.platform.is.ipad ? '90%' : '',
+            aspectRatio: '2/1',
+            maxHeight: '88vh !important',
+            maxWidth: '2192px',
+            paddingRight: '16px',
+          }
         : null
     "
     v-if="product"
@@ -33,7 +39,7 @@ import CommentsList from "src/components/CommentsList.vue";
 import BaseCarousel from "src/components/BaseCarousel.vue";
 
 export default {
-  name: "PagePost",
+  name: "PageProduct",
   props: ["productId"],
   data() {
     return {
@@ -87,6 +93,7 @@ export default {
   async created() {
     try {
       await this.$store.dispatch("products/setProduct", this.productId);
+      console.log(this.product);
       if (!this.currentUser) return;
     } catch (error) {
       console.log(error);
@@ -96,9 +103,9 @@ export default {
     try {
       // Unsub and clear state
       if (this.unsubscribeProduct) {
-        this.unsubscribeSelectedPost();
+        this.unsubscribeProduct();
       }
-      this.$store.commit("posts/clearStatePost");
+      this.$store.commit("products/clearState");
     } catch (error) {
       console.log(error);
     }

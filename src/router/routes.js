@@ -12,18 +12,31 @@ import PagePreview from 'src/pages/PagePreview.vue'
 import PageSignUp from 'src/pages/PageSignUp.vue'
 import PageLanding from 'src/pages/PageLanding.vue'
 import PageSettings from 'src/pages/PageSettings.vue'
-import PageSuppliers from 'src/pages/PageSuppliers.vue'
+import PageProducts from 'src/pages/PageProducts.vue'
 import PageProduct from 'src/pages/PageProduct.vue'
+import PageProductPreview from 'src/pages/PageProductPreview.vue'
 
 
 import ImageCropper from 'src/components/ImageCropper.vue'
 import SignUpNameAndEmail from 'src/components/SignUpNameAndEmail.vue'
 import SignUpPassword from 'src/components/SignUpPassword.vue'
 import SignUpEmailVerification from 'src/components/SignUpEmailVerification.vue'
+import SignUpSupplierInviteNameAndProfession from 'src/components/SignUpSupplierInviteNameAndProfession.vue'
+import SupplierCreateInformation from 'src/components/SupplierCreateInformation.vue'
+import SupplierCreateLogo from 'src/components/SupplierCreateLogo.vue'
+import SupplierCreateLogoCropper from 'src/components/SupplierCreateLogoCropper.vue'
 import ProfileDetail from 'src/components/ProfileDetail.vue'
-import ProductCatalogue from 'src/components/ProductCatalogue.vue'
+import ProductsListDesktop from 'src/components/ProductsListDesktop.vue'
+import ProductsListSample from 'src/components/ProductsListSample.vue'
+import ProductsComingSoon from 'src/components/ProductsComingSoon.vue'
+import SupplierProductCatalogue from 'src/components/SupplierProductCatalogue.vue'
+import ProductsNewDetails from 'src/components/ProductsNewDetails.vue'
+import ProductsNewUploads from 'src/components/ProductsNewUploads.vue'
+import ProductImagesCropper from 'src/components/ProductImagesCropper.vue'
 import ProfileEdit from 'src/components/ProfileEdit.vue'
 import ProfileFolder from 'src/components/ProfileFolder.vue'
+import ProfileImageCropper from 'src/components/ProfileImageCropper.vue'
+import ProfileSuppliers from 'src/components/ProfileSuppliers.vue'
 import LandingJoin from 'src/components/LandingJoin.vue'
 import LandingHome from 'src/components/LandingHome.vue'
 import LandingPosts from 'src/components/LandingPosts.vue'
@@ -36,7 +49,6 @@ import SettingsTerms from 'src/components/SettingsTerms.vue'
 import SettingsPrivacy from 'src/components/SettingsPrivacy.vue'
 import UserDetail from 'src/components/UserDetail.vue'
 import FolderDetail from 'src/components/FolderDetail.vue'
-import DialogProfileImageCropper from 'src/components/DialogProfileImageCropper.vue'
 
 
 const routes = [
@@ -59,9 +71,15 @@ const routes = [
         ] },
         { path: 'members/:userId', component: UserDetail, name: 'FeedUser', props: true,  meta: { header: 'HeaderPageUser' } }
       ] },
-      { path: 'products', component: PageSuppliers, children: [
-        { path: ':productId', component: PageProduct, name: 'Product', props: true },
-        { path: 'catalogues', component: ProductCatalogue, name: 'ProductCatalogue'},
+      { path: 'products', component: PageProducts, children: [
+        { path: '', component: ProductsListSample, name: 'ProductFeed', meta: { header: 'HeaderPageProducts'} },
+        { path: ':productId', component: PageProduct, name: 'ProductDetail', props: true, meta: { header: 'HeaderPageProduct'} },
+        { path: 'catalogues/:supplierId', component: SupplierProductCatalogue, name: 'SupplierProductCatalogue', props: true, meta: { header: 'HeaderSupplierProductCatalogue'} },
+        { path: 'new/details/:supplierId/:productId', component: ProductsNewDetails, name: 'ProductsNewDetails', props: true, meta: { withoutDesktopHeader: true } },
+        { path: 'new/uploads/:supplierId/:productId', component: ProductsNewUploads, name: 'ProductsNewUploads', props: true, meta: { withoutDesktopHeader: true }, children: [
+          { path: 'cropper', component: ProductImagesCropper, name: 'ProductImagesCropper' }
+        ]},
+        { path: 'new/preview/:supplierId/:productId', component: PageProductPreview, name: 'ProductsNewPreview', props: true },
       ] },
       { path: '/new-post/drafts', component: PagePostDrafts, name: 'PagePostDrafts', meta: { header: 'HeaderPagePostDrafts' } },
       { path: '/new-post/title/:postId', component: PagePostNewTitle, name: 'PagePostNewTitle', props: true,  meta: { header: 'HeaderPagePostNewTitle', withoutDesktopHeader: true }  },
@@ -73,7 +91,7 @@ const routes = [
       { path: '/profile', component: PageProfile, meta: { location: 'profile' }, children: [
         { path: '', component: ProfileDetail, name: 'PageProfile', meta: { header: 'HeaderPageProfile' } },
         { path: 'edit', component: ProfileEdit, name: 'ProfileEdit', meta: { header: 'HeaderProfileEdit' }, children: [
-          { path: 'cropper', component: DialogProfileImageCropper, name: 'ProfileImageCropper'}
+          { path: 'cropper', component: ProfileImageCropper, name: 'ProfileImageCropper'}
         ] },
         { path: 'folder', component: ProfileFolder, name: 'ProfileFolder', meta: { header: 'HeaderProfileFolder' } },
         { path: 'folder/:folderId', component: FolderDetail, name: 'FolderDetail', props: true, meta: { header: 'HeaderFolderDetail' } },
@@ -81,11 +99,22 @@ const routes = [
           { path: 'cropper', component: ImageCropper, name: 'ProfilePostCropper'}
         ] },
         { path: 'members/:userId', component: UserDetail, name: 'ProfileUser', props: true, meta: { header: 'HeaderPageUser' }},
+        { path: 'suppliers', component: ProfileSuppliers, name: 'ProfileSuppliers'}
       ] },
       { path: 'signup', component: PageSignUp, meta: { withoutDesktopHeader: true }, children: [
+        // General Sign up
         { path: '', component: SignUpNameAndEmail },
         { path: 'new-password', component: SignUpPassword },
-        { path: 'email-verification', name: 'SignUpEmailVerification', component: SignUpEmailVerification }
+        { path: 'email-verification', name: 'SignUpEmailVerification', component: SignUpEmailVerification },
+        // Sign up for specific designers
+        { path: 'invites/:designerId', component: SignUpNameAndEmail, props: true },
+        // Sign up for supplier invitiations
+        { path: ':supplierId/:designerId', component: SignUpSupplierInviteNameAndProfession, props: true },
+        // Create a supplier
+        { path: 'suppliers', component: SupplierCreateInformation, name: 'SupplierCreateInformation' },
+        { path: 'suppliers/logo-and-contact', component: SupplierCreateLogo, name: 'SupplierCreateLogo', children: [
+          { path: 'cropper', component: SupplierCreateLogoCropper, name: 'SupplierCreateLogoCropper'},
+        ]},
       ] },
       { path: 'settings', component: PageSettings, meta: { withoutDesktopHeader: true }, children: [
         { path: '', component: SettingsList, },

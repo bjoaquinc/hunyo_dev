@@ -20,6 +20,13 @@
           :src="imagesList[0]"
           v-if="imagesList && imagesList.length > 0"
         />
+        <q-img
+          ratio="1"
+          class="rounded-borders"
+          style="border: 1px solid rgba(0, 0, 0, 0.12)"
+          src="hunyo_logo_small.png"
+          v-else
+        />
         <div
           class="q-mt-sm ellipsis"
           :class="type === 'main' ? 'text-h5' : 'text-subtitle1'"
@@ -37,12 +44,6 @@
       }"
       class="text-caption text-weight-bold text-grey-7"
       style="padding: 0 !important"
-      :style="{
-        borderTop:
-          imagesList && imagesList.length
-            ? ''
-            : '1px solid rgba(0, 0, 0, 0.12)',
-      }"
     >
       <q-item-section avatar>
         <q-avatar>
@@ -60,7 +61,7 @@
 </template>
 
 <script>
-import DialogFoldersList from "src/components/DialogFoldersList.vue";
+import DialogFoldersList from "src/components/dialogs/DialogFoldersList.vue";
 
 export default {
   name: "PostItem",

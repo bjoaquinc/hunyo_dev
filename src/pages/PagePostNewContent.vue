@@ -268,7 +268,7 @@ import { useRouter } from "vue-router";
 import { useQuasar } from "quasar";
 import amplitude from "amplitude-js";
 import BaseCarousel from "src/components/BaseCarousel.vue";
-import DialogImageInformation from "src/components/DialogImageInformation.vue";
+import DialogImageInformation from "src/components/dialogs/DialogImageInformation.vue";
 import DropdownBestPractices from "src/components/DropDownBestPractices.vue";
 
 export default {

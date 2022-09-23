@@ -1,8 +1,7 @@
 [
   {
-    "origin": ["https://hunyo.com"],
-    "responseHeader": ["image/jpeg"],
-    "method": ["GET"],
+    "origin": ["*"],
+    "method": ["GET", "PUT", "POST"],
     "maxAgeSeconds": 3600
   }
 ]

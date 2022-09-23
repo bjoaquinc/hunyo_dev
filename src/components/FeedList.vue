@@ -1,10 +1,10 @@
 <template>
-  <q-list class="bg-grey-1">
+  <q-list>
     <q-item
       v-for="(feedItem, index) in feedItems"
       :id="id"
       :key="index"
-      class="q-mb-md"
+      class="q-mb-sm"
     >
       <Component
         :is="type(index)"

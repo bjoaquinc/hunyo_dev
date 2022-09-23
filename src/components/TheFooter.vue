@@ -10,7 +10,7 @@
       <q-route-tab
         class="col q-mr-xs"
         :to="{ name: 'PageHome' }"
-        icon="fas fa-home"
+        icon="fas fa-users"
         size="1rem"
         :ripple="false"
         :glossy="false"
@@ -19,18 +19,8 @@
       />
       <q-route-tab
         class="col q-ml-xs"
-        :to="{ name: 'ProfileFolder' }"
-        icon="fas fa-folder"
-        size="1rem"
-        :ripple="false"
-        :glossy="false"
-        dense
-        flat
-      />
-      <q-route-tab
-        class="col q-mx-xs"
-        @click="openDialogPostCreate"
-        icon="fas fa-plus"
+        :to="{ name: 'ProductFeed' }"
+        icon="fas fa-dolly-flatbed"
         size="1rem"
         :ripple="false"
         :glossy="false"
@@ -69,7 +59,6 @@
 import { computed, onMounted, watch } from "vue";
 import { useStore } from "vuex";
 import { useQuasar } from "quasar";
-import DialogPostCreate from "src/components/DialogPostCreate.vue";
 
 export default {
   setup() {
@@ -78,15 +67,8 @@ export default {
     const hasDrafts = computed(() => store.getters["getHasDrafts"]);
     const userData = computed(() => store.getters["profile/getUserData"]);
 
-    function openDialogPostCreate() {
-      q.dialog({
-        component: DialogPostCreate,
-      });
-    }
-
     return {
       hasDrafts,
-      openDialogPostCreate,
       userData,
     };
   },

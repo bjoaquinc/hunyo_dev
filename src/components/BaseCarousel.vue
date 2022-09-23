@@ -52,7 +52,10 @@
         </div>
       </div>
     </q-responsive>
-    <div class="flex justify-center" v-if="imagesList.length > 1">
+    <div
+      class="flex justify-center q-mt-xs"
+      v-if="imagesList.length > 1 && !$q.platform.is.desktop"
+    >
       <q-btn
         v-for="(slide, index) in slides"
         :key="index"

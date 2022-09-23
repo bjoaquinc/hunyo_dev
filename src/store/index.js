@@ -14,6 +14,8 @@ import products from 'src/store/products/index.js'
 import subscriptions from 'src/store/subscriptions/index.js'
 import admin from 'src/store/admin/index.js'
 import amplitude from 'src/store/amplitude/index.js'
+import suppliers from 'src/store/suppliers/index.js'
+import images from 'src/store/images/index.js'
 
 // import example from './module-example'
 /*
@@ -42,7 +44,9 @@ export default store(function (/* { ssrContext } */) {
       products,
       subscriptions,
       admin,
-      amplitude
+      amplitude,
+      suppliers,
+      images
     },
     // enable strict mode (adds overhead!)
     // for dev mode and --debug builds only

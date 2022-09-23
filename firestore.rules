@@ -22,7 +22,31 @@ service cloud.firestore {
       allow create: if request.auth.uid == request.resource.data.user.id;
       allow delete: if request.auth.uid == resource.data.user.id;
     }
+    match /productItems/{productItem=**} {
+      allow read: if true;
+      allow update: if request.auth != null;
+      allow create: if request.auth.uid == 'YEJSEis5h3JdPl5jYoZnRTPH7LrY';
+      allow delete: if request.auth.uid == resource.data.user.id;
+    }
     match /products/{product=**} {
+      allow read: if true;
+      allow update: if request.auth != null;
+      allow create: if request.auth.uid == 'YEJSEis5h3JdPl5jYoZnRTPH7LrY';
+      allow delete: if true
+    }
+    match /suppliers/{supplier=**} {
+      allow read: if true;
+      allow update: if request.auth != null;
+      allow create: if request.auth != null;
+      allow delete: if request.auth.uid == resource.data.user.id;
+    }
+    match /invitedDesigners/{designer=**} {
+      allow read: if true;
+      allow update: if request.auth != null;
+      allow create: if request.auth.uid == request.resource.data.user.id;
+      allow delete: if request.auth.uid == resource.data.user.id;
+    }
+    match /supplierInvites/{designer=**} {
       allow read: if true;
       allow update: if request.auth != null;
       allow create: if request.auth.uid == request.resource.data.user.id;

@@ -9,15 +9,15 @@
   >
     <q-card class="my-card overflow-auto" bordered flat>
       <q-item>
-        <q-item-label class="text-weight-bold text-h4 q-pt-sm gt-lg"
-          >{{ product.name }} / {{ product.user.name }}</q-item-label
-        >
-        <q-item-label class="text-weight-bold text-h4 q-pt-sm gt-xs lt-xl"
-          >{{ product.name }} / {{ product.user.name }}</q-item-label
-        >
-        <q-item-label class="text-weight-bold text-subtitle1 q-pt-md lt-sm"
-          >{{ product.name }} / {{ product.user.name }}</q-item-label
-        >
+        <q-item-label class="text-h4 q-pt-sm gt-lg">{{
+          product.name
+        }}</q-item-label>
+        <q-item-label class="text-h4 q-pt-sm gt-xs lt-xl">{{
+          product.name
+        }}</q-item-label>
+        <q-item-label class="text-h5 q-pt-md lt-sm">{{
+          product.name
+        }}</q-item-label>
       </q-item>
 
       <div class="flex items-center q-mx-sm gt-xs">
@@ -49,10 +49,16 @@
         "
       />
 
-      <q-card-actions class="q-ml-sm">
+      <q-card-actions
+        :class="$q.platform.is.desktop ? '' : 'q-mt-md'"
+        v-if="hasFiles"
+      >
         <q-item
+          :href="file"
+          target="_blank"
           clickable
-          v-for="({ name, description }, index) in product.files"
+          class="full-width"
+          v-for="({ name, size, type, file }, index) in product.uploadedFiles"
           :key="index"
         >
           <q-item-section avatar>
@@ -61,7 +67,7 @@
 
           <q-item-section>
             <q-item-label>{{ name }}</q-item-label>
-            <q-item-label caption>{{ description }}</q-item-label>
+            <q-item-label caption>{{ `${type} | ${size}` }}</q-item-label>
           </q-item-section>
 
           <q-item-section side top>
@@ -71,11 +77,11 @@
       </q-card-actions>
 
       <q-card-section>
-        <div class="text-h6 q-mb-md q-mt-sm">Overview:</div>
+        <div class="text-h5 q-mb-md q-mt-sm">Overview:</div>
         <div class="row" v-for="(value, key) in product.overview" :key="key">
-          <div class="col-3 text-subtitle2">{{ key }}</div>
-          <div class="col text-subtitle2">:</div>
-          <div class="col-8">{{ value }}</div>
+          <div class="col-3 text-subtitle1">{{ key }}</div>
+          <div class="col text-subtitle1">:</div>
+          <div class="col-8 text-subtitle1">{{ value }}</div>
         </div>
       </q-card-section>
 
@@ -127,9 +133,9 @@
       </q-card-section>
 
       <q-card-section class="q-pt-md lt-xl">
-        <div class="text-h6 q-my-sm">More Information:</div>
+        <div class="text-h5 q-my-sm">More Information:</div>
         <div
-          class="text-body2 q-mb-sm"
+          class="text-subtitle1 q-mb-sm"
           style="white-space: pre-wrap"
           v-html="sanitizeDisplayText(product.moreInformation)"
         />
@@ -149,46 +155,25 @@
         >
           <q-item-section avatar>
             <q-avatar>
-              <img :src="product.user.photo" />
+              <img :src="product.supplier.logo" />
             </q-avatar>
           </q-item-section>
 
           <q-item-section>
-            <q-item-label class="text-weight-bold" caption>{{
-              product.user.name
+            <q-item-label class="text-weight-bold text-subtitle1 text-grey-6">{{
+              product.supplier.name
             }}</q-item-label>
           </q-item-section>
         </q-item>
       </q-card-actions>
-
       <q-separator />
-
-      <q-item>
-        <q-item-section avatar>
-          <q-avatar>
-            <img :src="currentUserData.photoURL" />
-          </q-avatar>
-        </q-item-section>
-
-        <q-item-section>
-          <q-btn
-            align="left"
-            color="grey-3"
-            label="Add a review..."
-            text-color="grey-7"
-            no-caps
-            rounded
-            unelevated
-          />
-        </q-item-section>
-      </q-item>
     </q-card>
   </component>
 </template>
 
 <script>
 import BaseCarousel from "src/components/BaseCarousel.vue";
-import DialogFoldersList from "src/components/DialogFoldersList.vue";
+import DialogFoldersList from "src/components/dialogs/DialogFoldersList.vue";
 import { sanitizeDisplayText } from "src/logic/Sanitize.js";
 
 export default {
@@ -208,6 +193,17 @@ export default {
     },
     currentUserData() {
       return this.$store.getters["profile/getUserData"];
+    },
+    hasFiles() {
+      if (
+        this.product &&
+        this.product.uploadedFiles &&
+        this.product.uploadedFiles.length
+      ) {
+        return true;
+      } else {
+        return false;
+      }
     },
   },
   methods: {
@@ -236,7 +232,7 @@ export default {
     },
   },
   mounted() {
-    console.log(this.product);
+    console.log("In detail: ", this.product);
   },
 };
 </script>

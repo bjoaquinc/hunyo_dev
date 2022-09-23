@@ -1,143 +1,103 @@
 <template>
   <div>
-    <q-tabs v-model="tab" inline-label class="text-secondary">
-      <q-tab
-        name="latest"
-        label="Latest"
-        no-caps
-        @click="$router.push('/landing')"
-      />
-      <q-tab
-        name="materials"
-        label="Materials"
-        no-caps
-        @click="$router.push('/landing')"
-      />
-      <q-tab
-        name="details"
-        label="Details"
-        no-caps
-        @click="$router.push('/landing')"
-      />
-      <q-tab
-        name="methods"
-        label="Methods"
-        no-caps
-        @click="$router.push('/landing')"
-      />
-      <q-tab
-        name="designapproaches"
-        label="Design Approaches"
-        no-caps
-        @click="$router.push('/landing')"
-      />
-      <q-tab
-        name="interiors"
-        label="Interiors"
-        no-caps
-        @click="$router.push('/landing')"
-      />
-      <q-tab
-        name="products"
-        label="Products"
-        no-caps
-        @click="$router.push('/landing')"
-      />
-    </q-tabs>
-    <q-list class="q-mt-sm q-gutter-lg row" v-if="feedItems">
-      <div class="col-8">
+    <div v-for="(item, index) in items" :key="index">
+      <q-list class="q-mt-sm q-gutter-lg row" v-if="feedItems">
+        <div class="col-8">
+          <post
+            :feedItem="feedItems[0]"
+            :feedLocation="feedLocation"
+            type="main"
+          />
+        </div>
+        <div class="col">
+          <component
+            :is="feedItems[1] ? 'post' : 'div'"
+            :feedItem="feedItems[1]"
+            :feedLocation="feedLocation"
+          />
+          <component
+            :is="feedItems[2] ? 'post' : 'div'"
+            class="q-mt-md"
+            :feedItem="feedItems[2]"
+            :feedLocation="feedLocation"
+          />
+        </div>
+      </q-list>
+      <div class="flex q-mt-md" v-if="feedItems && feedItems.length > 3">
         <post
-          :feedItem="feedItems[0]"
-          :feedLocation="feedLocation"
-          type="main"
-        />
-      </div>
-      <div class="col">
-        <component
-          :is="feedItems[1] ? 'post' : 'div'"
-          :feedItem="feedItems[1]"
+          class="col q-pr-lg"
+          :feedItem="feedItems[3]"
           :feedLocation="feedLocation"
         />
         <component
-          :is="feedItems[2] ? 'post' : 'div'"
-          class="q-mt-md"
-          :feedItem="feedItems[2]"
+          :is="feedItems[4] ? 'post' : 'div'"
+          class="col q-pr-lg"
+          :feedItem="feedItems[4]"
+          :feedLocation="feedLocation"
+        />
+        <component
+          :is="feedItems[5] ? 'post' : 'div'"
+          class="col"
+          :feedItem="feedItems[5]"
           :feedLocation="feedLocation"
         />
       </div>
-    </q-list>
-    <div class="flex q-mt-md" v-if="feedItems && feedItems.length > 3">
-      <post
-        class="col q-pr-lg"
-        :feedItem="feedItems[3]"
-        :feedLocation="feedLocation"
-      />
-      <component
-        :is="feedItems[4] ? 'post' : 'div'"
-        class="col q-pr-lg"
-        :feedItem="feedItems[4]"
-        :feedLocation="feedLocation"
-      />
-      <component
-        :is="feedItems[5] ? 'post' : 'div'"
-        class="col"
-        :feedItem="feedItems[5]"
-        :feedLocation="feedLocation"
-      />
-    </div>
-    <div class="flex q-mt-md" v-if="feedItems && feedItems.length > 6">
-      <post
-        class="col q-pr-lg"
-        :feedItem="feedItems[6]"
-        :feedLocation="feedLocation"
-      />
-      <component
-        :is="feedItems[7] ? 'post' : 'div'"
-        class="col q-pr-lg"
-        :feedItem="feedItems[7]"
-        :feedLocation="feedLocation"
-      />
-      <component
-        :is="feedItems[8] ? 'post' : 'div'"
-        class="col"
-        :feedItem="feedItems[8]"
-        :feedLocation="feedLocation"
-      />
-    </div>
-    <div v-if="feedItems && feedItems.length" class="full-width">
-      <q-btn
-        outline
-        unelevated
-        color="primary"
-        label="Sign in to view more posts >>"
-        class="full-width q-mt-md q-mb-lg"
-        size="lg"
-        to="/landing/"
-      />
+      <div class="flex q-mt-md" v-if="feedItems && feedItems.length > 6">
+        <post
+          class="col q-pr-lg"
+          :feedItem="feedItems[6]"
+          :feedLocation="feedLocation"
+        />
+        <component
+          :is="feedItems[7] ? 'post' : 'div'"
+          class="col q-pr-lg"
+          :feedItem="feedItems[7]"
+          :feedLocation="feedLocation"
+        />
+        <component
+          :is="feedItems[8] ? 'post' : 'div'"
+          class="col"
+          :feedItem="feedItems[8]"
+          :feedLocation="feedLocation"
+        />
+      </div>
     </div>
   </div>
 </template>
 
 <script>
-import PostItem from "src/components/PostItemDesktop.vue";
+import { ref, computed, onMounted } from "vue";
+import { useStore } from "vuex";
+import { useQuasar } from "quasar";
+import PostItemDesktop from "src/components/PostItemDesktop.vue";
 
 export default {
   props: ["feedItems", "feedLocation"],
   components: {
-    post: PostItem,
+    post: PostItemDesktop,
   },
-  data() {
+  setup(props) {
+    const store = useStore();
+    const quasar = useQuasar();
+    const items = ref([{}]);
+
+    const type = (index) => props.feedItems[index].type;
+    const id = (index) => props.feedItems[index].id;
+
+    function onLoad(index, done) {
+      console.log(index);
+      setTimeout(() => {
+        items.value.push({});
+        done();
+      }, 2000);
+    }
+
     return {
-      tab: "latest",
+      items,
+      type,
+      id,
+      onLoad,
     };
-  },
-  methods: {
-    type(index) {
-      return this.feedItems[index].type;
-    },
-    id(index) {
-      return this.feedItems[index].id;
-    },
   },
 };
 </script>

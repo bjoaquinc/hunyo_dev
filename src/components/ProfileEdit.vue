@@ -188,7 +188,7 @@ import { ref, computed, watch } from "vue";
 import { useStore } from "vuex";
 import { useRouter, onBeforeRouteLeave } from "vue-router";
 import { useQuasar } from "quasar";
-import DialogSaveDraft from "src/components/DialogSaveDraft.vue";
+import DialogSaveDraft from "src/components/dialogs/DialogSaveDraft.vue";
 
 export default {
   setup() {
@@ -286,9 +286,6 @@ export default {
       set: (value) =>
         store.commit("profile/updateEditedUserData", { key: "bio", value }),
     });
-    const newProfilePicture = computed(
-      () => store.getters["profile/newProfilePicture"]
-    );
     const photoURL = computed(() => editedUserData.value.photoURL);
 
     function shallowEqual(object1, object2) {
@@ -322,7 +319,7 @@ export default {
     async function fileChanged(event) {
       const file = event.target.files[0];
       try {
-        await store.dispatch("profile/convertUploadedImage", file);
+        await store.dispatch("images/convertUploadedImage", file);
         cropperDialog.value = true;
         router.push({ name: "ProfileImageCropper" });
       } catch (error) {
@@ -340,10 +337,10 @@ export default {
           message: "Updating profile...",
         });
         if (userData.value.photoURL !== photoURL.value) {
-          await store.dispatch(
-            "profile/uploadAndUpdatePhotoURL",
-            photoURL.value
-          );
+          const storageFolder = "profile_pics";
+          await store.dispatch("images/cropAndUpdatePhotoURL", {
+            storageFolder,
+          });
         }
         if (userData.value.displayName !== editedUserData.value.displayName) {
           await store.dispatch(
@@ -383,10 +380,11 @@ export default {
       if (isEdited.value) {
         const result = await confirmSaveDraft();
         store.commit("profile/clearStateEditedData");
-        store.commit("profile/clearImages");
+        store.commit("profile/clearImage");
+        store.commit("images/clearUploadedImage");
       } else if (to.name !== "ProfileImageCropper") {
         store.commit("profile/clearStateEditedData");
-        store.commit("profile/clearImages");
+        store.commit("profile/clearImage");
       } else {
         return true;
       }
@@ -408,7 +406,6 @@ export default {
       location,
       website,
       photoURL,
-      newProfilePicture,
       updateUserData,
       editedUserData,
       isEdited,

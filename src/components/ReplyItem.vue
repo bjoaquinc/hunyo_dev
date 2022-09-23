@@ -111,11 +111,11 @@ import { useStore } from "vuex";
 import { computed } from "vue";
 import { useRoute } from "vue-router";
 import { sanitizeDisplayText } from "src/logic/Sanitize.js";
-import DialogFlag from "src/components/DialogFlag.vue";
-import DialogCommentImage from "src/components/DialogCommentImage.vue";
-import DialogReplyCreate from "src/components/DialogReplyCreate.vue";
-import DialogReplyEdit from "src/components/DialogReplyEdit.vue";
-import DialogPromptDelete from "src/components/DialogPromptDelete.vue";
+import DialogFlag from "src/components/dialogs/DialogFlag.vue";
+import DialogCommentImage from "src/components/dialogs/DialogCommentImage.vue";
+import DialogReplyCreate from "src/components/dialogs/DialogReplyCreate.vue";
+import DialogReplyEdit from "src/components/dialogs/DialogReplyEdit.vue";
+import DialogPromptDelete from "src/components/dialogs/DialogPromptDelete.vue";
 
 export default {
   props: [

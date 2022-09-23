@@ -1,5 +1,7 @@
 export default function () {
   return {
-    feedItems: [],
+    feedItemsLists: [],
+    lastVisible: null,
+    topic: '',
   }
 }

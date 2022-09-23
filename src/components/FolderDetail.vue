@@ -75,8 +75,8 @@ import { onBeforeRouteLeave } from "vue-router";
 import { useQuasar } from "quasar";
 import { computed, onMounted, ref } from "vue";
 import FolderPostItem from "src/components/FolderPostItem.vue";
-import DialogFolderCreateAndEdit from "src/components/DialogFolderCreateAndEdit.vue";
-import DialogFolderEdit from "src/components/DialogFolderEdit.vue";
+import DialogFolderCreateAndEdit from "src/components/dialogs/DialogFolderCreateAndEdit.vue";
+import DialogFolderEdit from "src/components/dialogs/DialogFolderEdit.vue";
 
 export default {
   components: {

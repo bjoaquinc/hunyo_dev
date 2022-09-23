@@ -41,7 +41,7 @@ import { useStore } from "vuex";
 import { useRoute, useRouter } from "vue-router";
 import { useQuasar } from "quasar";
 import amplitude from "amplitude-js";
-import DialogPromptReturn from "src/components/DialogPromptReturn";
+import DialogPromptReturn from "src/components/dialogs/DialogPromptReturn";
 
 export default {
   setup() {

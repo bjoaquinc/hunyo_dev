@@ -10,5 +10,6 @@ export default function () {
     },
     otherProfession: '',
     user: null,
+    supplier: null
   }
 }

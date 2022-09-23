@@ -36,6 +36,21 @@ export function setErrorMessage ( state, payload ) {
   state.error = payload.message
 }
 
+export function setDesigner( state, {name, email, professionIndex}) {
+  const professions = [
+    { label: "I am a licensed architect", value: "architect" },
+    { label: "I am a licensed interior designer", value: "interiorDesigner" },
+    { label: "I work at a design studio", value: "studioEmployee" },
+  ]
+  state.newUser.name = name;
+  state.newUser.profession = professions[professionIndex];
+  state.newUser.email = email
+}
+
+export function setSupplier ( state, supplier ) {
+  state.supplier = supplier
+}
+
 export function clearState (state) {
   state.newUser = {
     name: '',

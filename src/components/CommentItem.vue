@@ -119,11 +119,11 @@ import { computed } from "vue";
 import { useQuasar } from "quasar";
 import { useStore } from "vuex";
 import { useRoute } from "vue-router";
-import DialogReplyCreate from "src/components/DialogReplyCreate.vue";
-import DialogCommentEdit from "src/components/DialogCommentEdit.vue";
-import DialogPromptDelete from "src/components/DialogPromptDelete.vue";
-import DialogCommentImage from "src/components/DialogCommentImage.vue";
-import DialogFlag from "src/components/DialogFlag.vue";
+import DialogReplyCreate from "src/components/dialogs/DialogReplyCreate.vue";
+import DialogCommentEdit from "src/components/dialogs/DialogCommentEdit.vue";
+import DialogPromptDelete from "src/components/dialogs/DialogPromptDelete.vue";
+import DialogCommentImage from "src/components/dialogs/DialogCommentImage.vue";
+import DialogFlag from "src/components/dialogs/DialogFlag.vue";
 import ReplyList from "src/components/ReplyList.vue";
 import { sanitizeDisplayText } from "src/logic/Sanitize";
 

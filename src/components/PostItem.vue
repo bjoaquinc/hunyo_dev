@@ -28,6 +28,12 @@
           :src="imagesList[0]"
           v-if="imagesList && imagesList.length > 0"
         />
+        <q-img
+          ratio="1"
+          style="border: 1px solid rgba(0, 0, 0, 0.12)"
+          src="hunyo_logo_small.png"
+          v-else
+        />
       </q-item>
     </q-card-section>
 
@@ -36,12 +42,6 @@
       :to="{
         name: userRoute,
         params: { userId: user.id, lastRoute: $route.name, source: 'feed' },
-      }"
-      :style="{
-        borderTop:
-          imagesList && imagesList.length
-            ? ''
-            : '1px solid rgba(0, 0, 0, 0.12)',
       }"
     >
       <q-item-section avatar>
@@ -60,7 +60,7 @@
 </template>
 
 <script>
-import DialogFoldersList from "src/components/DialogFoldersList.vue";
+import DialogFoldersList from "src/components/dialogs/DialogFoldersList.vue";
 
 export default {
   name: "PostItem",
@@ -102,6 +102,7 @@ export default {
     },
     userRoute() {
       const userLocation = this.$route.meta.location;
+      console.log(userLocation);
       if (userLocation && userLocation === "feed") {
         return "FeedUser";
       } else if (userLocation && userLocation === "profile") {

@@ -108,8 +108,8 @@
 
 <script>
 import amplitude from "amplitude-js";
-import DialogSaveDraft from "src/components/DialogSaveDraft.vue";
-import DialogCommunityGuidelines from "src/components/DialogCommunityGuidelines.vue";
+import DialogSaveDraft from "src/components/dialogs/DialogSaveDraft.vue";
+import DialogCommunityGuidelines from "src/components/dialogs/DialogCommunityGuidelines.vue";
 
 export default {
   components: {

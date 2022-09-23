@@ -137,9 +137,9 @@
 <script>
 import amplitude from "amplitude-js";
 import BaseCarousel from "src/components/BaseCarousel.vue";
-import DialogCommentCreate from "src/components/DialogCommentCreate.vue";
-import DialogFoldersList from "src/components/DialogFoldersList.vue";
-import DialogPostActions from "src/components/DialogPostActions.vue";
+import DialogCommentCreate from "src/components/dialogs/DialogCommentCreate.vue";
+import DialogFoldersList from "src/components/dialogs/DialogFoldersList.vue";
+import DialogPostActions from "src/components/dialogs/DialogPostActions.vue";
 import CommentsList from "src/components/CommentsList.vue";
 import { sanitizeDisplayText } from "src/logic/Sanitize.js";
 

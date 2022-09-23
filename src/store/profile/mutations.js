@@ -23,12 +23,15 @@ export function convertUploadedImage ( state, payload ) {
   state.uploadedImage = payload
 }
 
+export function setCropData ( state, cropData) {
+  state.uploadedImage.cropData = cropData
+}
+
 export function setNewProfilePicture ( state, payload ) {
   state.editedUserData['photoURL'] = payload
 }
 
-export function clearImages (state) {
-  state.uploadedImage= null
+export function clearImage (state) {
   state.newProfilePicture= null
 }
 

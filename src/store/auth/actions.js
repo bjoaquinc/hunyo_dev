@@ -2,7 +2,7 @@ import { auth, db } from "src/boot/firebase";
 import { createUserWithEmailAndPassword, updateProfile, signOut, sendEmailVerification,
 signInWithEmailAndPassword, onAuthStateChanged, sendPasswordResetEmail, updatePassword, 
 updateEmail, getAuth, reauthenticateWithCredential } from "firebase/auth";
-import { setDoc, doc, serverTimestamp} from 'firebase/firestore'
+import { setDoc, doc, serverTimestamp, getDoc} from 'firebase/firestore'
 import { LocalStorage } from "quasar";
 import amplitude from "amplitude-js";
 
@@ -226,4 +226,27 @@ export async function changePassword ( { commit }, newPassword ) {
 
 export async function reauthenticateUser ( { commit }, { email, password }) {
   reauthenticateWithCredential(auth.currentUser, )
+}
+
+export async function setDesigner ( { commit }, designerId) {
+  const docRef = doc(db, 'invitedDesigners', designerId);
+  const designerDoc = await getDoc(docRef);
+  if (designerDoc.exists()) {
+    const designer = {...designerDoc.data(), id: designerDoc.id};
+    commit('setDesigner', designer)
+    return designer
+  } else {
+    throw new Error('Could not find designer')
+  }
+}
+
+export async function setSupplier ( { commit }, supplierId) {
+  const docRef = doc(db, 'supplierInvites', supplierId);
+  const supplierDoc = await getDoc(docRef);
+  if (supplierDoc.exists()) {
+    const supplier = {...supplierDoc.data(), id: supplierDoc.id};
+    commit('setSupplier', supplier)
+  } else {
+    throw new Error('Could not find supplier.')
+  }
 }

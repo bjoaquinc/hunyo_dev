@@ -29,17 +29,9 @@
       Supplier section coming soon.
     </div>
     <div class="text-h4 q-mt-md text-weight-bold">Join now for free.</div>
-    <q-input
-      @blur="logEvent('signup - name', { name })"
-      class="q-mt-md"
-      outlined
-      label="Full Name (Nickname allowed)"
-      v-model="name"
-      :rules="[(val) => (val && val.length > 0) || 'This field is required.']"
-    />
     <q-select
       @blur="logEvent('signup - profession', { profession: profession.value })"
-      class="q-mt-xs"
+      class="q-mt-md"
       outlined
       label="What kind of a designer are you?"
       v-model="profession"
@@ -48,6 +40,14 @@
         (val) =>
           (val && Object.keys(val).length > 0) || 'This field is required.',
       ]"
+    />
+    <q-input
+      @blur="logEvent('signup - name', { name })"
+      class="q-mt-xs"
+      outlined
+      label="Full Name (Nickname allowed)"
+      v-model="name"
+      :rules="[(val) => (val && val.length > 0) || 'This field is required.']"
     />
     <q-input
       v-if="profession && profession.value === 'other'"
@@ -104,7 +104,8 @@ import { useRouter } from "vue-router";
 import amplitude from "amplitude-js";
 
 export default {
-  setup() {
+  props: ["designerId"],
+  setup(props) {
     const store = useStore();
     const router = useRouter();
     const name = computed({
@@ -130,8 +131,22 @@ export default {
       set: (value) => store.commit("auth/setOtherProfession", value),
     });
 
-    onMounted(() => {
-      logEvent("signup - start", null);
+    onMounted(async () => {
+      console.log(props);
+      if (props.designerId) {
+        const designer = await store.dispatch(
+          "auth/setDesigner",
+          props.designerId
+        );
+        console.log(designer);
+        logEvent("signup - start", {
+          name: designer.name,
+          email: designer.email,
+        });
+      } else {
+        console.log("No id");
+        logEvent("signup - start", null);
+      }
     });
 
     function logEvent(event, eventProperties) {

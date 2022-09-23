@@ -99,7 +99,7 @@ import { onBeforeRouteLeave } from "vue-router";
 import { useQuasar } from "quasar";
 import { computed, onMounted } from "vue";
 import FolderPostItem from "src/components/FolderPostItem.vue";
-import DialogFolderOrganize from "src/components/DialogFolderOrganize.vue";
+import DialogFolderOrganize from "src/components/dialogs/DialogFolderOrganize.vue";
 
 export default {
   components: {
