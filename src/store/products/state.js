@@ -1,8 +1,16 @@
 export default function () {
   return {
     product: null,
-    products: [],
+    editedProduct: {
+      name: '',
+      overview: null,
+      moreInformation: '',
+    },
     unsubscribeProduct: null,
+    products: [],
+    productsInCatalogue: [],
+    lastVisible: null,
+    category: '',
     name: '',
     categories: [],
     overview: null,

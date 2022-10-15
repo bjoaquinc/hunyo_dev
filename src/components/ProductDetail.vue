@@ -22,21 +22,13 @@
 
       <div class="flex items-center q-mx-sm gt-xs">
         <q-btn
+          @click="openDialogProductActions"
           color="primary"
           class="q-ml-xs"
           icon="fas fa-ellipsis-h"
           flat
           dense
         />
-        <!-- <q-btn
-          v-if="!isPublic"
-          size="sm"
-          @click="openDialogFoldersList"
-          color="primary"
-          icon="fas fa-folder"
-          label="Save"
-          unelevated
-        /> -->
       </div>
 
       <BaseCarousel
@@ -76,45 +68,31 @@
         </q-item>
       </q-card-actions>
 
-      <q-card-section>
+      <q-card-section v-if="product.supplier.overviewKeys">
         <div class="text-h5 q-mb-md q-mt-sm">Overview:</div>
-        <div class="row" v-for="(value, key) in product.overview" :key="key">
+        <div
+          class="row"
+          v-for="(key, index) in product.supplier.overviewKeys"
+          :key="index"
+        >
           <div class="col-3 text-subtitle1">{{ key }}</div>
           <div class="col text-subtitle1">:</div>
-          <div class="col-8 text-subtitle1">{{ value }}</div>
+          <div class="col-8 text-subtitle1" style="white-space: pre-line">
+            {{ product.overview[key] ? product.overview[key] : "N/A" }}
+          </div>
         </div>
       </q-card-section>
 
       <q-card-actions class="q-mx-sm row">
-        <q-btn-dropdown
+        <q-btn
           outline
+          @click="openDialogSupplierContact"
           icon="fas fa-phone"
           class="col-6"
           color="primary"
           label="Contact"
-        >
-          <q-list>
-            <q-item clickable v-close-popup>
-              <q-item-section>
-                <q-item-label>Luzon</q-item-label>
-              </q-item-section>
-            </q-item>
-
-            <q-item clickable v-close-popup>
-              <q-item-section>
-                <q-item-label>Visayas</q-item-label>
-              </q-item-section>
-            </q-item>
-
-            <q-item clickable v-close-popup>
-              <q-item-section>
-                <q-item-label>Mindanao</q-item-label>
-              </q-item-section>
-            </q-item>
-          </q-list>
-        </q-btn-dropdown>
+        />
         <q-btn
-          @click="openDialogFoldersList"
           class="col"
           color="primary"
           icon="fas fa-folder"
@@ -133,24 +111,34 @@
       </q-card-section>
 
       <q-card-section class="q-pt-md lt-xl">
-        <div class="text-h5 q-my-sm">More Information:</div>
-        <div
-          class="text-subtitle1 q-mb-sm"
-          style="white-space: pre-wrap"
-          v-html="sanitizeDisplayText(product.moreInformation)"
-        />
+        <q-expansion-item
+          label="More Information:"
+          class="text-h5 text-secondary q-my-sm"
+          header-class="q-px-none"
+        >
+          <div
+            class="text-subtitle1 q-mb-sm"
+            style="white-space: pre-wrap"
+            v-html="sanitizeDisplayText(product.moreInformation)"
+          />
+          <q-btn
+            :label="`View on ${product.supplier.name} Website`"
+            color="primary"
+            no-caps
+            outline
+          />
+        </q-expansion-item>
       </q-card-section>
 
       <q-separator />
 
       <q-card-actions align="between">
         <q-item
-          class="q-py-sm q-px-sm full-width"
-          :style="
-            $route.name === 'LandingPost'
-              ? { borderBottom: '1px solid rgba(0, 0, 0, 0.12)' }
-              : null
-          "
+          class="q-py-sm q-px-none full-width"
+          :to="{
+            name: 'SupplierProductCatalogue',
+            params: { supplierId: product.supplier.id },
+          }"
           clickable
         >
           <q-item-section avatar>
@@ -174,6 +162,11 @@
 <script>
 import BaseCarousel from "src/components/BaseCarousel.vue";
 import DialogFoldersList from "src/components/dialogs/DialogFoldersList.vue";
+import DialogSupplierContact from "src/components/dialogs/DialogSupplierContact.vue";
+import DialogProductActions from "src/components/dialogs/DialogProductActions.vue";
+import { useStore } from "vuex";
+import { useQuasar } from "quasar";
+import { ref, computed } from "vue";
 import { sanitizeDisplayText } from "src/logic/Sanitize.js";
 
 export default {
@@ -182,57 +175,35 @@ export default {
     BaseCarousel,
   },
   props: ["product"],
-  data() {
-    return {
-      visibleStartTimestamp: "",
-    };
-  },
-  computed: {
-    currentUser() {
-      return this.$store.getters["auth/getUser"];
-    },
-    currentUserData() {
-      return this.$store.getters["profile/getUserData"];
-    },
-    hasFiles() {
-      if (
-        this.product &&
-        this.product.uploadedFiles &&
-        this.product.uploadedFiles.length
-      ) {
-        return true;
-      } else {
-        return false;
-      }
-    },
-  },
-  methods: {
-    sanitizeDisplayText(text) {
-      const sanitizedText = sanitizeDisplayText(text);
-      return sanitizedText;
-    },
-    openDialogFoldersList() {
-      const postData = {
-        title: this.title,
-        id: this.postId,
-        user: this.user,
-        image: "",
-        topics: this.topics,
-      };
-      if (this.imagesList && this.imagesList.length > 0) {
-        postData.image = this.imagesList[0];
-      }
-      this.$q.dialog({
-        component: DialogFoldersList,
-        componentProps: {
-          postData,
-          source: "post bottom",
-        },
+  setup(props) {
+    const store = useStore();
+    const q = useQuasar();
+    const user = computed(() => store.getters["auth/getUser"]);
+    const userData = computed(() => store.getters["profile/getUserData"]);
+    const hasFiles = computed(
+      () =>
+        props.product &&
+        props.product.uploadedFiles &&
+        props.product.uploadedFiles.length
+    );
+    function openDialogProductActions() {
+      q.dialog({
+        component: DialogProductActions,
       });
-    },
-  },
-  mounted() {
-    console.log("In detail: ", this.product);
+    }
+
+    function openDialogSupplierContact() {
+      q.dialog({
+        component: DialogSupplierContact,
+      });
+    }
+
+    return {
+      hasFiles,
+      sanitizeDisplayText,
+      openDialogProductActions,
+      openDialogSupplierContact,
+    };
   },
 };
 </script>

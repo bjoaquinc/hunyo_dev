@@ -10,15 +10,15 @@
   >
     <q-card class="my-card overflow-auto" bordered flat>
       <q-item>
-        <q-item-label class="text-h4 q-pt-sm gt-lg"
-          >{{ product.name }} / {{ product.supplier.name }}</q-item-label
-        >
-        <q-item-label class="text-h4 q-pt-sm gt-xs lt-xl"
-          >{{ product.name }} / {{ product.supplier.name }}</q-item-label
-        >
-        <q-item-label class="text-subtitle1 q-pt-md lt-sm"
-          >{{ product.name }} / {{ product.supplier.name }}</q-item-label
-        >
+        <q-item-label class="text-h4 q-pt-sm gt-lg">{{
+          product.name
+        }}</q-item-label>
+        <q-item-label class="text-h4 q-pt-sm gt-xs lt-xl">{{
+          product.name
+        }}</q-item-label>
+        <q-item-label class="text-subtitle1 q-pt-md lt-sm">{{
+          product.name
+        }}</q-item-label>
       </q-item>
 
       <div class="flex items-center q-mx-sm gt-xs">
@@ -110,21 +110,24 @@
         />
       </q-card-actions>
 
-      <q-card-section class="q-pt-md gt-lg">
-        <div
-          class="text-body1"
-          style="white-space: pre-wrap"
-          v-html="sanitizeText(product.moreInformation)"
-        />
-      </q-card-section>
-
       <q-card-section class="q-pt-md lt-xl">
-        <div class="text-h5 q-my-sm">More Information:</div>
-        <div
-          class="text-body2 q-mb-sm"
-          style="white-space: pre-wrap"
-          v-html="sanitizeText(product.moreInformation)"
-        />
+        <q-expansion-item
+          label="More Information:"
+          class="text-h5 text-secondary q-my-sm"
+          header-class="q-px-none"
+        >
+          <div
+            class="text-subtitle1 q-mb-sm"
+            style="white-space: pre-wrap"
+            v-html="sanitizeDisplayText(product.moreInformation)"
+          />
+          <q-btn
+            label="See Product in Website"
+            color="primary"
+            no-caps
+            outline
+          />
+        </q-expansion-item>
       </q-card-section>
 
       <q-separator />
@@ -186,16 +189,11 @@ export default {
       }
     });
 
-    const sanitizeText = (text) => {
-      const sanitizedText = sanitizeDisplayText(text);
-      return sanitizedText;
-    };
-
     return {
       currentUser,
       currentUserData,
       hasFiles,
-      sanitizeText,
+      sanitizeDisplayText,
     };
   },
 };

@@ -2,8 +2,20 @@ export function getProduct ( state ) {
   return state.product
 }
 
-export function getProducts ( state ) {
+export function getEditedProduct ( state ) {
+  return state.editedProduct
+}
+
+export function getProductsInCatalogue ( state ) {
+  return state.productsInCatalogue
+}
+
+export function getProductItemsLists ( state ) {
   return state.products
+}
+
+export function getLastVisible (state) {
+  return state.lastVisible
 }
 
 export function getUnsubscribeProduct ( state ) {

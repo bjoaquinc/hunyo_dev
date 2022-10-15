@@ -281,17 +281,19 @@ export default {
 
     function cleanAndExitCropper() {
       emit("closeDialog");
-      router.go(-1);
       croppersList.value.forEach((cropperObject) => {
         cropperObject.cropper.destroy();
       });
       store.commit("images/clearUploadedImages");
-      if (route.name !== "NewPostImageCropper") {
+
+      if (route.name === "NewPostImageCropper") {
         const unsubscribePostItem =
           store.getters["newPost/getUnsubscribePostItem"];
         if (unsubscribePostItem) unsubscribePostItem();
         store.commit("newPost/clearState");
       }
+      if (route.name === "ProductDetail") return;
+      router.go(-1);
     }
 
     return {

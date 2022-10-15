@@ -7,7 +7,8 @@ import { doc, updateDoc, arrayRemove } from 'firebase/firestore'
 
 export async function setUploadedImages ({ commit, rootGetters }, payload) {
   const selectedImages = []
-  if (rootGetters['products/getProduct'] && rootGetters['products/getProduct'].imagesList && rootGetters['products/getProduct'].imagesList.length > 0) {
+  const product = rootGetters['products/getProduct']
+  if (product && product.imagesList && product.imagesList.length > 0) {
     const imagesList = rootGetters['products/getProduct'].imagesList;
     console.log('images list: ', imagesList);
     imagesList.forEach(imageURL => {
@@ -63,16 +64,8 @@ export function readUploadedFileAsDataURL (file) {
   })
 }
 
-export async function cropAndUpdatePhotoURL ( { commit, rootGetters }, {storageFolder, isSupplier, supplierId} ) {
+export async function cropAndUpdatePhotoURL ( { commit, rootGetters }, {storageFolder, id} ) {
   const {file, cropData} = rootGetters['images/getUploadedImage']
-  console.log(file, cropData)
-  let id = "";
-  if (isSupplier) {
-    id = supplierId
-  } else {
-    id = rootGetters['auth/getUser'].uid
-  }
-  console.log(id);
   if (file) {
     const filePath = `${storageFolder}/${id}`
     console.log("filepath: ", filePath)
@@ -87,19 +80,7 @@ export async function cropAndUpdatePhotoURL ( { commit, rootGetters }, {storageF
     }).catch(error => {throw error})
     console.log("Cropped image in cloud functions")
     const downloadURL = await getDownloadURL(storageRef);
-    if (isSupplier) {
-      commit('suppliers/updateSupplierData', { logo: downloadURL }, { root: true });
-      console.log("Updated firestore supplier logo data successfully");
-      return;
-    } else {
-      commit('profile/updateEditedUserData', { key: 'photoURL', value: downloadURL}, { root: true })
-      console.log("Updated firestore user data successfully");
-      await updateProfile(auth.currentUser, {
-        photoURL: downloadURL
-      }).catch(error => {throw error})
-      console.log("Updated Auth user data successfully")
-      return;
-    }
+    return downloadURL;
   }
 }
 

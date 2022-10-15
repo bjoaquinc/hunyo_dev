@@ -23,7 +23,7 @@
         class="full-width border-bottom"
         v-for="({ name, logo, id }, index) in suppliers"
         :key="index"
-        :href="`http://localhost:8080/#/products/catalogues/${id}`"
+        :to="{ name: 'SupplierProductCatalogue', params: { supplierId: id } }"
         clickable
         v-ripple
       >

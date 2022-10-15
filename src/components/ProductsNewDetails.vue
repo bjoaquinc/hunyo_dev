@@ -91,16 +91,10 @@
         >
           <div class="col-2">{{ key }}</div>
           <strong>:</strong>
-          <div class="col-5 q-ml-lg">{{ value }}</div>
+          <div class="col-7 q-ml-lg" style="white-space: pre-line">
+            {{ value }}
+          </div>
           <div class="col-2 q-ml-auto flex justify-end items-start">
-            <q-btn
-              @click="removeOverview(key)"
-              size="sm"
-              icon="fas fa-edit"
-              dense
-              flat
-              color="primary"
-            />
             <q-btn
               @click="removeOverview(key)"
               class="q-ml-xs"
@@ -112,39 +106,10 @@
             />
           </div>
         </div>
-        <div v-if="showOverviewInput" class="row col-12 q-mt-sm">
-          <q-input
-            autofocus
-            @blur="hideOverviewInput"
-            v-model="overviewKey"
-            outlined
-            class="q-mx-none col-3"
-            label="Key"
-          />
-          <div class="q-my-auto text-h5 q-mx-auto">:</div>
-          <q-input
-            v-model="overviewValue"
-            outlined
-            class="q-mx-none q-ml-auto col-8"
-            type="textarea"
-            autogrow
-            label="Value"
-          >
-            <template v-slot:after>
-              <q-btn
-                @click="addOverview"
-                unelevated
-                label="add"
-                color="positive"
-              />
-            </template>
-          </q-input>
-        </div>
         <q-btn
-          @click="showOverviewInput = true"
-          v-else
+          @click="openDialogOverviewAdd"
           class="q-mt-sm q-pa-none"
-          label="add entry"
+          label="add/edit"
           icon="fas fa-plus"
           color="positive"
           flat
@@ -190,12 +155,15 @@
 import { computed, ref, onMounted } from "vue";
 import { useStore } from "vuex";
 import { useRouter, onBeforeRouteLeave } from "vue-router";
+import { useQuasar } from "quasar";
+import DialogOverviewAdd from "src/components/dialogs/DialogOverviewAdd.vue";
 
 export default {
   props: ["supplierId", "productId"],
   setup(props) {
     const store = useStore();
     const router = useRouter();
+    const q = useQuasar();
     const supplier = computed(() => store.getters["suppliers/getSupplier"]);
     const options = ref([]);
     const product = computed(() => store.getters["products/getProduct"]);
@@ -211,9 +179,6 @@ export default {
       get: () => store.getters["products/getName"],
       set: (value) => store.commit("products/setName", value),
     });
-    const showOverviewInput = ref(false);
-    const overviewKey = ref("");
-    const overviewValue = ref("");
     const overview = computed(() => store.getters["products/getOverview"]);
     const moreInformation = computed({
       get: () => store.getters["products/getMoreInformation"],
@@ -253,16 +218,28 @@ export default {
           store.commit("products/setProductData", product);
         } catch (error) {
           console.log("error: ", error);
+          if (error === "Could not find product.") {
+            store.commit(
+              "products/setMoreInformation",
+              supplier.value.moreInformation
+            );
+          }
         }
       }
     });
 
-    function hideOverviewInput() {
-      if (!overviewKey.value && !overviewValue.value) {
-        showOverviewInput.value = false;
-      } else {
-        return;
-      }
+    function openDialogOverviewAdd() {
+      q.dialog({
+        component: DialogOverviewAdd,
+        componentProps: {
+          overview: { ...overview.value },
+          overviewKeys: supplier.value.overviewKeys,
+        },
+      })
+        .onOk((payload) => {
+          store.commit("products/setOverview", payload.overview);
+        })
+        .onCancel(() => {});
     }
 
     function addOverview() {
@@ -286,6 +263,17 @@ export default {
           supplierId: props.supplierId,
           productId: props.productId,
         });
+        if (
+          supplier.value.uploadedFiles &&
+          supplier.value.uploadedFiles.length
+        ) {
+          console.log("Running upload files...");
+          await store.dispatch("products/uploadFiles", {
+            newFiles: supplier.value.uploadedFiles,
+            supplierId: props.supplierId,
+            productId: props.productId,
+          });
+        }
       } else {
         const data = {
           overview: overview.value,
@@ -329,14 +317,12 @@ export default {
     }
 
     return {
+      supplier,
       options,
       categories,
       name,
-      showOverviewInput,
-      hideOverviewInput,
+      openDialogOverviewAdd,
       addOverview,
-      overviewKey,
-      overviewValue,
       overview,
       removeOverview,
       moreInformation,

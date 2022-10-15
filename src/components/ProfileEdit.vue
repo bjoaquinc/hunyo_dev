@@ -189,6 +189,7 @@ import { useStore } from "vuex";
 import { useRouter, onBeforeRouteLeave } from "vue-router";
 import { useQuasar } from "quasar";
 import DialogSaveDraft from "src/components/dialogs/DialogSaveDraft.vue";
+import { getAuth, updateProfile } from "@firebase/auth";
 
 export default {
   setup() {
@@ -198,6 +199,7 @@ export default {
     const cropperDialog = ref(false);
     const imageInput = ref(null);
     const userData = computed(() => store.getters["profile/getUserData"]);
+    const user = computed(() => store.getters["auth/getUser"]);
     const userId = computed(() => store.getters["profile/getUserId"]);
     const editedUserData = computed(
       () => store.getters["profile/getEditedUserData"]
@@ -337,10 +339,7 @@ export default {
           message: "Updating profile...",
         });
         if (userData.value.photoURL !== photoURL.value) {
-          const storageFolder = "profile_pics";
-          await store.dispatch("images/cropAndUpdatePhotoURL", {
-            storageFolder,
-          });
+          await uploadAndCropProfileImage();
         }
         if (userData.value.displayName !== editedUserData.value.displayName) {
           await store.dispatch(
@@ -359,6 +358,27 @@ export default {
         console.log(error);
         q.loading.hide();
       }
+    }
+
+    async function uploadAndCropProfileImage() {
+      const storageFolder = "profile_pics";
+      const id = user.value.uid;
+      const downloadURL = await store.dispatch("images/cropAndUpdatePhotoURL", {
+        storageFolder,
+        id,
+      });
+      store.commit("profile/updateEditedUserData", {
+        key: "photoURL",
+        value: downloadURL,
+      });
+      console.log("Updated firestore user data in state");
+      const auth = getAuth();
+      await updateProfile(auth.currentUser, {
+        photoURL: downloadURL,
+      }).catch((error) => {
+        throw error;
+      });
+      console.log("Updated Auth user data successfully");
     }
 
     function confirmSaveDraft() {

@@ -19,16 +19,13 @@ export function setName ( state, name ) {
   state.name = name;
 }
 
-export function setOverview ( state, {key, value} ) {
-  const overview = { ...state.overview }
-  overview[key] = value
-  state.overview = overview
+export function setOverview ( state, overview ) {
+  state.overview = {...overview}
 }
 
 export function removeOverview ( state, key ) {
   const overview = {...state.overview}
   delete overview[key]
-  console.log(overview)
   state.overview = overview
 }
 
@@ -40,9 +37,29 @@ export function setWebsite ( state, website ) {
   state.website = website
 }
 
-export function setProducts ( state, products) {
-  state.products = products
+export function setProductsInCatalogue ( state, products) {
+  state.productsInCatalogue = products
 }
+
+export function setNextProductsInCatalogue (state, products) {
+  products.forEach(product => {
+    state.productsInCatalogue.push(product)
+  })
+}
+
+export function setProductItems ( state, {productItemsList, lastVisible, category}) {
+  state.products = [productItemsList]
+  state.lastVisible = lastVisible
+  state.category = category
+}
+export function setNextProductItems ( state, {productItemsList, lastVisible}) {
+  state.products.push(productItemsList)
+  state.lastVisible = lastVisible
+}
+
+export function updateEditedProduct ( state, { field, value } ) {
+  state.editedProduct[field] = value
+} 
 
 export function clearState (state) {
   state.product = null;
@@ -57,4 +74,16 @@ export function clearState (state) {
 
 export function clearProducts (state) {
   state.products = null
+}
+
+export function clearProductsInCatalogue (state) {
+  state.productsInCatalogue = []
+}
+
+export function clearEditProduct (state) {
+  state.editedProduct = {
+    name: '',
+    overview: null,
+    moreInformation: '',
+  }
 }

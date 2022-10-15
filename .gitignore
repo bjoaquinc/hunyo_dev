@@ -2,10 +2,10 @@
 .thumbs.db
 .env
 node_modules
+firestore.rules
 
-# Emulators export data
-/firebase-export-1662709136379JwYoez
-/firebase-export-1663814172691TdA8av
+# Emulators export data\
+firebase-export*
 
 # Quasar core related directories
 .quasar

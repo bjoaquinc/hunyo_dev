@@ -24,9 +24,9 @@
         />
       </q-item>
       <q-btn
-        v-if="userData.admin && false"
+        v-if="userData.admin && !$q.platform.is.mobile"
         @click="openDialogUpdateHighlightedProducts"
-        id="edit"
+        class="edit"
         flat
         icon="fas fa-edit"
         label="Edit"
@@ -40,6 +40,14 @@
       :bordered="$q.platform.is.desktop ? true : false"
       v-if="userData"
     >
+      <q-btn
+        v-if="userData.admin && !$q.platform.is.mobile"
+        @click="openDialogSupplierEdit"
+        class="edit"
+        flat
+        icon="fas fa-edit"
+        label="Edit"
+      />
       <q-img
         ratio="1"
         class="col-6 col-sm-4"
@@ -70,6 +78,7 @@
           :class="$q.platform.is.desktop ? 'q-mt-md' : 'q-mt-sm'"
         >
           <q-btn
+            @click="openDialogSupplierContact"
             class="col-12 col-sm"
             :class="$q.platform.is.desktop ? '' : 'q-mt-sm'"
             color="primary"
@@ -95,8 +104,16 @@
             :dense="$q.platform.is.desktop ? false : true"
             color="primary"
             flat
-            icon="fab fa-facebook"
-            label="Facebook"
+            :icon="`fab fa-${
+              supplier.socialMedia && supplier.socialMedia.type === 'Instagram'
+                ? 'instagram'
+                : 'facebook'
+            }`"
+            :label="
+              supplier.socialMedia && supplier.socialMedia.type === 'Instagram'
+                ? 'Instagram'
+                : 'Facebook'
+            "
           />
         </div>
       </div>
@@ -118,7 +135,7 @@
           color="secondary"
         />
         <q-btn
-          v-if="userData.admin && false"
+          v-if="userData.admin && !$q.platform.is.mobile"
           @click="createNewProduct"
           class="q-ml-sm"
           outline
@@ -128,37 +145,42 @@
           icon="fas fa-plus"
         />
       </q-card-section>
-      <q-card-section class="row" v-if="products && products.length">
-        <q-item
-          v-for="({ photo, name, productId }, index) in products"
-          :key="index"
-          class="col-12 col-sm-3 q-pa-xs"
-          :class="$q.platform.is.desktop ? 'flex column' : ' row'"
-          :to="
-            productId ? { name: 'ProductDetail', params: { productId } } : ''
-          "
-          clickable
-        >
-          <q-img
-            ratio="1"
-            style="border: 1px solid rgba(0, 0, 0, 0.12)"
-            :class="$q.platform.is.desktop ? '' : 'col-6'"
-            :src="photo"
-          />
-          <q-item-label
-            :style="
-              $q.platform.is.desktop
-                ? { padding: '8px 0 !important' }
-                : { padding: '8px 8px !important' }
+      <q-card-section
+        class="row"
+        v-if="productsInCatalogue && productsInCatalogue.length"
+      >
+        <q-infinite-scroll :offset="250" @load="onLoad" class="col-12 row">
+          <q-item
+            v-for="({ photo, name, productId }, index) in productsInCatalogue"
+            :key="index"
+            class="col-12 col-sm-3 q-pa-xs"
+            :class="$q.platform.is.desktop ? 'flex column' : ' row q-mt-sm'"
+            :to="
+              productId ? { name: 'ProductDetail', params: { productId } } : ''
             "
-            class="text-subtitle1 flex items-center"
-            :class="
-              $q.platform.is.desktop ? '' : 'col-6 justify-center text-center'
-            "
+            clickable
           >
-            {{ name }}</q-item-label
-          >
-        </q-item>
+            <q-img
+              ratio="1"
+              style="border: 1px solid rgba(0, 0, 0, 0.12)"
+              :class="$q.platform.is.desktop ? '' : 'col-6'"
+              :src="photo"
+            />
+            <q-item-label
+              :style="
+                $q.platform.is.desktop
+                  ? { padding: '8px 0 !important' }
+                  : { padding: '8px 8px !important' }
+              "
+              class="text-subtitle1 flex items-center"
+              :class="
+                $q.platform.is.desktop ? '' : 'col-6 justify-center text-center'
+              "
+            >
+              {{ name }}</q-item-label
+            >
+          </q-item>
+        </q-infinite-scroll>
       </q-card-section>
       <q-card-section v-else>
         <div class="text-subtitle1">No products available.</div>
@@ -169,12 +191,14 @@
 
 <script>
 import { computed, watch, ref, onMounted, onUnmounted } from "vue";
-import { useRouter } from "vue-router";
+import { useRouter, useRoute } from "vue-router";
 import { useStore } from "vuex";
 import { useQuasar } from "quasar";
 import { collection, doc } from "@firebase/firestore";
 import { db } from "src/boot/firebase";
 import DialogUpdateHighlightedProducts from "src/components/dialogs/DialogUpdateHighlightedProducts.vue";
+import DialogSupplierContact from "src/components/dialogs/DialogSupplierContact.vue";
+import DialogSupplierEdit from "src/components/dialogs/DialogSupplierEdit.vue";
 
 export default {
   props: ["supplierId"],
@@ -182,20 +206,27 @@ export default {
     const q = useQuasar();
     const store = useStore();
     const router = useRouter();
+    const route = useRoute();
     const user = computed(() => store.getters["auth/getUser"]);
     const userData = computed(() => store.getters["profile/getUserData"]);
     const supplier = computed(() => store.getters["suppliers/getSupplier"]);
-    const products = computed(() => store.getters["products/getProducts"]);
-    const category = ref("All Products");
+    const productsInCatalogue = computed(
+      () => store.getters["products/getProductsInCatalogue"]
+    );
+    let lastVisible = null;
+    const hasProducts = ref(true);
+    const category = ref(
+      route.query.category ? route.query.category : "All Products"
+    );
     const options = ref([]);
 
     onMounted(async () => {
       try {
         await store.dispatch("suppliers/setSupplier", props.supplierId);
-        await store.dispatch(
-          "products/setProductsInCatalogue",
-          props.supplierId
-        );
+        lastVisible = await store.dispatch("products/setProductsInCatalogue", {
+          supplierId: props.supplierId,
+          category: route.query.category ? route.query.category : null,
+        });
         options.value = ["All Products", ...supplier.value.categories];
       } catch (error) {
         console.log(error);
@@ -204,7 +235,7 @@ export default {
 
     onUnmounted(() => {
       store.commit("suppliers/clearSupplier");
-      store.commit("products/clearProducts");
+      store.commit("products/clearProductsInCatalogue");
     });
 
     function createNewProduct() {
@@ -218,15 +249,14 @@ export default {
 
     async function setSelectedProducts() {
       if (category.value !== "All Products") {
-        await store.dispatch("products/setSelectedProducts", {
+        lastVisible = await store.dispatch("products/setProductsInCatalogue", {
           supplierId: props.supplierId,
           category: category.value,
         });
       } else {
-        await store.dispatch(
-          "products/setProductsInCatalogue",
-          props.supplierId
-        );
+        lastVisible = await store.dispatch("products/setProductsInCatalogue", {
+          supplierId: props.supplierId,
+        });
       }
     }
 
@@ -239,6 +269,52 @@ export default {
       });
     };
 
+    const openDialogSupplierContact = () => {
+      q.dialog({
+        component: DialogSupplierContact,
+        componentProps: {
+          supplierContact: supplier.value.contact,
+          supplierName: supplier.value.name,
+        },
+      });
+    };
+
+    const openDialogSupplierEdit = () => {
+      q.dialog({
+        component: DialogSupplierEdit,
+      });
+    };
+
+    const onLoad = async (index, done) => {
+      if (!hasProducts.value) return done();
+      try {
+        lastVisible = await store.dispatch(
+          "products/setNextProductsInCatalogue",
+          {
+            supplierId: props.supplierId,
+            category: category.value !== "All Products" ? category.value : null,
+            lastVisible,
+          }
+        );
+        done();
+      } catch (error) {
+        console.log(error);
+        if (error.message === "Could not find products") {
+          hasProducts.value = false;
+        }
+        done();
+      }
+    };
+
+    watch(category, (newValue, oldValue) => {
+      hasProducts.value = true;
+      if (newValue === "All Products") {
+        router.replace({ query: {} });
+      } else {
+        router.replace({ query: { category: newValue } });
+      }
+    });
+
     return {
       userData,
       q,
@@ -246,9 +322,12 @@ export default {
       createNewProduct,
       category,
       options,
-      products,
+      productsInCatalogue,
       setSelectedProducts,
       openDialogUpdateHighlightedProducts,
+      openDialogSupplierContact,
+      openDialogSupplierEdit,
+      onLoad,
     };
   },
 };
@@ -256,7 +335,7 @@ export default {
 
 <style lang="sass" scoped>
 
-#edit
+.edit
   position: absolute
   top: 15px
   right: 15px

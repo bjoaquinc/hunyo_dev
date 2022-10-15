@@ -29,7 +29,7 @@
 import { computed, ref, onMounted } from "vue";
 import { useQuasar } from "quasar";
 import { useStore } from "vuex";
-import { useRouter } from "vue-router";
+import { useRouter, useRoute } from "vue-router";
 import Cropper from "cropperjs";
 
 export default {
@@ -43,6 +43,7 @@ export default {
     const cropperContainer = ref(null);
     const cropper = ref(null);
     const router = useRouter();
+    const route = useRoute();
     const cropperWidth = ref(0);
 
     console.log("Page opened");
@@ -64,9 +65,17 @@ export default {
       const cropData = await getCropData();
       const croppedImage = await getCroppedImage();
       store.commit("images/setCropData", cropData);
-      store.commit("suppliers/setLogo", croppedImage);
-      emit("closeDialog");
-      router.push({ name: "SupplierCreateLogo" });
+      if (route.name !== "SupplierProductCatalogue") {
+        store.commit("suppliers/setLogo", croppedImage);
+        emit("closeDialog");
+        router.push({ name: "SupplierCreateLogo" });
+      } else {
+        store.commit("suppliers/updateEditedSupplier", {
+          field: "logo",
+          value: croppedImage,
+        });
+        emit("closeDialog");
+      }
     }
 
     async function getCropData() {

@@ -155,48 +155,6 @@
             />
           </div>
         </div>
-        <div v-if="newFiles && newFiles.length" class="row col-12 q-mt-sm">
-          <div
-            class="row col-12 q-mt-sm"
-            v-for="(downloadable, index) in newFiles"
-            :key="index"
-          >
-            <q-input
-              outlined
-              class="q-mx-none col-3"
-              label="Name"
-              v-model="downloadable.name"
-            />
-            <div class="q-my-auto text-h5 q-mx-auto">:</div>
-            <div class="q-mx-none q-my-auto q-ml-auto col-7">
-              <div class="text-subtitle1">
-                {{
-                  `${downloadable.file.name} | ${Math.floor(
-                    downloadable.file.size / 1000
-                  )} KB`
-                }}
-              </div>
-            </div>
-            <q-btn
-              @click="removeFile(index)"
-              icon="fas fa-times"
-              color="negative"
-              dense
-              class="col-1"
-              flat
-              size="sm"
-            />
-          </div>
-          <q-btn
-            @click="uploadFiles"
-            label="Upload files"
-            icon="fas fa-upload"
-            color="primary"
-            dense
-            flat
-            class="q-mt-sm"
-          />
-        </div>
       </q-card-section>
 
       <q-card-actions class="q-px-md">
@@ -259,6 +217,7 @@ import { computed, ref, onMounted } from "vue";
 import { useStore } from "vuex";
 import { useQuasar } from "quasar";
 import { useRouter } from "vue-router";
+import DialogFilesAdd from "src/components/dialogs/DialogFilesAdd.vue";
 
 export default {
   props: ["supplierId", "productId"],
@@ -267,6 +226,7 @@ export default {
     const router = useRouter();
     const q = useQuasar();
     const product = computed(() => store.getters["products/getProduct"]);
+    const supplier = computed(() => store.getters["suppliers/getSupplier"]);
     const hasImages = computed(
       () =>
         product.value &&
@@ -286,20 +246,19 @@ export default {
       () => store.getters["images/getUploadedImages"]
     );
     const removeMessage = ref(false);
-    const newFiles = ref([]);
 
     onMounted(async () => {
-      if (!product.value) {
-        try {
+      try {
+        if (!product.value) {
           console.log("set product running");
           const product = await store.dispatch(
             "products/setProduct",
             props.productId
           );
           store.commit("products/setProductData", product);
-        } catch (error) {
-          console.log("error: ", error);
         }
+      } catch (error) {
+        console.log("error: ", error);
       }
     });
 
@@ -345,33 +304,34 @@ export default {
       fileInput.value.click();
     }
 
-    function addFiles(event) {
+    function addCascadingFiles() {
+      store.commit("products/");
+    }
+
+    async function addFiles(event) {
       const files = event.target.files;
-      for (const file of files) {
-        newFiles.value.push({
-          file,
-          name: file.name,
-        });
-      }
-    }
-
-    function removeFile(index) {
-      newFiles.value.splice(index, 1);
-    }
-
-    async function uploadFiles() {
-      try {
-        await store.dispatch("products/uploadFile", {
-          newFiles: newFiles.value,
-          supplierId: props.supplierId,
-          productId: props.productId,
-        });
-        newFiles.value = [];
-        console.log(fileInput.value.value);
-        fileInput.value.value = null;
-      } catch (error) {
-        console.log(error);
-      }
+      q.loading.show({
+        message: "Uploading files...",
+      });
+      await new Promise((resolve, reject) => {
+        q.dialog({
+          component: DialogFilesAdd,
+          componentProps: {
+            files,
+          },
+        })
+          .onOk(async (payload) => {
+            await store.dispatch("products/uploadFiles", {
+              newFiles: payload.files,
+              supplierId: props.supplierId,
+              productId: props.productId,
+            });
+          })
+          .onCancel();
+        resolve();
+      });
+      q.loading.hide();
+      fileInput.value.value = null;
     }
 
     async function removeUploadedFile(file) {
@@ -397,11 +357,8 @@ export default {
       addImages,
       editImages,
       removeImages,
-      newFiles,
       manageFileUploader,
       addFiles,
-      removeFile,
-      uploadFiles,
       removeUploadedFile,
       closeDialog,
       removeMessage,

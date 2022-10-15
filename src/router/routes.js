@@ -13,6 +13,7 @@ import PageSignUp from 'src/pages/PageSignUp.vue'
 import PageLanding from 'src/pages/PageLanding.vue'
 import PageSettings from 'src/pages/PageSettings.vue'
 import PageProducts from 'src/pages/PageProducts.vue'
+import PageProductsFeed from 'src/pages/PageProductsFeed.vue'
 import PageProduct from 'src/pages/PageProduct.vue'
 import PageProductPreview from 'src/pages/PageProductPreview.vue'
 
@@ -26,8 +27,6 @@ import SupplierCreateInformation from 'src/components/SupplierCreateInformation.
 import SupplierCreateLogo from 'src/components/SupplierCreateLogo.vue'
 import SupplierCreateLogoCropper from 'src/components/SupplierCreateLogoCropper.vue'
 import ProfileDetail from 'src/components/ProfileDetail.vue'
-import ProductsListDesktop from 'src/components/ProductsListDesktop.vue'
-import ProductsListSample from 'src/components/ProductsListSample.vue'
 import ProductsComingSoon from 'src/components/ProductsComingSoon.vue'
 import SupplierProductCatalogue from 'src/components/SupplierProductCatalogue.vue'
 import ProductsNewDetails from 'src/components/ProductsNewDetails.vue'
@@ -72,7 +71,7 @@ const routes = [
         { path: 'members/:userId', component: UserDetail, name: 'FeedUser', props: true,  meta: { header: 'HeaderPageUser' } }
       ] },
       { path: 'products', component: PageProducts, children: [
-        { path: '', component: ProductsListSample, name: 'ProductFeed', meta: { header: 'HeaderPageProducts'} },
+        { path: '', component: ProductsComingSoon, name: 'ProductFeed', meta: { header: 'HeaderPageProducts'} },
         { path: ':productId', component: PageProduct, name: 'ProductDetail', props: true, meta: { header: 'HeaderPageProduct'} },
         { path: 'catalogues/:supplierId', component: SupplierProductCatalogue, name: 'SupplierProductCatalogue', props: true, meta: { header: 'HeaderSupplierProductCatalogue'} },
         { path: 'new/details/:supplierId/:productId', component: ProductsNewDetails, name: 'ProductsNewDetails', props: true, meta: { withoutDesktopHeader: true } },
@@ -122,7 +121,8 @@ const routes = [
         { path: 'password', component: SettingsPassword },
         { path: 'terms', component: SettingsTerms },
         { path: 'privacy', component: SettingsPrivacy }
-      ]}
+      ]},
+      { path: 'test', name: 'TestRoute', component: () => import("src/pages/PageProductsFeed.vue")  }
     ]
   },
   // Always leave this as last one,

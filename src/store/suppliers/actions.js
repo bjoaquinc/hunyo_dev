@@ -1,5 +1,6 @@
-import { collection, doc, where, orderBy, query, getDocs, onSnapshot, setDoc } from "firebase/firestore";
-import { db } from "src/boot/firebase";
+import { collection, doc, where, orderBy, query, getDocs, onSnapshot, setDoc, updateDoc, arrayUnion, arrayRemove } from "firebase/firestore";
+import { deleteObject, getDownloadURL, ref, uploadBytes } from "firebase/storage";
+import { db, storage } from "src/boot/firebase";
 
 
 export async function setSupplier ( { commit }, supplierId ) {
@@ -41,4 +42,50 @@ export async function updateSupplierDoc ( {commit, state}, supplierId) {
   const updatedSupplierData = state.updatedSupplierData;
   const docRef = doc(db, 'suppliers', supplierId);
   await setDoc(docRef, updatedSupplierData, {merge: true});
+}
+
+export async function uploadFiles ({ commit, state }, {files}) {
+  const supplierId = state.supplier.id
+  const uploadedFiles = [];
+  for (let file of files) {
+    const metadata = {
+      contentType: file.type,
+    }
+    const filePath = `supplier_downloadables/${supplierId}/${file.name}`
+    const storageRef = ref(storage, filePath)
+    await uploadBytes(storageRef, file.file, metadata)
+    const downloadURL = await getDownloadURL(storageRef);
+    uploadedFiles.push({
+      file: downloadURL,
+      name: file.name,
+      type: file.type,
+      size: file.size,
+      cascading: true,
+    });
+  }
+  const docRef = doc(db, 'suppliers', supplierId);
+  await updateDoc(docRef, {
+    uploadedFiles: arrayUnion(...uploadedFiles),
+  }).catch(error => {throw error});
+  commit('updateEditedSupplier', {
+    field: 'uploadedFiles',
+    value: [...state.supplier.uploadedFiles]
+  })
+}
+
+export async function removeFile ({ commit, state }, file) {
+  // Remove from storage
+  const storageRef = ref(storage, file.file)
+  await deleteObject(storageRef).catch(error => {throw error});
+  // Remove from Firestore database
+  const supplierId = state.supplier.id
+  const docRef = doc(db, 'suppliers', supplierId);
+  await updateDoc(docRef, {
+    uploadedFiles: arrayRemove(file),
+  }).catch(error => {throw error});
+  // Update edited supplier data
+  commit("updateEditedSupplier", {
+    field: 'uploadedFiles',
+    value: [...state.supplier.uploadedFiles],
+  })
 }

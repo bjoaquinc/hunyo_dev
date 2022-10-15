@@ -3,8 +3,16 @@ export function setSupplier ( state, {supplier, unsubscribeSupplier}) {
   state.unsubscribeSupplier = unsubscribeSupplier;
 }
 
+export function updateEditedSupplier (state, { field, value }) {
+  state.editedSupplier[field] = value
+}
+
 export function setSuppliers ( state, suppliers ) {
   state.suppliers = suppliers;
+}
+
+export function setProductGroup (state, productGroup) {
+  state.productGroup = productGroup
 }
 
 export function addCategory ( state, category) {
@@ -32,8 +40,17 @@ export function setDescription (state, description) {
   state.description = description
 }
 
+export function setSocialMedia (state, socialMedia) {
+  state.socialMedia = socialMedia
+}
+
+
 export function setWebsite (state, website) {
   state.website = website
+}
+
+export function setContact (state, contact) {
+  state.contact = contact
 }
 
 export function setLogo (state, logo) {
@@ -64,8 +81,29 @@ export function clearCreateSupplier (state) {
   state.emails = [];
   state.logo = '';
   state.website = '';
+  state.contact = '';
+  state.socialMedia = {
+    link: '',
+    type: '',
+  }
 }
 
 export function clearSupplierData (state) {
   state.updatedSupplierData = null;
+}
+
+export function clearEditedSupplier (state) {
+  state.editedSupplier = {
+    name: '',
+      description: '',
+      contact: '',
+      socialMedia: {
+        type: '',
+        link: '',
+      },
+      website: '',
+      productGroup: '',
+      categories: [],
+      emails: [],
+  }
 }

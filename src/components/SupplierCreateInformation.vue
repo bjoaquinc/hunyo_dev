@@ -37,6 +37,29 @@
       v-model="website"
       :rules="[(val) => (val && val.length > 0) || 'This field is required.']"
     />
+    <q-select
+      class="q-mt-xs"
+      label="Social Media Type"
+      v-model="socialMediaType"
+      outlined
+      :options="socialMediaOptions"
+    />
+    <q-input
+      class="q-mt-lg"
+      outlined
+      label="Social Media Link"
+      v-model="socialMediaLink"
+      :rules="[(val) => (val && val.length > 0) || 'This field is required.']"
+    />
+    <q-input
+      class="q-mt-xs"
+      outlined
+      type="textarea"
+      autogrow
+      label="Contact Us"
+      v-model="contact"
+      :rules="[(val) => (val && val.length > 0) || 'This field is required.']"
+    />
     <div class="text-h6 q-mt-sm">Emails</div>
     <q-list>
       <q-item v-for="(email, index) in emails" :key="index" class="q-pa-none">
@@ -85,6 +108,13 @@
       </template>
     </q-input>
     <div class="text-h6 q-mt-sm">Product Categories</div>
+    <q-input
+      class="q-mt-md"
+      outlined
+      label="Product Group"
+      v-model="productGroup"
+      :rules="[(val) => (val && val.length > 0) || 'This field is required.']"
+    />
     <q-list>
       <q-item
         v-for="(category, index) in categories"
@@ -137,7 +167,12 @@
     <div class="full-width flex justify-center">
       <q-btn
         :disable="
-          name && description && website && categories && categories.length
+          name &&
+          description &&
+          website &&
+          productGroup &&
+          categories &&
+          categories.length
             ? false
             : true
         "
@@ -172,9 +207,34 @@ export default {
       get: () => store.getters["suppliers/getWebsite"],
       set: (value) => store.commit("suppliers/setWebsite", value),
     });
+    const socialMediaOptions = ["Facebook", "Instagram"];
+    const socialMediaType = computed({
+      get: () => store.getters["suppliers/getSocialMedia"].type,
+      set: (value) =>
+        store.commit("suppliers/setSocialMedia", {
+          link: socialMediaLink.value,
+          type: value,
+        }),
+    });
+    const socialMediaLink = computed({
+      get: () => store.getters["suppliers/getSocialMedia"].link,
+      set: (value) =>
+        store.commit("suppliers/setSocialMedia", {
+          link: value,
+          type: socialMediaType.value,
+        }),
+    });
+    const contact = computed({
+      get: () => store.getters["suppliers/getContact"],
+      set: (value) => store.commit("suppliers/setContact", value),
+    });
     const showEmailInput = ref(false);
     const email = ref("");
     const emails = computed(() => store.getters["suppliers/getEmails"]);
+    const productGroup = computed({
+      get: () => store.getters["suppliers/getProductGroup"],
+      set: (value) => store.commit("suppliers/setProductGroup", value),
+    });
     const showCategoryInput = ref(false);
     const category = ref("");
     const categories = computed(() => store.getters["suppliers/getCategories"]);
@@ -220,13 +280,18 @@ export default {
     return {
       name,
       description,
+      socialMediaOptions,
+      socialMediaType,
+      socialMediaLink,
       website,
       logEvent,
+      contact,
       showEmailInput,
       email,
       addEmail,
       removeEmail,
       emails,
+      productGroup,
       showCategoryInput,
       category,
       addCategory,

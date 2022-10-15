@@ -34,23 +34,6 @@
           :src="logo"
         />
       </div>
-      <!-- <div class="text-h6 q-mt-md">Contact Details</div>
-      <q-input
-        autofocus
-        class="q-mt-md"
-        outlined
-        label="Number"
-        type="tel"
-        :rules="[(val) => (val && val.length > 0) || 'This field is required.']"
-      />
-      <q-input
-        class="q-mt-sm"
-        type="textarea"
-        autogrow
-        outlined
-        label="Contact Support"
-        :rules="[(val) => (val && val.length > 0) || 'This field is required.']"
-      /> -->
     </div>
     <div class="full-width flex justify-center q-mt-lg">
       <q-btn
@@ -99,7 +82,14 @@ export default {
     );
     const website = computed(() => store.getters["suppliers/getWebsite"]);
     const emails = computed(() => store.getters["suppliers/getEmails"]);
+    const productGroup = computed(
+      () => store.getters["suppliers/getProductGroup"]
+    );
     const categories = computed(() => store.getters["suppliers/getCategories"]);
+    const socialMedia = computed(
+      () => store.getters["suppliers/getSocialMedia"]
+    );
+    const contact = computed(() => store.getters["suppliers/getContact"]);
 
     function manageUploader() {
       imageInput.value.click();
@@ -126,17 +116,20 @@ export default {
       try {
         q.loading.show();
         const newSupplierId = createSupplierUID();
-        console.log("Created supplier ID", newSupplierId);
+        // console.log("Created supplier ID", newSupplierId);
         await uploadAndCropLogo(newSupplierId);
-        console.log("Uploaded and cropped photo successfully");
+        // console.log("Uploaded and cropped photo successfully");
         updateSupplierData();
-        console.log("Updated supplier data in state");
+        // console.log("Updated supplier data in state");
         createSupplierDoc(newSupplierId);
-        console.log("Created supplier doc in firestore successfully");
+        // console.log("Created supplier doc in firestore successfully");
         clearState();
-        console.log("Cleared data in state");
+        // console.log("Cleared data in state");
         q.loading.hide();
-        router.push("/"); // Move to supplier page after creating the document
+        router.push({
+          name: "SupplierProductCatalogue",
+          params: { supplierId: newSupplierId },
+        }); // Move to supplier page after creating the document
       } catch (error) {
         console.log(error);
       }
@@ -148,13 +141,18 @@ export default {
       return newSupplierId;
     }
 
-    async function uploadAndCropLogo(supplierId) {
+    async function uploadAndCropLogo(id) {
       const photoData = {
         storageFolder: "supplier_logo_pics",
-        isSupplier: true,
-        supplierId,
+        id,
       };
-      return await store.dispatch("images/cropAndUpdatePhotoURL", photoData);
+      const downloadURL = await store.dispatch(
+        "images/cropAndUpdatePhotoURL",
+        photoData
+      );
+      store.commit("suppliers/updateSupplierData", { logo: downloadURL });
+      console.log("Updated firestore supplier logo in state");
+      return;
     }
 
     function updateSupplierData() {
@@ -163,7 +161,10 @@ export default {
         description: description.value,
         website: website.value,
         emails: emails.value,
+        productGroup: productGroup.value,
         categories: categories.value,
+        socialMedia: socialMedia.value,
+        contact: contact.value,
       };
       return store.commit("suppliers/updateSupplierData", newSupplierData);
     }
